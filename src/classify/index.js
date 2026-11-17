@@ -15,15 +15,16 @@ export async function classifyAll(events, { cachePath = 'data/cache/classify.jso
   if (existsSync(cachePath)) { try { cache = JSON.parse(readFileSync(cachePath, 'utf8')); } catch { cache = {}; } }
   const results = new Map();
   const todo = [];
+  const haveKey = useLLM && (llmOptions.apiKey || process.env.ANTHROPIC_API_KEY);
   for (const e of events) {
     const h = hashOf(e);
-    if (cache[h]) results.set(e.id, { ...cache[h], tag_source: `cache:${cache[h].tag_source}` });
+    // Rules results are a fallback: with a key, give Claude another try instead of keeping them forever.
+    if (cache[h] && !(haveKey && cache[h].tag_source === 'rules')) results.set(e.id, { ...cache[h], tag_source: `cache:${cache[h].tag_source}` });
     else todo.push({ e, h });
   }
   let llmOk = 0, fallback = 0;
   const chunks = [];
   for (let i = 0; i < todo.length; i += batchSize) chunks.push(todo.slice(i, i + batchSize));
-  const haveKey = useLLM && (llmOptions.apiKey || process.env.ANTHROPIC_API_KEY);
   // A few batches in flight at once; each failed batch falls back to rules on its own.
   const llmResults = new Array(chunks.length).fill(null);
   if (haveKey) {

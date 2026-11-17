@@ -84,7 +84,7 @@ test('classifyBatchLLM: asks for low effort, and a cut-off reply is an error (ru
   let body;
   const cut = async (url, opts) => { body = JSON.parse(opts.body); return { ok: true, status: 200, json: async () => ({ stop_reason: 'max_tokens', content: [{ type: 'text', text: '[{"id":"a"' }] }) }; };
   await assert.rejects(classifyBatchLLM([ev({ title: 'Storytime' })], { apiKey: 'k', fetchImpl: cut }), /max_tokens/);
-  assert.deepEqual(body.output_config, { effort: 'low' });
+  assert.equal(body.output_config.effort, 'low');
   assert.ok(body.max_tokens >= 16000);
 });
 
@@ -108,4 +108,30 @@ test('classifyAll: batches run a few at a time, and one failed batch only affect
   const sources = [...r.values()].map((t) => t.tag_source);
   assert.equal(sources.filter((s) => s === 'rules').length, 10); // exactly the failed batch
   assert.equal(sources.filter((s) => s === 'llm').length, 40);
+});
+
+test('classifyBatchLLM: requests schema-enforced JSON limited to the vocabulary, and reads {results}', async () => {
+  let body;
+  const rows = [{ id: 'a', kid_relevant: true, age_min: 1, age_max: 3, interests: ['books'], categories: ['storytime'], setting: 'indoor', registration: 'drop_in', cost: { type: 'free', amount: null }, confidence: 0.9 }];
+  const f = async (url, opts) => { body = JSON.parse(opts.body); return { ok: true, status: 200, json: async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify({ results: rows }) }] }) }; };
+  const out = await classifyBatchLLM([ev({ title: 'Toddler Storytime' })], { apiKey: 'k', fetchImpl: f });
+  assert.equal(out.get('a').age_max, 3);
+  const fmt = body.output_config.format;
+  assert.equal(fmt.type, 'json_schema');
+  const item = fmt.schema.properties.results.items;
+  assert.equal(item.additionalProperties, false);
+  assert.deepEqual(item.properties.interests.items.enum, ['animals', 'science', 'trains', 'nature', 'art', 'music', 'dinosaurs', 'books']);
+});
+
+test('classifyAll: listings that fell back to rules are retried with Claude on the next run', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cls-'));
+  const events = [ev({ id: 'a', title: 'Toddler Storytime' })];
+  const failing = async () => ({ ok: false, status: 500, text: async () => 'boom' });
+  let r = await classifyAll(events, { cachePath: join(dir, 'c.json'), llmOptions: { apiKey: 'k', fetchImpl: failing } });
+  assert.equal(r.get('a').tag_source, 'rules');
+  const good = async () => ({ ok: true, status: 200, json: async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify({ results: [{ id: 'a', kid_relevant: true, age_min: 1, age_max: 3, interests: ['books'], categories: ['storytime'], setting: 'indoor', registration: 'drop_in', cost: { type: 'free', amount: null }, confidence: 0.9 }] }) }] }) });
+  r = await classifyAll(events, { cachePath: join(dir, 'c.json'), llmOptions: { apiKey: 'k', fetchImpl: good } });
+  assert.equal(r.get('a').tag_source, 'llm');
+  r = await classifyAll(events, { cachePath: join(dir, 'c.json'), useLLM: false });
+  assert.equal(r.get('a').tag_source, 'cache:llm');
 });
