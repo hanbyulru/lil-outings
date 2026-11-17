@@ -59,6 +59,12 @@ nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500
 .whenmenu button:hover,.whenmenu button:focus-visible{background:var(--paper);outline:none}
 .whenmenu button.on{background:var(--sun)}
 .whenmenu small{color:var(--muted);font-size:14px;font-weight:500}
+.locmenu{position:absolute;z-index:60;left:0;top:calc(100% + 16px);width:min(560px,calc(100vw - 32px));display:block;background:#fff;border:1px solid var(--hair2);border-radius:20px;padding:18px;box-shadow:0 24px 60px rgba(22,24,29,.18);font-family:'Instrument Sans',sans-serif;font-size:16px;line-height:1.3;white-space:normal;letter-spacing:0}
+.locmenu .opt.any{display:block;width:100%;margin-bottom:14px;padding:10px 14px;border-radius:12px;text-align:left;font-weight:600}
+.locmenu .quads{grid-template-columns:repeat(5,minmax(0,1fr))}
+.locmenu .quad{cursor:pointer;font-family:inherit;color:var(--ink);text-align:left}
+.locmenu .opt{cursor:pointer;font-family:inherit;color:var(--ink)}
+.empty-actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:16px}
 .todaybar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:36px;padding-bottom:14px;border-bottom:1px solid var(--ink);font-size:16px}
 .todaybar .count{font-weight:700}
 .todaybar .muted{color:var(--muted)}
@@ -133,4 +139,4 @@ nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500
 .notice{margin:24px 0 0;font-size:14px;color:var(--muted)}
 footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-size:15px}
 .demo{background:var(--sun);border-bottom:1px solid #E9D68A;font-size:14px;font-weight:600;padding:8px 0;text-align:center}
-@media (max-width:700px){.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.whenmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0}.ev{flex-direction:column;gap:8px}.ev .time{flex:none;display:flex;gap:10px;align-items:center}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}
+@media (max-width:700px){.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:75vh;overflow:auto}.locmenu .quads{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.locmenu .quad{align-items:center;padding:10px 0}.locmenu .quad small{display:none}.ev{flex-direction:column;gap:8px}.ev .time{flex:none;display:flex;gap:10px;align-items:center}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}

@@ -11,12 +11,28 @@ const LABEL = { animals: 'Animals', science: 'Science', trains: 'Trains', nature
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['weekend', 'this weekend', 'This weekend'], ['week', 'this week', 'This week']];
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
+const AREAS = ['NW', 'N', 'NE', 'SW', 'SE'];
+const AREA_NAMES = { NW: 'Northwest', N: 'North Portland', NE: 'Northeast', SW: 'Southwest', SE: 'Southeast' };
+const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
 let DATA, GEO;
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { when: 'today', whenOpen: false, interest: 'all', tab: 'places', sel: null, showMap: false };
+const S = { when: 'today', open: null /* 'when' | 'loc' */, loc: null /* null | {area} | {neighborhood} */, locTab: 'SW', interest: 'all', tab: 'places', sel: null, showMap: false };
+
+function loadLoc() {
+  try {
+    const v = JSON.parse(localStorage.getItem(LOC_KEY) || 'null');
+    if (v?.area && AREAS.includes(v.area)) return { area: v.area };
+    if (v?.neighborhood && GEO.neighborhoods.some((n) => n.name === v.neighborhood)) return { neighborhood: v.neighborhood };
+  } catch { /* storage blocked: start with anywhere */ }
+  return null;
+}
+function saveLoc() { try { localStorage.setItem(LOC_KEY, JSON.stringify(S.loc)); } catch { /* not critical */ } }
+const locArea = (loc) => loc?.area || (loc?.neighborhood && GEO.neighborhoods.find((n) => n.name === loc.neighborhood)?.area) || null;
+/** The word(s) after "in": Portland (anywhere), a quadrant, or a neighborhood. */
+const locPhrase = (loc) => (!loc ? 'Portland' : loc.area ? (loc.area === 'N' ? 'N Portland' : loc.area) : loc.neighborhood);
 
 async function load() {
   if (window.__DATA__) return window.__DATA__;
@@ -140,17 +156,38 @@ function renderProgram(p) {
   return `<article class="place"><div class="kind">${dot('#3B6FE0')}${esc(p.age_label)} · ages ${p.age_min}–${p.age_max}</div><h3>${esc(p.name)}</h3>${p.description ? `<p>${esc(p.description)}</p>` : ''}<p style="font-size:14px">${esc(p.location_text || '')}${p.region ? ` · ${esc(p.region)}` : ''}</p><p style="font-size:14px">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-weight:600;text-decoration:underline">Check availability ↗</a>` : ''} <span class="src">via ${esc(p.source?.name || '')}</span></p></article>`;
 }
 
-/** "Find something to do with your little one [today ▾]" — the underlined phrase picks the day. */
+/** "Something good to do with a small person [today ▾] in [SW ▾]": both underlined phrases are menus. */
 function renderHeadline() {
   const cur = WHEN.find((w) => w[0] === S.when);
-  const menu = S.whenOpen ? `<span class="whenmenu" role="menu">${WHEN.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
-  $('#headline').innerHTML = `Find something to do with your little one <span class="whenwrap"><button class="whenbtn" data-whenmenu aria-haspopup="menu" aria-expanded="${S.whenOpen}"><span class="whentext">${esc(cur[1])}</span><span class="caret" aria-hidden="true">▾</span></button>${menu}</span>`;
+  const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${WHEN.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
+  let locMenu = '';
+  if (S.open === 'loc') {
+    const q = S.locTab;
+    const hoods = GEO.neighborhoods.filter((n) => n.area === q);
+    locMenu = `<span class="locmenu menu" role="dialog" aria-label="Choose where">
+      <button class="opt any ${!S.loc ? 'on' : ''}" data-locany>Anywhere in Portland &amp; the metro</button>
+      <span class="quads">${AREAS.map((a) => `<button class="quad ${q === a ? 'on' : ''}" data-loctab="${a}" aria-pressed="${q === a}"><b>${a}</b><small>${AREA_NAMES[a]}</small></button>`).join('')}</span>
+      <span class="opts"><button class="opt ${S.loc?.area === q ? 'on' : ''}" data-locarea="${q}">All ${esc(AREA_NAMES[q])}</button>${hoods.map((n) => `<button class="opt ${S.loc?.neighborhood === n.name ? 'on' : ''}" data-lochood="${esc(n.name)}">${esc(n.name)}</button>`).join('')}</span>
+    </span>`;
+  }
+  const trigger = (kind, text, open) => `<button class="whenbtn" data-menu="${kind}" aria-haspopup="${kind === 'when' ? 'menu' : 'dialog'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
+  $('#headline').innerHTML = `Something good to do with a small person <span class="whenwrap">${trigger('when', cur[1], S.open === 'when')}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc')}${locMenu}</span>`;
+  // Keep an open menu on screen (the phrase can sit near either edge).
+  const m = $('#headline .menu');
+  if (m && getComputedStyle(m).position === 'absolute') {
+    const r = m.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+    let shift = Math.min(0, vw - 16 - r.right); // pull left if it runs off the right edge
+    if (r.left + shift < 16) shift = 16 - r.left; // but never off the left edge
+    if (shift) m.style.left = `${shift}px`;
+  }
 }
+
+function closeMenu() { if (S.open) { S.open = null; renderHeadline(); } }
 
 /** The day's list, right under the headline, with the map beside it. */
 function renderToday() {
   const c = ctx();
-  const opts = { when: S.when, interest: S.interest };
+  const opts = { when: S.when, interest: S.interest, loc: S.loc };
   const events = filterEvents(DATA.events, opts, c);
   const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).length - events.length : 0;
   events.forEach((e, i) => { e._n = i + 1; });
@@ -160,8 +197,11 @@ function renderToday() {
   let body;
   if (!events.length) {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
-    const msg = S.interest !== 'all' ? `Nothing tagged ${LABEL[S.interest]} ${WHEN.find((w) => w[0] === S.when)[1]}. Try all interests.` : S.when === 'today' && over > 0 ? 'That’s everything for today.' : 'Nothing listed yet.';
-    body = `<div class="empty"><h3>${esc(msg)}</h3>${next}</div>`;
+    const phrase = WHEN.find((w) => w[0] === S.when)[1];
+    const where = S.loc ? ` in ${locPhrase(S.loc)}` : '';
+    const msg = S.interest !== 'all' ? `Nothing tagged ${LABEL[S.interest]}${where} ${phrase}.` : S.when === 'today' && over > 0 && !S.loc ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
+    const wider = S.loc?.neighborhood ? `<button class="btn-ink" data-locarea="${locArea(S.loc)}">See all of ${esc(locPhrase({ area: locArea(S.loc) }))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
+    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${S.loc ? next.replace('btn-ink', 'textbtn') : ''}</div></div>`;
   } else {
     let list;
     if (multiDay) {
@@ -177,7 +217,7 @@ function renderToday() {
 /** Below the fold: classes and the places directory. */
 function renderMore() {
   const c = ctx();
-  const places = filterPlaces(DATA.places, { interest: S.interest }, c);
+  const places = filterPlaces(DATA.places, { interest: S.interest, loc: S.loc }, c);
   const programs = filterPrograms(DATA.programs || [], {}, c);
   const body = S.tab === 'classes'
     ? (programs.length ? `<p class="notice" style="margin:16px 0 0">Ongoing class programs at Portland Parks & Recreation. Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>` : `<div class="empty"><h3>No classes listed</h3></div>`)
@@ -193,14 +233,26 @@ function renderFoot() {
   if (String(m.mode).startsWith('demo')) { const d = $('#demo'); d.hidden = false; d.textContent = 'Demo data: sample listings generated in the real feeds’ formats, not live Portland events. Run the refresh with network access for real data.'; }
 }
 
-function setWhen(v) { S.when = v; S.whenOpen = false; S.sel = null; renderHeadline(); renderToday(); }
+function setWhen(v) { S.when = v; S.open = null; S.sel = null; renderHeadline(); renderToday(); }
+function setLoc(loc) { S.loc = loc; S.open = null; S.sel = null; saveLoc(); renderHeadline(); renderToday(); renderMore(); }
 
 document.addEventListener('click', (ev) => {
   // Any click outside the day menu closes it.
-  if (S.whenOpen && !ev.target.closest('.whenwrap')) { S.whenOpen = false; renderHeadline(); }
+  if (S.open && !ev.target.closest('.whenwrap')) closeMenu();
   const t = ev.target.closest('button, a[data-nav]'); if (!t) return;
   const d = t.dataset;
-  if (d.whenmenu !== undefined) { S.whenOpen = !S.whenOpen; renderHeadline(); if (S.whenOpen) $('.whenmenu [aria-checked="true"]')?.focus(); return; }
+  if (d.menu) {
+    S.open = S.open === d.menu ? null : d.menu;
+    if (S.open === 'loc') S.locTab = locArea(S.loc) || S.locTab;
+    renderHeadline();
+    if (S.open === 'when') $('.whenmenu [aria-checked="true"]')?.focus();
+    if (S.open === 'loc') $('.locmenu .quad.on')?.focus();
+    return;
+  }
+  if (d.loctab) { S.locTab = d.loctab; renderHeadline(); $(`.locmenu [data-loctab="${d.loctab}"]`)?.focus(); return; }
+  if (d.locany !== undefined) return setLoc(null);
+  if (d.locarea) return setLoc({ area: d.locarea });
+  if (d.lochood) return setLoc({ neighborhood: d.lochood });
   if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.nav === 'events') { ev.preventDefault(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.nav === 'places') { ev.preventDefault(); S.tab = 'places'; renderMore(); $('#more').scrollIntoView({ behavior: 'smooth' }); return; }
@@ -212,9 +264,9 @@ document.addEventListener('click', (ev) => {
 });
 document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-ev]'); if (c && !ev.target.closest('a')) { S.sel = c.dataset.ev; const y = scrollY; renderToday(); scrollTo(0, y); } });
 document.addEventListener('keydown', (ev) => {
-  if (!S.whenOpen) return;
-  if (ev.key === 'Escape') { S.whenOpen = false; renderHeadline(); $('.whenbtn')?.focus(); return; }
-  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+  if (!S.open) return;
+  if (ev.key === 'Escape') { const k = S.open; closeMenu(); $(`[data-menu="${k}"]`)?.focus(); return; }
+  if (S.open === 'when' && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) {
     const items = [...document.querySelectorAll('.whenmenu button')];
     const i = items.indexOf(document.activeElement);
     items[(i + (ev.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length]?.focus();
@@ -225,6 +277,7 @@ document.addEventListener('keydown', (ev) => {
 initMap().then((ok) => { MAP = ok; if (DATA) renderToday(); });
 load().then((d) => {
   DATA = d; GEO = d.geo;
+  S.loc = loadLoc();
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
   renderThemes(); renderHeadline(); renderToday(); renderMore(); renderFoot();
 }).catch((e) => { $('#today-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });
