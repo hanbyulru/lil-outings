@@ -1,0 +1,13 @@
+{
+  "age_bands": [
+    { "id": "baby", "label": "Babies", "range": "0–1", "min": 0, "max": 1 },
+    { "id": "toddler", "label": "Toddlers", "range": "1–3", "min": 1, "max": 3 },
+    { "id": "preschool", "label": "Preschool", "range": "3–5", "min": 3, "max": 5 },
+    { "id": "early", "label": "Early elementary", "range": "6–8", "min": 6, "max": 8 },
+    { "id": "tween", "label": "Tweens", "range": "9–12", "min": 9, "max": 12 }
+  ],
+  "interests": ["animals", "science", "trains", "nature", "art", "music", "dinosaurs", "books"],
+  "categories": ["storytime", "seasonal", "babies_toddlers", "outdoors", "class", "performance", "play", "festival", "museum_program"],
+  "settings": ["indoor", "outdoor", "both", "unknown"],
+  "registration": ["drop_in", "required", "unknown"]
+}

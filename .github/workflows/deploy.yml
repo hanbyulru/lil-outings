@@ -1,0 +1,84 @@
+# Daily refresh + deploy to GitHub Pages.
+# One-time setup: repo Settings > Pages > Source: "GitHub Actions".
+# Optional: add an ANTHROPIC_API_KEY repository secret to turn on Claude tagging (rules-only without it).
+name: Refresh and deploy
+
+on:
+  schedule:
+    - cron: '17 12 * * *' # 12:17 UTC = 4:17 or 5:17 am Portland, before families plan the day
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Month (map tiles are rebuilt monthly)
+        id: month
+        run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore map tiles
+        id: map
+        uses: actions/cache@v4
+        with:
+          path: web/map
+          key: map-${{ steps.month.outputs.month }}-${{ hashFiles('scripts/build-map.js') }}
+
+      - uses: actions/setup-go@v5
+        if: steps.map.outputs.cache-hit != 'true'
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Build map tiles
+        if: steps.map.outputs.cache-hit != 'true'
+        run: |
+          go install github.com/protomaps/go-pmtiles@latest
+          PMTILES_BIN="$(go env GOPATH)/bin/go-pmtiles" npm run build:map
+
+      - name: Restore refresh caches (LLM tags, HTTP)
+        uses: actions/cache@v4
+        with:
+          path: data/cache
+          key: refresh-${{ github.run_id }}
+          restore-keys: refresh-
+
+      - run: npm test
+
+      - name: Refresh listings
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run refresh
+
+      - run: npm run build:site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

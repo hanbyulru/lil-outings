@@ -1,0 +1,180 @@
+{
+  "_note": "status: verified = format confirmed against a live page; experimental = shape from memory, check with `node src/cli.js probe <id>`; todo = known source, feed URL not yet found (disabled).",
+  "events": [
+    {
+      "id": "mcl",
+      "name": "Multnomah County Library",
+      "type": "multcolib",
+      "enabled": true,
+      "trust": 9,
+      "status": "verified",
+      "homepage": "https://multcolib.org/events-classes",
+      "config": {
+        "url": "https://multcolib.org/events-classes",
+        "locations_url": "https://multcolib.org/hours-and-locations",
+        "ages": [
+          {
+            "id": "667",
+            "label": "Birth-12 months"
+          },
+          {
+            "id": "665",
+            "label": "Kids and Family"
+          },
+          {
+            "id": "30",
+            "label": "Tweens"
+          }
+        ],
+        "max_pages": 40,
+        "min_gap_ms": 4000
+      },
+      "notes": "Server-rendered Drupal list, verified Nov 2026. Fetched once per kids' age filter (Teens and Adults are skipped at the source), paged until events pass the refresh horizon. Branch coordinates are read from the map on /hours-and-locations. The 1-2 and 3-5 year filters return nothing; their events are under Kids and Family."
+    },
+    {
+      "id": "wccls",
+      "name": "Washington County Cooperative Library Services",
+      "type": "bibliocommons",
+      "enabled": true,
+      "trust": 8,
+      "status": "experimental",
+      "homepage": "https://wccls.bibliocommons.com/events/",
+      "config": {
+        "site": "https://wccls.bibliocommons.com",
+        "api": "https://gateway.bibliocommons.com/v2/libraries/wccls/events/search",
+        "queries": [
+          {
+            "types": "5c5a020157eb423f00067d0e",
+            "limit": "100"
+          },
+          {
+            "audiences": "5c365732664f462a009c9c73",
+            "limit": "100"
+          }
+        ]
+      },
+      "notes": "Filter ids (storytimes, kids) verified from wccls.org. The gateway endpoint is unverified."
+    },
+    {
+      "id": "pdx_parks",
+      "name": "Portland Parks & Recreation",
+      "type": "portland_gov",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.portland.gov/parks/events",
+      "config": {
+        "url": "https://www.portland.gov/parks/events",
+        "max_pages": 3,
+        "exclude_labels": [
+          "Volunteer event",
+          "Public meeting",
+          "Meeting"
+        ]
+      },
+      "notes": "List format verified. Volunteer days and public meetings are excluded at the source (config.exclude_labels). Kid classes are a separate content type: see programs.pdx_parks_classes."
+    },
+    {
+      "id": "manual",
+      "name": "Submitted & curated",
+      "type": "manual",
+      "enabled": true,
+      "trust": 10,
+      "status": "verified",
+      "config": {
+        "file": "data/manual/events.json"
+      }
+    },
+    {
+      "id": "beaverton",
+      "name": "Beaverton City Library",
+      "type": "ical",
+      "enabled": false,
+      "trust": 8,
+      "status": "todo",
+      "config": {
+        "urls": []
+      },
+      "notes": "Find the calendar's iCal/JSON endpoint."
+    },
+    {
+      "id": "hillsboro",
+      "name": "Hillsboro Library",
+      "type": "ical",
+      "enabled": false,
+      "trust": 8,
+      "status": "todo",
+      "config": {
+        "urls": []
+      }
+    },
+    {
+      "id": "lakeoswego",
+      "name": "Lake Oswego Public Library",
+      "type": "ical",
+      "enabled": false,
+      "trust": 8,
+      "status": "todo",
+      "config": {
+        "urls": []
+      }
+    },
+    {
+      "id": "ccrls",
+      "name": "Clackamas County libraries (Oregon City, Milwaukie, Happy Valley)",
+      "type": "ical",
+      "enabled": false,
+      "trust": 8,
+      "status": "todo",
+      "config": {
+        "urls": []
+      }
+    },
+    {
+      "id": "venues_jsonld",
+      "name": "Venue sites with schema.org Event markup",
+      "type": "jsonld",
+      "enabled": false,
+      "trust": 6,
+      "status": "todo",
+      "config": {
+        "urls": []
+      },
+      "notes": "Add event-list URLs for OMSI, Oregon Zoo, Oaks Park, etc. once their markup is checked."
+    }
+  ],
+  "places": [
+    {
+      "id": "osm",
+      "name": "OpenStreetMap",
+      "type": "osm",
+      "enabled": true,
+      "config": {
+        "bbox": [
+          45.28,
+          -123.05,
+          45.7,
+          -122.35
+        ],
+        "endpoint": "https://overpass-api.de/api/interpreter"
+      }
+    }
+  ],
+  "programs": [
+    {
+      "id": "pdx_parks_classes",
+      "name": "Portland Parks & Recreation classes",
+      "type": "portland_gov_programs",
+      "enabled": true,
+      "trust": 7,
+      "status": "experimental",
+      "homepage": "https://www.portland.gov/parks/recreation/activities",
+      "config": {
+        "urls": [
+          "https://www.portland.gov/parks/recreation/activities/sports"
+        ]
+      },
+      "notes": "Sports page structure verified (region > age group > Class/Description/Location/Register tables). No dates, times or prices: those live in ActiveNet. Other category pages (Arts, Dance, Music, Swim Lessons, School Break Camps) exist on the Activities menu; add their URLs after checking each page's structure. A dated-session adapter for ActiveNet is a TODO."
+    }
+  ]
+}

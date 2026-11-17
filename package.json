@@ -1,0 +1,19 @@
+{
+  "name": "lil-outings",
+  "version": "0.1.0",
+  "description": "Aggregates kids' events and places for the Portland, OR metro",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "refresh": "node src/cli.js refresh",
+    "refresh:demo": "node src/cli.js refresh --offline",
+    "serve": "node src/server.js",
+    "test": "node --test \"test/*.test.js\"",
+    "build:snapshot": "node scripts/build-snapshot.js",
+    "build:map": "node scripts/build-map.js",
+    "build:site": "node scripts/build-site.js"
+  }
+}
