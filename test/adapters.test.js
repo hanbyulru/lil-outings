@@ -47,6 +47,18 @@ test('BiblioCommons parser is defensive about missing fields', () => {
   assert.deepEqual(parseBiblioCommons({}, src), []);
 });
 
+test('BiblioCommons: branch coordinates come from mapLocation.centrePoint (live WCCLS shape, Nov 2026)', () => {
+  const tualatin = { id: '31', name: 'Tualatin Public Library', address: { country: 'US', zip: '97062', state: 'OR', city: 'Tualatin', street: 'SW Martinazzi Ave', number: '18878' }, mapLocation: { centrePoint: { lng: -122.75852450000002, lat: 45.3843112 }, isGeocoded: false } };
+  const ev = parseBiblioCommons({ entities: { events: { e1: { id: 'e1', definition: { id: 'e1', title: 'Preschool Storytime', start: '2026-11-18T10:30', branchLocationId: '31' } } }, locations: { 31: tualatin } } }, src);
+  assert.equal(ev[0].venue_name, 'Tualatin Public Library');
+  assert.equal(ev[0].lat, 45.3843112);
+  assert.equal(ev[0].lon, -122.75852450000002);
+  assert.equal(ev[0].address, '18878 SW Martinazzi Ave, Tualatin, OR 97062');
+  assert.equal(ev[0].cancelled, false);
+  const pj = parseBiblioCommons({ entities: { events: { e2: { id: 'e2', definition: { id: 'e2', title: 'PJ Storytime - Cancelled', start: '2026-11-18T18:30', branchLocationId: '31' } } }, locations: { 31: tualatin } } }, src);
+  assert.equal(pj[0].cancelled, true);
+});
+
 test('portland.gov list: each description stops at the next event (no bleed)', () => {
   const html = `<a href="/parks/events/2026/12/5/a-walk">A Walk</a> 10:00 am to 1:00 pm Label: Community event <p>Family fun in the park.</p>
     <a href="/parks/events/2026/12/6/b-meeting">B Meeting</a> 5:00 pm to 7:00 pm Label: Public meeting`;

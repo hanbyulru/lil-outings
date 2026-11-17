@@ -8,6 +8,14 @@ import { withOffset } from '../lib/time.js';
  * gateway shape below is written from memory of BiblioCommons' v2 gateway and must be checked against a live response
  * (run `node src/cli.js probe wccls`). The parser is defensive: it accepts entities.events[*].definition.
  */
+const num = (v) => (v == null || v === '' || !Number.isFinite(+v) ? null : +v);
+const addressOf = (a) => {
+  if (!a) return null;
+  if (typeof a === 'string') return a;
+  const street = [a.number, a.street].map((s) => String(s ?? '').trim()).filter(Boolean).join(' ');
+  return [street, a.city, [a.state, a.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ') || null;
+};
+
 export function parseBiblioCommons(json, source) {
   const events = json?.entities?.events || {};
   const locations = json?.entities?.locations || {};
@@ -25,14 +33,16 @@ export function parseBiblioCommons(json, source) {
       all_day: false,
       url: d.id ? `${source.config.site}/events/${ev.id || d.id}` : null,
       venue_name: loc.name || d.branchLocationName || null,
-      address: loc.address?.street || null,
-      lat: loc.latitude ?? loc.lat ?? null,
-      lon: loc.longitude ?? loc.lon ?? null,
+      address: addressOf(loc.address),
+      // Verified Nov 2026: branch coordinates live in mapLocation.centrePoint {lat, lng}; latitude/longitude are absent.
+      lat: num(loc.mapLocation?.centrePoint?.lat ?? loc.latitude ?? loc.lat),
+      lon: num(loc.mapLocation?.centrePoint?.lng ?? loc.longitude ?? loc.lon),
       raw_categories: (d.typeNames || d.types || []).map(String),
       raw_audience: (d.audienceNames || d.audiences || []).map(String),
       price_text: null,
       image: d.featuredImage?.url || null,
-      cancelled: !!d.isCancelled
+      // WCCLS sometimes marks a cancellation only in the title ("PJ Storytime - Cancelled").
+      cancelled: !!d.isCancelled || /\bcancell?ed\b/i.test(d.title || '')
     };
   });
 }
