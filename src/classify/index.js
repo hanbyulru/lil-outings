@@ -19,6 +19,8 @@ export async function classifyAll(events, { cachePath = 'data/cache/classify.jso
   for (const e of events) {
     const h = hashOf(e);
     // Rules results are a fallback: with a key, give Claude another try instead of keeping them forever.
+    // Tags cached before the null-age fix (Nov 2026) stored "age not stated" as 0-0: tag those again.
+    if (cache[h] && cache[h].kid_relevant && cache[h].age_min === 0 && cache[h].age_max === 0 && !cache[h].age_checked) delete cache[h];
     if (cache[h] && !(haveKey && cache[h].tag_source === 'rules')) results.set(e.id, { ...cache[h], tag_source: `cache:${cache[h].tag_source}` });
     else todo.push({ e, h });
   }
@@ -52,7 +54,7 @@ export async function classifyAll(events, { cachePath = 'data/cache/classify.jso
         tags = { ...rules, tag_source: 'rules', needs_review: rules.confidence < 0.6 || rules.issues.length > 0 };
       }
       results.set(e.id, tags);
-      cache[h] = tags;
+      cache[h] = { ...tags, age_checked: true };
     }
   }
   mkdirSync(dirname(cachePath), { recursive: true });

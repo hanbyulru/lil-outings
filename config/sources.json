@@ -523,7 +523,10 @@
           "name": "NCPRD (Milwaukie)",
           "lat": 45.4446,
           "lon": -122.6393
-        }
+        },
+        "exclude_titles": [
+          "Planting"
+        ]
       },
       "notes": "Nuxt + Strapi site; the events list is in the page's __NUXT_DATA__ payload. Series (Indoor Playground Tue/Thu at the Concord building) carry dated occurrences."
     },
@@ -560,7 +563,13 @@
           "name": "Gresham",
           "lat": 45.4985,
           "lon": -122.4302
-        }
+        },
+        "exclude_titles": [
+          "Late-Night Basketball",
+          "\\bSenior\\b",
+          "Friends of Trees",
+          "Planting"
+        ]
       },
       "notes": "JSON web service behind the city calendar. Council/committee/planning categories are not requested; the classifier drops adult items (e.g. Late-Night Basketball for teens)."
     },
@@ -580,7 +589,13 @@
           "name": "Vancouver, WA",
           "lat": 45.628,
           "lon": -122.6739
-        }
+        },
+        "exclude_titles": [
+          "Tree Planting",
+          "Cleanup",
+          "Adopt-A-Park",
+          "Recycling"
+        ]
       },
       "notes": "Server-rendered calendar page; only the Events tab is read (meetings are tab 1). Parks & Rec family nights, tree lighting, Pizza with Santa; volunteer cleanups are dropped by the classifier."
     },

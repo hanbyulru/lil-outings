@@ -84,7 +84,9 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
       let items;
       if (src.type === 'manual' && off) items = off.manual.map((e) => ({ source_id: src.id, all_day: false, address: null, raw_categories: [], raw_audience: [], cancelled: false, ...e }));
       else items = await EVENT_ADAPTERS[src.type](src, ctx);
-      items = items.map((e) => ({ ...e, source_id: src.id }));
+      // Any source can drop titles at the source (volunteer days, teen-only programs): config.exclude_titles regexes.
+      const skip = (src.config?.exclude_titles || []).map((re) => new RegExp(re, 'i'));
+      items = items.filter((e) => !skip.some((re) => re.test(e.title || ''))).map((e) => ({ ...e, source_id: src.id }));
       raw.push(...items.map((r) => ({ r, src })));
       status.push({ id: src.id, name: src.name, ok: true, fetched: items.length, ms: Date.now() - t0, status: src.status });
       log(`  ${src.name}: ${items.length} listings`);

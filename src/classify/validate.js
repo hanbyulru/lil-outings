@@ -5,7 +5,8 @@ import { dirname, join } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
 export const VOCAB = JSON.parse(readFileSync(join(here, '../../config/vocab.json'), 'utf8'));
 
-const clampAge = (n) => (Number.isFinite(+n) ? Math.max(0, Math.min(18, Math.round(+n))) : null);
+// null / '' mean "not stated" (+null is 0, which would turn an unknown age into a baby-only listing)
+const clampAge = (n) => (n == null || n === '' || !Number.isFinite(+n) ? null : Math.max(0, Math.min(18, Math.round(+n))));
 
 /** Coerce whatever a classifier returned into our schema. Anything outside the vocab is dropped, not trusted. */
 export function normalizeTags(t) {

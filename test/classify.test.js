@@ -143,3 +143,11 @@ test('rules: title-only library listings (no description) are still recognised a
   for (const t of ['Common Threads Crochet & Knit Group', 'Meet One-on-One with a Financial Advisor', 'Teen Art Meet', '(FULL) Adult Ukulele'])
     assert.equal(kid(t), false, t);
 });
+
+import { normalizeTags as nt } from '../src/classify/validate.js';
+test('an age the model left blank defaults to 0-12, not 0-0', () => {
+  const t = nt({ kid_relevant: true, age_min: null, age_max: null });
+  assert.deepEqual([t.age_min, t.age_max], [0, 12]);
+  assert.ok(t.issues.includes('missing_age'));
+  assert.deepEqual([nt({ kid_relevant: true, age_min: 0, age_max: 1 }).age_max], [1]);
+});
