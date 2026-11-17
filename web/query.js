@@ -17,6 +17,7 @@ function dow(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return
 /** Inclusive [from, to] date range for a "when" value. A literal YYYY-MM-DD picks that day. */
 export function whenRange(when, today) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(when)) return [when, when];
+  if (when === 'tomorrow') return [addDays(today, 1), addDays(today, 1)];
   if (when === 'week') return [today, addDays(today, 6)];
   if (when === 'weekend') {
     const d = dow(today);
@@ -69,7 +70,7 @@ function locMatch(item, r, radiusMiles) {
 /**
  * filterEvents(events, opts, ctx)
  * opts: { age: [min,max]|null, interest, category, when, loc, free, dropin, indoor, radius, sort }
- * ctx:  { today: 'YYYY-MM-DD', geo }
+ * ctx:  { today: 'YYYY-MM-DD', geo, nowMin? }  nowMin (minutes since midnight, Portland) hides today's events that are over
  */
 export function filterEvents(events, opts = {}, ctx) {
   const [from, to] = whenRange(opts.when || 'today', ctx.today);
@@ -78,6 +79,7 @@ export function filterEvents(events, opts = {}, ctx) {
   const out = [];
   for (const e of events) {
     if (e.date < from || e.date > to) continue;
+    if (e.date === ctx.today && isOver(e, ctx.nowMin)) continue;
     if (!ageOverlap(e, opts.age)) continue;
     if (opts.interest && opts.interest !== 'all' && !(e.interests || []).includes(opts.interest)) continue;
     if (!categoryMatch(e, opts.category)) continue;
@@ -89,6 +91,13 @@ export function filterEvents(events, opts = {}, ctx) {
     out.push({ ...e, miles: l.miles });
   }
   return sortItems(out, opts.sort || 'soonest');
+}
+
+/** True when an event today has already ended (no end time: assume an hour). All-day events never end early. */
+export function isOver(e, nowMin) {
+  if (nowMin == null || e.start_min == null) return false;
+  const end = e.end_min ?? e.start_min + 60;
+  return end <= nowMin;
 }
 
 export function sortItems(items, sort) {

@@ -14,19 +14,15 @@
 <div class="wrap">
   <header class="top">
     <a class="logo" href="#">Lil' Outings</a>
-    <nav class="main"><a class="link" href="#results" data-nav="events">Events</a><a class="link" href="#results" data-nav="places">Places</a><a class="link" href="#themes">By interest</a></nav>
+    <nav class="main"><a class="link" href="#today" data-nav="events">Events</a><a class="link" href="#more" data-nav="places">Places</a><a class="link" href="#themes">By interest</a></nav>
   </header>
-  <section class="hero">
-    <div class="hero-l">
-      <p class="eyebrow">Portland, OR &amp; the metro area</p>
-      <h1>Find something to do with your <em>little one</em> today</h1>
-      <p class="lede">Library storytimes, park programs, museums and more, pulled into one place.</p>
-      <div class="card" id="finder"></div>
-    </div>
-    <div class="hero-r" id="hero-art" aria-hidden="true"></div>
+  <section class="hero today" id="today">
+    <p class="eyebrow">Portland, OR &amp; the metro area</p>
+    <h1 id="headline">Find something to do with your little one today</h1>
+    <div id="today-inner"></div>
   </section>
 </div>
-<section class="results" id="results"><div class="wrap" id="results-inner"></div></section>
+<section class="results" id="more"><div class="wrap" id="results-inner"></div></section>
 <section class="themes" id="themes"><div class="wrap"><h2>Browse by interest</h2><div class="tgrid" id="tgrid"></div></div></section>
 <footer><div class="wrap" id="foot"></div></footer>
 <script type="module" src="app.js"></script>

@@ -5,7 +5,8 @@ Kids' events, classes and places for the Portland, OR metro. Zero npm deps, Node
 ## Product decisions (from the owner, Han Byul)
 - Audience: parents/caregivers of kids 0-12. **No adult-oriented content**: volunteer days, public meetings, adult classes, teen-only programs are excluded. Filter at the source where a feed labels them (`exclude_labels`), and the classifier is the backstop.
 - Content types: dated **events**, evergreen **programs** (classes without dates, e.g. PP&R), and **places** (directory).
-- Filters: age band, 8 interests (Animals, Science, Trains, Nature, Art, Music, Dinosaurs, Books), category pills (All / Storytimes / Seasonal / Babies + Toddlers / Outdoors), free / drop-in / indoor, date, location.
+- Landing page (Nov 2026): a daily check-in page. Headline "Find something to do with your little one [today▾]": the underlined phrase is a menu (Today / Tomorrow / This weekend / This week). The day's events are listed right under it, map on the right (on phones behind a Map toggle). From 6pm Portland time it opens on Tomorrow (`EVENING_HOUR` in `web/app.js`); "today" hides events that are already over. Below: Places and Classes. The old search/filter card is gone; filters are to be reworked.
+- Filters (planned, partly removed from the UI for now): age band, 8 interests (Animals, Science, Trains, Nature, Art, Music, Dinosaurs, Books), category pills (All / Storytimes / Seasonal / Babies + Toddlers / Outdoors), free / drop-in / indoor, date, location.
 - Location: ZIP or area tabs NW / N / NE / SW / SE (N Portland is its own group), each with "All <area>" or a single neighborhood or suburb.
 - Look: Editorial direction. Palette Mosaic for big titles (h1/h2), Instrument Sans for everything else including the logo. Rounded "mosaic tile" icons, not pixel-y. Site name is "Lil' Outings".
 

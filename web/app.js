@@ -1,4 +1,4 @@
-import { filterEvents, filterPlaces, filterPrograms, resolveLoc } from './query.js';
+import { filterEvents, filterPlaces, filterPrograms, whenRange } from './query.js';
 import { initMap, showPins } from './map.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -6,16 +6,17 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const COLORS = { animals: '#F0614F', science: '#3B6FE0', trains: '#F2A93B', nature: '#2E9E6B', art: '#B05CD6', music: '#E4559B', dinosaurs: '#7A9A2E', books: '#1FA5B8' };
 const INTERESTS = ['animals', 'science', 'trains', 'nature', 'art', 'music', 'dinosaurs', 'books'];
 const LABEL = { animals: 'Animals', science: 'Science', trains: 'Trains', nature: 'Nature', art: 'Art', music: 'Music', dinosaurs: 'Dinosaurs', books: 'Books' };
-const AGES = [{ id: 'baby', label: 'Babies', range: [0, 1] }, { id: 'toddler', label: 'Toddlers', range: [1, 3] }, { id: 'preschool', label: 'Preschool', range: [3, 5] }, { id: 'early', label: '6–8', range: [6, 8] }, { id: 'tween', label: '9–12', range: [9, 12] }];
-const CATS = [['all', 'All'], ['storytime', 'Storytimes'], ['seasonal', 'Seasonal'], ['babies_toddlers', 'Babies + Toddlers'], ['outdoors', 'Outdoors']];
-const AREA_NAMES = { NW: 'Northwest', N: 'North Portland', NE: 'Northeast', SW: 'Southwest', SE: 'Southeast' };
-const when_opts = [['today', 'Today'], ['weekend', 'This weekend'], ['week', 'Next 7 days']];
+
+// The headline's day picker. [value, phrase in the headline, menu label]
+const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['weekend', 'this weekend', 'This weekend'], ['week', 'this week', 'This week']];
+// From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
+const EVENING_HOUR = 18;
 
 let DATA, GEO;
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { age: null, interest: 'all', category: 'all', when: 'week', loc: null, zipText: '', free: false, dropin: false, indoor: false, sort: 'soonest', tab: 'events', locOpen: false, quad: 'NE', sel: null };
+const S = { when: 'today', whenOpen: false, interest: 'all', tab: 'places', sel: null, showMap: false };
 
 async function load() {
   if (window.__DATA__) return window.__DATA__;
@@ -24,11 +25,26 @@ async function load() {
   return { events, places, programs, meta, geo };
 }
 
-const todayStr = () => DATA.meta.today || new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
-const ctx = () => ({ today: todayStr(), geo: GEO });
+/** The visitor's date and time in Portland. Demo data is pinned to the day it was generated. */
+function portlandNow() {
+  if (String(DATA.meta.mode).startsWith('demo')) return { date: DATA.meta.today, min: null, hour: 10 };
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+  const hour = +p.hour, min = hour * 60 + +p.minute;
+  return { date: `${p.year}-${p.month}-${p.day}`, min, hour };
+}
+
+const NOW = () => portlandNow();
+const ctx = () => { const n = NOW(); return { today: n.date, nowMin: n.min, geo: GEO }; };
 const fmtMin = (m) => { if (m == null) return ''; const h = Math.floor(m / 60), mm = m % 60; return `${((h + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
-const dayLabel = (d) => { const [y, m, dd] = d.split('-').map(Number); const dt = new Date(Date.UTC(y, m - 1, dd)); const t = todayStr(); const base = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' }); return d === t ? `Today · ${base}` : base; };
-const opts = () => ({ age: S.age, interest: S.interest, category: S.category, when: S.when, loc: S.loc, free: S.free, dropin: S.dropin, indoor: S.indoor, sort: S.sort });
+const utc = (d) => { const [y, m, dd] = d.split('-').map(Number); return new Date(Date.UTC(y, m - 1, dd)); };
+const fmtDay = (d, o) => utc(d).toLocaleDateString('en-US', { timeZone: 'UTC', ...o });
+const dayLabel = (d) => { const t = NOW().date; const base = fmtDay(d, { weekday: 'long', month: 'short', day: 'numeric' }); return d === t ? `Today · ${base}` : base; };
+/** "Tue, Nov 17" or "Sat, Nov 21 – Sun, Nov 22" for a when value. */
+function rangeLabel(when) {
+  const [a, b] = whenRange(when, NOW().date);
+  const one = (d) => fmtDay(d, { weekday: 'short', month: 'short', day: 'numeric' });
+  return a === b ? one(a) : `${one(a)} – ${one(b)}`;
+}
 const dot = (c) => `<span class="dot" style="background:${c}"></span>`;
 const primary = (e) => (e.interests && e.interests[0]) || null;
 const colorOf = (e) => COLORS[primary(e)] || '#5B5F6B';
@@ -43,31 +59,9 @@ function tile(kind, c, size = 120) {
   return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" fill="${c}">${shapes[kind]}<circle cx="60" cy="60" r="14" fill="#fff" opacity=".9"/></svg>`;
 }
 
-function renderHero() {
+function renderThemes() {
   const kinds = ['a', 'b', 'c', 'd', 'c', 'a', 'd', 'b'];
-  $('#hero-art').innerHTML = INTERESTS.slice(0, 8).map((k, i) => `<div>${tile(kinds[i], COLORS[k], 92)}</div>`).join('');
   $('#tgrid').innerHTML = INTERESTS.map((k, i) => `<button data-int="${k}"><span style="width:32px;height:32px;flex:none">${tile(kinds[i], COLORS[k], 32)}</span><span class="nm">${LABEL[k]}</span><span>→</span></button>`).join('');
-}
-
-function locLabel() { const r = resolveLoc(S.loc, GEO); return r ? (r.unknown ? `${r.label} (not found)` : r.label) : 'Anywhere in the metro'; }
-
-function renderFinder() {
-  const ageChips = AGES.map((a) => `<button class="chip ${S.age && S.age[0] === a.range[0] ? 'on' : ''}" data-age="${a.id}">${a.label}</button>`).join('');
-  const hoods = GEO.neighborhoods.filter((n) => n.area === S.quad);
-  const pop = S.locOpen ? `<div class="pop">
-      <label>ZIP code</label><input type="text" id="zip" inputmode="numeric" maxlength="5" placeholder="e.g. 97214" value="${esc(S.zipText)}">
-      <div class="or">or pick an area</div>
-      <div class="quads">${['NW', 'N', 'NE', 'SW', 'SE'].map((q) => `<button class="quad ${S.quad === q ? 'on' : ''}" data-quad="${q}"><b>${q}</b><small>${AREA_NAMES[q]}</small></button>`).join('')}</div>
-      <div class="opts"><button class="opt ${S.loc?.area === S.quad ? 'on' : ''}" data-area="${S.quad}">All ${S.quad === 'N' ? 'North Portland' : S.quad}</button>${hoods.map((n) => `<button class="opt ${S.loc?.neighborhood === n.name ? 'on' : ''}" data-hood="${esc(n.name)}">${esc(n.name)}</button>`).join('')}</div>
-      <div class="pop-foot"><button class="textbtn" data-clearloc>Clear</button><button class="btn-ink" data-done>Done</button></div></div>` : '';
-  $('#finder').innerHTML = `
-    <div><div class="q">How old is your little one?</div><div class="chips">${ageChips}</div></div>
-    <div><div class="q">What are they into?</div><div class="chips">${INTERESTS.map((k) => `<button class="chip ${S.interest === k ? 'on' : ''}" data-int="${k}">${dot(COLORS[k])}${LABEL[k]}</button>`).join('')}</div></div>
-    <div class="row-fields">
-      <div class="field">When<select id="when">${when_opts.map(([v, l]) => `<option value="${v}" ${S.when === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-      <div class="field">Where<button class="fbtn" data-loc>${esc(locLabel())}<span>▾</span></button>${pop}</div>
-      <button class="go" data-go>Show me</button>
-    </div>`;
 }
 
 /** Items at the same spot (e.g. six storytimes at one branch) share one pin. */
@@ -146,36 +140,50 @@ function renderProgram(p) {
   return `<article class="place"><div class="kind">${dot('#3B6FE0')}${esc(p.age_label)} · ages ${p.age_min}–${p.age_max}</div><h3>${esc(p.name)}</h3>${p.description ? `<p>${esc(p.description)}</p>` : ''}<p style="font-size:14px">${esc(p.location_text || '')}${p.region ? ` · ${esc(p.region)}` : ''}</p><p style="font-size:14px">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-weight:600;text-decoration:underline">Check availability ↗</a>` : ''} <span class="src">via ${esc(p.source?.name || '')}</span></p></article>`;
 }
 
-function renderResults() {
-  const events = filterEvents(DATA.events, opts(), ctx());
-  const places = filterPlaces(DATA.places, opts(), ctx());
-  const programs = filterPrograms(DATA.programs || [], opts(), ctx());
-  const whenL = when_opts.find((w) => w[0] === S.when)[1].toLowerCase();
-  const ageL = S.age ? AGES.find((a) => a.range[0] === S.age[0])?.label : null;
-  const heading = `${events.length} ${events.length === 1 ? 'thing' : 'things'} to do <em>${esc(S.when === 'week' ? 'this week' : whenL)}</em>${ageL ? ` for ${esc(ageL.toLowerCase())}` : ''}`;
+/** "Find something to do with your little one [today ▾]" — the underlined phrase picks the day. */
+function renderHeadline() {
+  const cur = WHEN.find((w) => w[0] === S.when);
+  const menu = S.whenOpen ? `<span class="whenmenu" role="menu">${WHEN.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
+  $('#headline').innerHTML = `Find something to do with your little one <span class="whenwrap"><button class="whenbtn" data-whenmenu aria-haspopup="menu" aria-expanded="${S.whenOpen}"><span class="whentext">${esc(cur[1])}</span><span class="caret" aria-hidden="true">▾</span></button>${menu}</span>`;
+}
+
+/** The day's list, right under the headline, with the map beside it. */
+function renderToday() {
+  const c = ctx();
+  const opts = { when: S.when, interest: S.interest };
+  const events = filterEvents(DATA.events, opts, c);
+  const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).length - events.length : 0;
+  events.forEach((e, i) => { e._n = i + 1; });
+  const multiDay = S.when === 'weekend' || S.when === 'week';
+  const intChip = S.interest !== 'all' ? `<button class="chip on" data-clearint>${dot(COLORS[S.interest])}${LABEL[S.interest]} <span aria-hidden="true">✕</span><span class="sr">Show all interests</span></button>` : '';
+  const bar = `<div class="todaybar"><span class="count">${events.length} ${events.length === 1 ? 'thing' : 'things'} to do</span><span class="muted">${esc(rangeLabel(S.when))}${over > 0 ? ` · ${over} earlier ${over === 1 ? 'one is' : 'ones are'} over` : ''}</span>${intChip}<button class="tog maptoggle ${S.showMap ? 'on' : ''}" data-showmap>${S.showMap ? 'Hide map' : 'Map'}</button></div>`;
   let body;
-  if (S.tab === 'events') {
-    if (!events.length) body = `<div class="empty"><h3>Nothing matches yet</h3><p style="color:var(--muted)">Try widening the day range, clearing an interest, or picking a larger area. ${places.length} places in the directory fit these filters.</p><button class="btn-ink" data-tab="places">See places</button></div>`;
-    else {
-      const days = {}; events.forEach((e) => (days[e.date] ||= []).push(e));
-      let n = 0;
-      events.forEach((e) => { e._n = ++n; });
-      const list = Object.entries(days).map(([d, es]) => `<div class="daytitle">${esc(dayLabel(d))}</div>${es.map((e) => renderEvent(e, e._n)).join('')}`).join('');
-      body = `<div class="split"><div class="list">${list}</div><aside class="map">${mapHtml(events)}</aside></div>`;
-    }
-  } else if (S.tab === 'classes') {
-    body = programs.length ? `<p class="notice" style="margin:16px 0 0">Ongoing class programs at Portland Parks & Recreation. Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>` : `<div class="empty"><h3>No classes match</h3><p style="color:var(--muted)">Try a different age or area.</p></div>`;
+  if (!events.length) {
+    const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
+    const msg = S.interest !== 'all' ? `Nothing tagged ${LABEL[S.interest]} ${WHEN.find((w) => w[0] === S.when)[1]}. Try all interests.` : S.when === 'today' && over > 0 ? 'That’s everything for today.' : 'Nothing listed yet.';
+    body = `<div class="empty"><h3>${esc(msg)}</h3>${next}</div>`;
   } else {
-    const pl = places.map((p, i) => ({ ...p, id: p.id, _n: i + 1, _c: COLORS[p.interests?.[0]] || '#5B5F6B' }));
-    body = places.length ? `<div class="split"><div class="list"><div class="places" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${places.map(renderPlace).join('')}</div></div><aside class="map">${mapHtml(pl)}</aside></div>` : `<div class="empty"><h3>No places match</h3><p style="color:var(--muted)">Try clearing a filter.</p></div>`;
+    let list;
+    if (multiDay) {
+      const days = {}; events.forEach((e) => (days[e.date] ||= []).push(e));
+      list = Object.entries(days).map(([d, es]) => `<div class="daytitle">${esc(dayLabel(d))}</div>${es.map((e) => renderEvent(e, e._n)).join('')}`).join('');
+    } else list = events.map((e) => renderEvent(e, e._n)).join('');
+    body = `<div class="split today-split ${S.showMap ? 'showmap' : ''}"><div class="list">${list}</div><aside class="map">${mapHtml(events)}</aside></div>`;
   }
-  const tog = (k, l) => `<button class="tog ${S[k] ? 'on' : ''}" data-tog="${k}">${l}</button>`;
-  $('#results-inner').innerHTML = `<h2>${S.tab === 'events' ? heading : S.tab === 'classes' ? `${programs.length} classes for kids` : `${places.length} places to visit`}</h2>
-    <div class="tabs"><button class="tab ${S.tab === 'events' ? 'on' : ''}" data-tab="events">Events (${events.length})</button><button class="tab ${S.tab === 'classes' ? 'on' : ''}" data-tab="classes">Classes (${programs.length})</button><button class="tab ${S.tab === 'places' ? 'on' : ''}" data-tab="places">Places (${places.length})</button></div>
-    <div class="chips" style="margin-bottom:14px">${CATS.map(([v, l]) => `<button class="chip ${S.category === v ? 'on' : ''}" data-cat="${v}">${l}</button>`).join('')}</div>
-    <div class="bar">${tog('free', 'Free')}${tog('dropin', 'Drop-in')}${tog('indoor', 'Indoor')}</div>
-    <div class="countbar"><span style="font-weight:600">${esc(locLabel())}</span>${S.tab === 'events' ? `<label style="font-weight:600;font-size:15px">Sort <select id="sort">${[['soonest', 'Soonest'], ['closest', 'Closest'], ['cheapest', 'Cheapest']].map(([v, l]) => `<option value="${v}" ${S.sort === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>` : ''}</div>${body}`;
+  $('#today-inner').innerHTML = bar + body;
   syncMap();
+}
+
+/** Below the fold: classes and the places directory. */
+function renderMore() {
+  const c = ctx();
+  const places = filterPlaces(DATA.places, { interest: S.interest }, c);
+  const programs = filterPrograms(DATA.programs || [], {}, c);
+  const body = S.tab === 'classes'
+    ? (programs.length ? `<p class="notice" style="margin:16px 0 0">Ongoing class programs at Portland Parks & Recreation. Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>` : `<div class="empty"><h3>No classes listed</h3></div>`)
+    : (places.length ? `<div class="places" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${places.map(renderPlace).join('')}</div>` : `<div class="empty"><h3>No places match</h3></div>`);
+  $('#results-inner').innerHTML = `<h2>More to explore</h2>
+    <div class="tabs"><button class="tab ${S.tab === 'places' ? 'on' : ''}" data-tab="places">Places (${places.length})</button><button class="tab ${S.tab === 'classes' ? 'on' : ''}" data-tab="classes">Classes (${programs.length})</button></div>${body}`;
 }
 
 function renderFoot() {
@@ -185,35 +193,38 @@ function renderFoot() {
   if (String(m.mode).startsWith('demo')) { const d = $('#demo'); d.hidden = false; d.textContent = 'Demo data: sample listings generated in the real feeds’ formats, not live Portland events. Run the refresh with network access for real data.'; }
 }
 
-function parseZip() {
-  const z = S.zipText.trim();
-  if (/^\d{5}$/.test(z)) S.loc = { zip: z };
-}
+function setWhen(v) { S.when = v; S.whenOpen = false; S.sel = null; renderHeadline(); renderToday(); }
 
 document.addEventListener('click', (ev) => {
-  const t = ev.target.closest('button, a[data-nav]'); if (!t) { return; }
+  // Any click outside the day menu closes it.
+  if (S.whenOpen && !ev.target.closest('.whenwrap')) { S.whenOpen = false; renderHeadline(); }
+  const t = ev.target.closest('button, a[data-nav]'); if (!t) return;
   const d = t.dataset;
-  if (d.nav) { S.tab = d.nav; return renderAll(); }
-  if (d.age) { const a = AGES.find((x) => x.id === d.age); S.age = S.age && S.age[0] === a.range[0] ? null : a.range; return renderFinder(); }
-  if (d.int) { S.interest = S.interest === d.int && t.closest('#finder') ? 'all' : d.int; renderAll(); if (t.closest('#tgrid')) $('#results').scrollIntoView({ behavior: 'smooth' }); return; }
-  if (d.loc !== undefined) { S.locOpen = !S.locOpen; return renderFinder(); }
-  if (d.quad) { S.quad = d.quad; return renderFinder(); }
-  if (d.area) { S.loc = { area: d.area }; S.zipText = ''; return renderFinder(); }
-  if (d.hood) { S.loc = { neighborhood: d.hood }; S.zipText = ''; return renderFinder(); }
-  if (d.clearloc !== undefined) { S.loc = null; S.zipText = ''; return renderFinder(); }
-  if (d.done !== undefined) { parseZip(); S.locOpen = false; return renderAll(); }
-  if (d.go !== undefined) { parseZip(); S.locOpen = false; renderAll(); return $('#results').scrollIntoView({ behavior: 'smooth' }); }
-  if (d.cat) { S.category = d.cat; return renderResults(); }
-  if (d.tog) { S[d.tog] = !S[d.tog]; return renderResults(); }
-  if (d.tab) { S.tab = d.tab; return renderResults(); }
-  if (d.pin) { S.sel = d.pin; return renderResults(); }
+  if (d.whenmenu !== undefined) { S.whenOpen = !S.whenOpen; renderHeadline(); if (S.whenOpen) $('.whenmenu [aria-checked="true"]')?.focus(); return; }
+  if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (d.nav === 'events') { ev.preventDefault(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (d.nav === 'places') { ev.preventDefault(); S.tab = 'places'; renderMore(); $('#more').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (d.int) { S.interest = d.int; S.sel = null; renderToday(); renderMore(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (d.clearint !== undefined) { S.interest = 'all'; renderToday(); renderMore(); return; }
+  if (d.showmap !== undefined) { S.showMap = !S.showMap; return renderToday(); }
+  if (d.tab) { S.tab = d.tab; return renderMore(); }
+  if (d.pin) { S.sel = d.pin; return renderToday(); }
 });
-document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-ev]'); if (c && !ev.target.closest('a')) { S.sel = c.dataset.ev; const y = scrollY; renderResults(); scrollTo(0, y); } });
-document.addEventListener('change', (ev) => { if (ev.target.id === 'when') { S.when = ev.target.value; renderAll(); } if (ev.target.id === 'sort') { S.sort = ev.target.value; renderResults(); } });
-document.addEventListener('input', (ev) => { if (ev.target.id === 'zip') S.zipText = ev.target.value.replace(/\D/g, ''); });
-document.addEventListener('keydown', (ev) => { if (ev.target.id === 'zip' && ev.key === 'Enter') { parseZip(); S.locOpen = false; renderAll(); } });
+document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-ev]'); if (c && !ev.target.closest('a')) { S.sel = c.dataset.ev; const y = scrollY; renderToday(); scrollTo(0, y); } });
+document.addEventListener('keydown', (ev) => {
+  if (!S.whenOpen) return;
+  if (ev.key === 'Escape') { S.whenOpen = false; renderHeadline(); $('.whenbtn')?.focus(); return; }
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    const items = [...document.querySelectorAll('.whenmenu button')];
+    const i = items.indexOf(document.activeElement);
+    items[(i + (ev.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length]?.focus();
+    ev.preventDefault();
+  }
+});
 
-function renderAll() { renderFinder(); renderResults(); }
-
-initMap().then((ok) => { MAP = ok; if (DATA) renderResults(); });
-load().then((d) => { DATA = d; GEO = d.geo; renderHero(); renderAll(); renderFoot(); }).catch((e) => { $('#results-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });
+initMap().then((ok) => { MAP = ok; if (DATA) renderToday(); });
+load().then((d) => {
+  DATA = d; GEO = d.geo;
+  if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
+  renderThemes(); renderHeadline(); renderToday(); renderMore(); renderFoot();
+}).catch((e) => { $('#today-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });

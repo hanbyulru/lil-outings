@@ -55,3 +55,23 @@ test('programs filter by age overlap and area', () => {
   assert.deepEqual(filterPrograms(progs, { age: [6, 8] }, ctx).map((p) => p.name), ['B']);
   assert.deepEqual(filterPrograms(progs, { loc: { area: 'SE' } }, ctx).map((p) => p.name), ['A']);
 });
+
+test('tomorrow is the next day only', () => {
+  assert.deepEqual(whenRange('tomorrow', '2026-11-16'), ['2026-11-17', '2026-11-17']);
+  assert.deepEqual(whenRange('tomorrow', '2026-12-31'), ['2027-01-01', '2027-01-01']);
+});
+
+test("today hides events that are already over; other days and all-day events stay", () => {
+  const list = [
+    e({ title: 'done', start_min: 600, end_min: 660 }),            // 10:00-11:00, over at 13:00
+    e({ title: 'noend', start_min: 690 }),                         // 11:30, assumed 1h, over at 13:00
+    e({ title: 'running', start_min: 720, end_min: 840 }),         // 12:00-14:00, still on
+    e({ title: 'later', start_min: 960 }),
+    e({ title: 'allday', start_min: null }),
+    e({ title: 'tomorrow', date: '2026-11-17', start_min: 600, end_min: 660 })
+  ];
+  const at1pm = { ...ctx, nowMin: 780 };
+  assert.deepEqual(filterEvents(list, { when: 'today' }, at1pm).map((x) => x.title).sort(), ['allday', 'later', 'running']);
+  assert.deepEqual(filterEvents(list, { when: 'week' }, at1pm).map((x) => x.title).sort(), ['allday', 'later', 'running', 'tomorrow']);
+  assert.equal(filterEvents(list, { when: 'today' }, ctx).length, 5); // no clock given: nothing hidden
+});
