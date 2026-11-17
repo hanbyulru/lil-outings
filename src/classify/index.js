@@ -10,7 +10,7 @@ const hashOf = (e) => createHash('sha1').update(JSON.stringify([e.title, e.descr
  * Tag events. Order of preference: cache -> LLM -> rules fallback.
  * Every result records tag_source ('llm' | 'rules' | 'cache:*') and gets needs_review when confidence is low or the model/rules disagree on kid relevance.
  */
-export async function classifyAll(events, { cachePath = 'data/cache/classify.json', useLLM = true, batchSize = 20, llmOptions = {}, log = () => {} } = {}) {
+export async function classifyAll(events, { cachePath = 'data/cache/classify.json', useLLM = true, batchSize = 20, concurrency = 4, llmOptions = {}, log = () => {} } = {}) {
   let cache = {};
   if (existsSync(cachePath)) { try { cache = JSON.parse(readFileSync(cachePath, 'utf8')); } catch { cache = {}; } }
   const results = new Map();
@@ -21,13 +21,24 @@ export async function classifyAll(events, { cachePath = 'data/cache/classify.jso
     else todo.push({ e, h });
   }
   let llmOk = 0, fallback = 0;
-  for (let i = 0; i < todo.length; i += batchSize) {
-    const chunk = todo.slice(i, i + batchSize);
-    let llm = null;
-    if (useLLM && (llmOptions.apiKey || process.env.ANTHROPIC_API_KEY)) {
-      try { llm = await classifyBatchLLM(chunk.map((c) => c.e), llmOptions); }
-      catch (err) { log(`LLM batch failed, using rules: ${err.message}`); }
-    }
+  const chunks = [];
+  for (let i = 0; i < todo.length; i += batchSize) chunks.push(todo.slice(i, i + batchSize));
+  const haveKey = useLLM && (llmOptions.apiKey || process.env.ANTHROPIC_API_KEY);
+  // A few batches in flight at once; each failed batch falls back to rules on its own.
+  const llmResults = new Array(chunks.length).fill(null);
+  if (haveKey) {
+    let next = 0;
+    const worker = async () => {
+      while (next < chunks.length) {
+        const k = next++;
+        try { llmResults[k] = await classifyBatchLLM(chunks[k].map((c) => c.e), llmOptions); }
+        catch (err) { log(`LLM batch ${k + 1}/${chunks.length} failed, using rules: ${err.message}`); }
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(concurrency, chunks.length) }, worker));
+  }
+  for (const [k, chunk] of chunks.entries()) {
+    const llm = llmResults[k];
     for (const { e, h } of chunk) {
       const rules = classifyRules(e);
       const t = llm?.get(e.id);

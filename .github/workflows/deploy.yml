@@ -54,7 +54,7 @@ jobs:
           PMTILES_BIN="$(go env GOPATH)/bin/go-pmtiles" npm run build:map
 
       - name: Restore refresh caches (LLM tags, HTTP)
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: data/cache
           key: refresh-${{ github.run_id }}
@@ -63,9 +63,18 @@ jobs:
       - run: npm test
 
       - name: Refresh listings
+        timeout-minutes: 20
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: npm run refresh
+
+      # Saved even if a later step fails, so Claude's tags are never paid for twice.
+      - name: Save refresh caches
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache
+          key: refresh-${{ github.run_id }}
 
       - run: npm run build:site
 

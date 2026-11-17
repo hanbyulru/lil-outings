@@ -79,3 +79,33 @@ test('LLM disagreement with rules on kid relevance is flagged for review', async
   const r = await classifyAll(events, { cachePath: join(dir, 'c.json'), llmOptions: { apiKey: 'k', fetchImpl: mockFetch(llm) } });
   assert.equal(r.get('c').needs_review, true);
 });
+
+test('classifyBatchLLM: asks for low effort, and a cut-off reply is an error (rules take over)', async () => {
+  let body;
+  const cut = async (url, opts) => { body = JSON.parse(opts.body); return { ok: true, status: 200, json: async () => ({ stop_reason: 'max_tokens', content: [{ type: 'text', text: '[{"id":"a"' }] }) }; };
+  await assert.rejects(classifyBatchLLM([ev({ title: 'Storytime' })], { apiKey: 'k', fetchImpl: cut }), /max_tokens/);
+  assert.deepEqual(body.output_config, { effort: 'low' });
+  assert.ok(body.max_tokens >= 16000);
+});
+
+test('classifyAll: batches run a few at a time, and one failed batch only affects itself', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cls-'));
+  const events = Array.from({ length: 50 }, (_, i) => ev({ id: `e${i}`, title: `Toddler Storytime ${i}` }));
+  let inFlight = 0, peak = 0, call = 0;
+  const fetchImpl = async (url, opts) => {
+    const n = ++call;
+    inFlight++; peak = Math.max(peak, inFlight);
+    await new Promise((r) => setTimeout(r, 5));
+    inFlight--;
+    if (n === 2) return { ok: false, status: 500, text: async () => 'boom' };
+    const ids = JSON.parse(JSON.parse(opts.body).messages[0].content).map((x) => x.id);
+    const rows = ids.map((id) => ({ id, kid_relevant: true, age_min: 1, age_max: 3, interests: ['books'], categories: ['storytime'], setting: 'indoor', registration: 'drop_in', cost: { type: 'free', amount: null }, confidence: 0.9 }));
+    return { ok: true, status: 200, json: async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify(rows) }] }) };
+  };
+  const r = await classifyAll(events, { cachePath: join(dir, 'c.json'), batchSize: 10, concurrency: 3, llmOptions: { apiKey: 'k', fetchImpl } });
+  assert.equal(r.size, 50);
+  assert.ok(peak > 1 && peak <= 3, `peak ${peak}`);
+  const sources = [...r.values()].map((t) => t.tag_source);
+  assert.equal(sources.filter((s) => s === 'rules').length, 10); // exactly the failed batch
+  assert.equal(sources.filter((s) => s === 'llm').length, 40);
+});

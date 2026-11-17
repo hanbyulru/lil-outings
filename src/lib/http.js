@@ -8,7 +8,7 @@ const lastHit = new Map();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** Polite fetch: identifies itself, spaces requests per host, caches responses on disk. */
-export async function politeFetch(url, { fetchImpl = fetch, cacheDir = 'data/cache/http', ttlMs = 30 * 60 * 1000, minGapMs = 1500, headers = {}, method = 'GET', body, retries = 2 } = {}) {
+export async function politeFetch(url, { fetchImpl = fetch, cacheDir = 'data/cache/http', ttlMs = 30 * 60 * 1000, minGapMs = 1500, headers = {}, method = 'GET', body, retries = 2, timeoutMs = 60000 } = {}) {
   mkdirSync(cacheDir, { recursive: true });
   const key = createHash('sha1').update(method + url + (body || '')).digest('hex');
   const file = join(cacheDir, key + '.json');
@@ -24,7 +24,7 @@ export async function politeFetch(url, { fetchImpl = fetch, cacheDir = 'data/cac
     const wait = (lastHit.get(host) || 0) + minGapMs - Date.now();
     if (wait > 0) await sleep(wait);
     lastHit.set(host, Date.now());
-    res = await fetchImpl(url, { method, body, headers: { 'user-agent': USER_AGENT, accept: '*/*', ...headers } });
+    res = await fetchImpl(url, { method, body, headers: { 'user-agent': USER_AGENT, accept: '*/*', ...headers }, signal: AbortSignal.timeout(timeoutMs) }); // a stalled source must not hang the run
     if (!(res.status === 429 || res.status === 503) || attempt >= retries) break;
     // Rate limited: honor Retry-After (seconds) when given, else back off 15s, 45s.
     const ra = Number(res.headers?.get?.('retry-after'));

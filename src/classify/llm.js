@@ -30,7 +30,7 @@ function extractJsonArray(text) {
 }
 
 /** Classify a batch via the Anthropic Messages API. Returns Map(id -> normalized tags). Throws on transport/format errors. */
-export async function classifyBatchLLM(events, { apiKey = process.env.ANTHROPIC_API_KEY, model = DEFAULT_MODEL, fetchImpl = fetch, maxTokens = 4000 } = {}) {
+export async function classifyBatchLLM(events, { apiKey = process.env.ANTHROPIC_API_KEY, model = DEFAULT_MODEL, fetchImpl = fetch, maxTokens = 16000, timeoutMs = 120000 } = {}) {
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set');
   const items = events.map((e) => ({
     id: e.id,
@@ -44,10 +44,14 @@ export async function classifyBatchLLM(events, { apiKey = process.env.ANTHROPIC_
   const res = await fetchImpl('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model, max_tokens: maxTokens, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: JSON.stringify(items) }] })
+    // Classification is simple: low effort keeps thinking short, and max_tokens leaves room for the JSON after it.
+    body: JSON.stringify({ model, max_tokens: maxTokens, output_config: { effort: 'low' }, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: JSON.stringify(items) }] }),
+    signal: AbortSignal.timeout(timeoutMs)
   });
   if (!res.ok) throw new Error(`Anthropic API ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
+  if (data.stop_reason === 'max_tokens') throw new Error('response cut off at max_tokens');
+  if (data.stop_reason === 'refusal') throw new Error('model declined this batch');
   const text = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');
   const arr = extractJsonArray(text);
   const out = new Map();
