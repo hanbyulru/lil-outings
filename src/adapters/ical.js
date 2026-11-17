@@ -23,7 +23,24 @@ export async function fetchIcal(source, ctx) {
       texts.push(await politeFetch(source.config.ics_template.replace('{id}', id), ctx.http));
     }
   }
-  return texts.flatMap((t) => parseICal(t)).map((e) => toRaw(source, e));
+  // Several category feeds can list the same event: keep one per UID + start (recurring events can share a UID).
+  const byUid = new Map();
+  for (const e of texts.flatMap((t) => parseICal(t))) byUid.set(`${e.uid || e.title}|${e.start}`, e);
+  const skip = (source.config.exclude_categories || []).map((c) => c.toLowerCase());
+  const skipLoc = (source.config.exclude_locations || []).map((c) => c.toLowerCase());
+  const v = source.config.default_venue; // feeds that give only a room name (LibCal) or free text (CivicPlus)
+  return [...byUid.values()]
+    .filter((e) => !(e.categories || []).some((c) => skip.includes(String(c).trim().toLowerCase())))
+    .filter((e) => !skipLoc.includes(String(e.location || '').trim().toLowerCase()))
+    .map((e) => toRaw(source, e))
+    .map((r) => (v && r.lat == null ? { ...r, venue_name: v.name, address: v.address || r.address, lat: v.lat, lon: v.lon, room: r.venue_name } : r));
+}
+
+/** An event's own page: the URL property when it's a real page, else the first link in the description
+ *  (CivicPlus puts the feed's own relative path in URL and the event link in DESCRIPTION). */
+function pageUrl(e) {
+  if (e.url && /^https?:\/\//.test(e.url) && !/iCalendar\.aspx|ical_subscribe/i.test(e.url)) return e.url;
+  return String(e.description || '').match(/https?:\/\/\S+/)?.[0] || null;
 }
 
 export function toRaw(source, e) {
@@ -35,7 +52,7 @@ export function toRaw(source, e) {
     start: e.start,
     end: e.end,
     all_day: e.allDay,
-    url: e.url,
+    url: pageUrl(e),
     venue_name: e.location,
     address: null,
     lat: e.lat,

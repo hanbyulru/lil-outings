@@ -4,9 +4,12 @@ import { normalizeEvent, withinHorizon, normalizeVenueKey, guessVenue } from './
 import { dedupe } from './dedupe.js';
 import { classifyAll } from './classify/index.js';
 import { bandsFor, VOCAB } from './classify/validate.js';
-import { locate, haversineMiles } from './lib/geo.js';
+import { locate, haversineMiles, GEO } from './lib/geo.js';
+import { nearestPlace } from '../web/query.js';
 import { portlandDate } from './lib/time.js';
 import { buildOffline } from './offline.js';
+
+const OUT_OF_AREA_MILES = 15; // events farther than this from every named place are out of the metro
 
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'));
 
@@ -88,11 +91,13 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
 
   const seen = new Set();
   let events = [];
-  let dropped = { past_or_far: 0, invalid: 0 };
+  let dropped = { past_or_far: 0, invalid: 0, out_of_area: 0 };
   for (const { r, src } of raw) {
     const e = normalizeEvent(r, src, { today });
     if (!e) { dropped.invalid++; continue; }
     if (!withinHorizon(e, today, horizonDays)) { dropped.past_or_far++; continue; }
+    // Regional systems (FVRL) reach far beyond the metro: drop anything 15+ miles from every named place.
+    if (e.lat != null && !nearestPlace(e.lat, e.lon, GEO, OUT_OF_AREA_MILES)) { dropped.out_of_area++; continue; }
     if (seen.has(e.id)) continue;
     seen.add(e.id);
     delete e.horizonDays;

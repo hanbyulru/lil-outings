@@ -39,15 +39,15 @@ export function allPlaces(geo) {
   return placeCache.get(geo);
 }
 
-/** Nearest named place within PLACE_RADIUS_MILES -> { place, district, miles } or null. */
-export function nearestPlace(lat, lon, geo) {
+/** Nearest named place within maxMiles (default PLACE_RADIUS_MILES) -> { place, district, miles } or null. */
+export function nearestPlace(lat, lon, geo, maxMiles = PLACE_RADIUS_MILES) {
   if (!Number.isFinite(+lat) || !Number.isFinite(+lon) || lat === null || lon === null) return null;
   let best = null;
   for (const p of allPlaces(geo)) {
     const d = haversineMiles({ lat: +lat, lon: +lon }, p);
     if (!best || d < best.miles) best = { place: p.name, district: p.district, miles: d };
   }
-  return best && best.miles <= PLACE_RADIUS_MILES ? best : null;
+  return best && best.miles <= maxMiles ? best : null;
 }
 
 /** Regions a district belongs to (Tigard is in two). */

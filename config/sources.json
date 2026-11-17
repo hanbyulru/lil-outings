@@ -75,6 +75,156 @@
       "notes": "List format verified. Volunteer days and public meetings are excluded at the source (config.exclude_labels). Kid classes are a separate content type: see programs.pdx_parks_classes."
     },
     {
+      "id": "fvrl",
+      "name": "Fort Vancouver Regional Libraries",
+      "type": "bibliocommons",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://fvrlibraries.bibliocommons.com/v2/events",
+      "config": {
+        "site": "https://fvrlibraries.bibliocommons.com/v2",
+        "api": "https://gateway.bibliocommons.com/v2/libraries/fvrlibraries/events/search",
+        "queries": [
+          {
+            "audiences": "683dfbae16b0912800307cff,688af5ed709d27410034767e,683dfbb4a208143d00da3ace,67ee9f03eeecc81b3319f6b2,683dfbbba208143d00da3acf,683e18febf66c12f00dc8549"
+          }
+        ],
+        "exclude_locations": [
+          "Goldendale Community Library",
+          "Goldendale/Klickitat Bookmobile",
+          "North Bonneville Community Library",
+          "Skamania/Klickitat Bookmobile",
+          "Stevenson Community Library",
+          "White Salmon Valley Community Library",
+          "Yale Valley Community Library"
+        ]
+      },
+      "notes": "Moved from fvrl.librarymarket.com to BiblioCommons in 2026 (the old calendar is empty). Audiences: Babies, Toddlers, Preschoolers, Kids, Tweens, Families. Gorge/Klickitat branches are out of the metro."
+    },
+    {
+      "id": "oregon_city_library",
+      "name": "Oregon City Public Library",
+      "type": "ical",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://orcity-library.libcal.com/calendar",
+      "config": {
+        "urls": [
+          "https://orcity-library.libcal.com/ical_subscribe.php?src=p&cid=12912"
+        ],
+        "exclude_categories": [
+          "Activity Kits"
+        ],
+        "exclude_locations": [
+          "At Home"
+        ],
+        "default_venue": {
+          "name": "Oregon City Public Library",
+          "address": "606 John Adams St, Oregon City, OR 97045",
+          "lat": 45.3566,
+          "lon": -122.603
+        }
+      },
+      "notes": "LibCal iCal (cid 12912 = Library Events). LOCATION is a room name, so every event gets the library's address."
+    },
+    {
+      "id": "wilsonville_library",
+      "name": "Wilsonville Public Library",
+      "type": "ical",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://www.wilsonvillelibrary.org/calendar.aspx",
+      "config": {
+        "urls": [
+          "https://www.wilsonvillelibrary.org/common/modules/iCalendar/iCalendar.aspx?catID=24&feed=calendar",
+          "https://www.wilsonvillelibrary.org/common/modules/iCalendar/iCalendar.aspx?catID=29&feed=calendar",
+          "https://www.wilsonvillelibrary.org/common/modules/iCalendar/iCalendar.aspx?catID=30&feed=calendar",
+          "https://www.wilsonvillelibrary.org/common/modules/iCalendar/iCalendar.aspx?catID=31&feed=calendar",
+          "https://www.wilsonvillelibrary.org/common/modules/iCalendar/iCalendar.aspx?catID=14&feed=calendar"
+        ],
+        "default_venue": {
+          "name": "Wilsonville Public Library",
+          "address": "8200 SW Wilsonville Rd, Wilsonville, OR 97070",
+          "lat": 45.3006,
+          "lon": -122.7733
+        }
+      },
+      "notes": "CivicPlus iCal by category: 24/29/30/31 library, 14 city community events. 23 (council) and 28 (closures) left out. Descriptions are only links."
+    },
+    {
+      "id": "lake_oswego_library",
+      "name": "Lake Oswego Public Library",
+      "type": "drupal_calendar",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://www.ci.oswego.or.us/calendar?og_group_ref_target_id=13",
+      "config": {
+        "url_template": "https://www.ci.oswego.or.us/calendar/month/{month}?og_group_ref_target_id=13",
+        "site": "https://www.ci.oswego.or.us",
+        "venue": {
+          "name": "Lake Oswego Public Library",
+          "address": "706 4th St, Lake Oswego, OR 97034",
+          "lat": 45.4198,
+          "lon": -122.6683
+        }
+      },
+      "notes": "Drupal 7 calendar month view (titles and start times only; no descriptions). Bookmobile ('Rover') stops are elsewhere in town."
+    },
+    {
+      "id": "west_linn_library",
+      "name": "West Linn Public Library",
+      "type": "drupal_calendar",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://westlinnoregon.gov/library/calendar",
+      "config": {
+        "url_template": "https://westlinnoregon.gov/library/calendar/{month}",
+        "site": "https://westlinnoregon.gov",
+        "venue": {
+          "name": "West Linn Public Library",
+          "address": "1595 Burns St, West Linn, OR 97068",
+          "lat": 45.3657,
+          "lon": -122.6125
+        }
+      },
+      "notes": "Drupal 7 calendar month view (titles and start times only)."
+    },
+    {
+      "id": "clackamas_libraries",
+      "name": "Oak Lodge & Gladstone Libraries",
+      "type": "clackamas_events",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://www.clackamas.us/events?dept=146",
+      "config": {
+        "url": "https://www.clackamas.us/events?dept=146",
+        "site": "https://www.clackamas.us",
+        "venues": [
+          {
+            "match": "Gladstone",
+            "name": "Gladstone Library",
+            "address": "525 Portland Ave, Gladstone, OR 97027",
+            "lat": 45.3809,
+            "lon": -122.5936
+          },
+          {
+            "match": "Oak Lodge",
+            "name": "Oak Lodge Library",
+            "address": "16201 SE McLoughlin Blvd, Oak Grove, OR 97267",
+            "lat": 45.4086,
+            "lon": -122.6346
+          }
+        ]
+      },
+      "notes": "Clackamas County events list, library department. Titles end in the branch name; '18+' marks adult events."
+    },
+    {
       "id": "manual",
       "name": "Submitted & curated",
       "type": "manual",
@@ -86,8 +236,8 @@
       }
     },
     {
-      "id": "beaverton",
-      "name": "Beaverton City Library",
+      "id": "ccrls",
+      "name": "Ledding (Milwaukie) and Happy Valley libraries",
       "type": "ical",
       "enabled": false,
       "trust": 8,
@@ -95,40 +245,7 @@
       "config": {
         "urls": []
       },
-      "notes": "Find the calendar's iCal/JSON endpoint."
-    },
-    {
-      "id": "hillsboro",
-      "name": "Hillsboro Library",
-      "type": "ical",
-      "enabled": false,
-      "trust": 8,
-      "status": "todo",
-      "config": {
-        "urls": []
-      }
-    },
-    {
-      "id": "lakeoswego",
-      "name": "Lake Oswego Public Library",
-      "type": "ical",
-      "enabled": false,
-      "trust": 8,
-      "status": "todo",
-      "config": {
-        "urls": []
-      }
-    },
-    {
-      "id": "ccrls",
-      "name": "Clackamas County libraries (Oregon City, Milwaukie, Happy Valley)",
-      "type": "ical",
-      "enabled": false,
-      "trust": 8,
-      "status": "todo",
-      "config": {
-        "urls": []
-      }
+      "notes": "Still to do: Ledding Library (Milwaukie) and Happy Valley Library calendars. Oregon City, Oak Lodge and Gladstone are covered by their own sources."
     },
     {
       "id": "venues_jsonld",

@@ -14,11 +14,12 @@ export function classifyRules(ev) {
   let m;
   if ((m = text.match(/ages?\s*(\d{1,2})\s*(?:-|–|to|through)\s*(\d{1,2})/))) { min = +m[1]; max = +m[2]; }
   else if ((m = text.match(/ages?\s*(\d{1,2})\s*\+/))) { min = +m[1]; max = 12; }
-  else if (has(text, /birth to 12 months|book babies|\bbabies\b|baby storytime|lapsit|infants?/)) { min = 0; max = 1; }
+  else if (has(text, /birth to 12 months|book babies|\bbabies\b|baby storytime|baby time|lapsit|infants?/)) { min = 0; max = 1; }
   else if (has(text, /one-year-olds|tiny tots/)) { min = 1; max = 2; }
   else if (has(text, /toddlers?/)) { min = 1; max = 3; }
   else if (has(text, /preschool/)) { min = 3; max = 5; }
-  else if (has(text, /\b(family|kids|children|storytime|story time|all ages)\b/)) { min = 0; max = 12; }
+  // Library calendars often give only a title (Lake Oswego, West Linn, Wilsonville): recognise common kid programs by name.
+  else if (has(text, /\b(family|kids|children|storytime|story time|all ages)\b|\blego\b|play ?group|playtime|story and play|music and movement|story ?walk|tales to tails|read(ing)? to (the )?(dogs?|cats?)/)) { min = 0; max = 12; }
 
   let kid = !adultOnly && !teenOnly && min != null;
   const interests = [];
@@ -32,7 +33,7 @@ export function classifyRules(ev) {
   if (has(text, /\b(book|story|storytime|read|reading|library)\b/) && has(text, /story|book|read/)) interests.push('books');
 
   const categories = [];
-  if (has(text, /story ?time|book babies|tiny tots|toddler time|lapsit|story walk/)) categories.push('storytime');
+  if (has(text, /story ?time|book babies|tiny tots|toddler time|baby time|lapsit|story ?walk|story and play/)) categories.push('storytime');
   if (has(text, /thanksgiving|christmas|holiday|santa|pumpkin|halloween|hanukkah|winter solstice|lantern|menorah|easter|valentine|zoolights|lights/)) categories.push('seasonal');
   if (min != null && max != null && min <= 1 && max <= 3 || has(text, /\b(babies|baby|toddlers?|tiny tots)\b/)) categories.push('babies_toddlers');
   if (has(text, /\b(outdoor|outside|park|trail|nature walk|farm|garden|walk)\b/)) categories.push('outdoors');

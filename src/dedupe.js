@@ -13,7 +13,9 @@ export function dedupe(events) {
   const byUrl = new Map();
   for (const e of events) {
     const k = keyFor(e);
-    const u = e.url ? e.url.replace(/[?#].*$/, '').replace(/\/$/, '') : null;
+    // Same page AND same day: one series page (weekly storytime) lists many dates, and query strings can be the
+    // only thing that tells events apart (calendar.aspx?EID=1114), so keep them.
+    const u = e.url ? `${e.url.replace(/#.*$/, '').replace(/\/$/, '')}|${e.date}` : null;
     const existing = byKey.get(k) || (u && byUrl.get(u));
     if (!existing) {
       byKey.set(k, e);

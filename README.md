@@ -23,13 +23,18 @@ The prototype was built in a sandbox with no internet access. So:
 | Source | Adapter | Status |
 |---|---|---|
 | Multnomah County Library (`multcolib.org/events-classes`) | `multcolib` | verified Nov 2026: server-rendered list, fetched per kids' age filter (babies, kids & family, tweens) until past the horizon; branch coordinates from the map on `/hours-and-locations`. Cloudflare rate-limits, so requests are spaced 4s (`min_gap_ms`); a full run takes ~2.5 min |
-| Washington County libraries (BiblioCommons) | `bibliocommons` | experimental: JSON shape is a best guess |
+| Washington County libraries (BiblioCommons) | `bibliocommons` | verified: gateway JSON, 50 per page (paged), branch coordinates from `mapLocation.centrePoint` |
+| Fort Vancouver Regional Libraries (BiblioCommons, `fvrlibraries`) | `bibliocommons` | verified Nov 2026 (moved off LibraryMarket). Kids' audiences only; Gorge/Klickitat branches excluded |
+| Oregon City Public Library (LibCal iCal) | `ical` | verified; rooms only, so a fixed library venue; take-home kits excluded |
+| Wilsonville Public Library (CivicPlus iCal) | `ical` | verified; library + community categories; event link comes from DESCRIPTION |
+| Lake Oswego and West Linn libraries (Drupal 7 calendar) | `drupal_calendar` | verified; month views give titles and start times only (no descriptions) |
+| Oak Lodge & Gladstone libraries (Clackamas County events) | `clackamas_events` | verified; library department list, UTC times |
 | Portland Parks & Recreation `/parks/events` | `portland_gov` | list structure confirmed. Volunteer days and public meetings are excluded at the source (`exclude_labels`) |
 | PP&R class listings (`/parks/recreation/activities/sports`) | `portland_gov_programs` | experimental. Structure read from the live Sports page: region > age group > Class/Description/Location/Register tables. Adult and intergenerational sections skipped. These are *programs* (no dates/times/prices), shown on the Classes tab with a link to ActiveNet. Other category pages (Arts, Dance, Music, Swim Lessons, School Break Camps) need their URLs checked and added to `config/sources.json` |
 | PP&R ActiveNet sessions (dates, times, prices) | none yet | TODO: needs a look at the registration site's search API from a networked machine |
 | Manual / curated (`data/manual/*.json`) | `manual` | works |
 | Places: curated seed + OpenStreetMap (Overpass) | `osm` | OSM live call unverified; seed coordinates are approximate, DiG PDX's address and coordinates are placeholders |
-| Beaverton, Hillsboro, Lake Oswego, Clackamas libraries, venue JSON-LD | various | disabled TODOs |
+| Ledding (Milwaukie) and Happy Valley libraries, venue JSON-LD | various | disabled TODOs |
 
 First thing to do on your machine: `npm run refresh -- --no-llm` and look at `meta.json` source results and `data/cache`.
 

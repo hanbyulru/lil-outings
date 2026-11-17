@@ -124,7 +124,40 @@ export function buildOffline(today) {
   const reg = (q) => `<a href="https://anc.apm.activecommunities.com/portlandparks/activity/search?keyword=${q}">Check availability</a>`;
   const tbl = (rows) => `<table><thead><tr><th>Class</th><th>Description</th><th>Location</th><th>Register</th></tr></thead><tbody>${rows.map(([n, d, l]) => `<tr><td>${n}</td><td>${d}</td><td>${l}</td><td>${reg(encodeURIComponent(n))}</td></tr>`).join('')}</tbody></table>`;
   const sportsHtml = `<h2>East and Southeast Portland</h2><h3>Child with Adult</h3>${tbl([['Soccer', 'Develop skills together that promote balance and agility.', 'East Portland and Mt. Scott Community Center'], ['Gymnastics', 'Tumble and climb with a grown-up.', 'Mt. Scott Community Center']])}<h3>Preschool</h3>${tbl([['Preschool Baseball', 'A recreational introduction to throwing, catching and hitting.', 'East Portland Community Center']])}<h3>Youth</h3>${tbl([['Tae Kwon Do', 'Martial arts for school-age kids.', 'Southwest Community Center']])}<h3>Adult</h3>${tbl([['Pickleball', 'Adult open play.', 'Mt. Scott Community Center']])}<h2>North and Northeast Portland</h2><h3>Youth</h3>${tbl([['Basketball', 'Skills and scrimmages.', 'Matt Dishman Community Center and Peninsula Park Community Center']])}<h2>Southwest Portland</h2><h3>Intergenerational</h3>${tbl([['Walking Club', 'All ages.', 'Hillsdale Community Center']])}`;
+  // ---- South Metro and Vancouver (each in its real feed format; demo titles) ----
+  const d1 = days.find((d) => dayOfWeek(d) === 3) || days[1]; // a Wednesday
+  const d2 = days.find((d) => dayOfWeek(d) === 6) || days[2]; // a Saturday
+  const stampZ = (date, hhmm) => `${date.replace(/-/g, '')}T${hhmm.replace(':', '')}00`;
+  const fvrlJson = JSON.stringify({ events: { pagination: { page: 1, pages: 1 } }, entities: {
+    events: {
+      fv1: { id: 'fv1', definition: { id: 'fv1', title: 'Toddler Storytime', description: 'Stories, songs and rhymes for toddlers 18-36 months with a grown-up. Free.', start: `${d1}T10:30`, end: `${d1}T11:00`, branchLocationId: 'FV-VCL', audienceIds: ['a-tod'], typeIds: ['t-story'] } },
+      fv2: { id: 'fv2', definition: { id: 'fv2', title: 'Family Lego Build', description: 'Build together. Ages 5-10 with family. Drop in.', start: `${d2}T14:00`, end: `${d2}T15:30`, branchLocationId: 'FV-CP', audienceIds: ['a-kids'], typeIds: [] } },
+      fv3: { id: 'fv3', definition: { id: 'fv3', title: 'Gorge Storytime', description: 'Storytime for little ones.', start: `${d1}T11:00`, end: `${d1}T11:30`, branchLocationId: 'FV-STV', audienceIds: ['a-tod'], typeIds: ['t-story'] } }
+    },
+    locations: {
+      'FV-VCL': { name: 'Vancouver Community Library', mapLocation: { centrePoint: { lat: 45.6285, lng: -122.6688 } } },
+      'FV-CP': { name: 'Cascade Park Community Library', mapLocation: { centrePoint: { lat: 45.6251, lng: -122.5355 } } },
+      'FV-STV': { name: 'Stevenson Community Library', mapLocation: { centrePoint: { lat: 45.6954, lng: -121.8816 } } }
+    },
+    eventAudiences: { 'a-tod': { name: 'Toddlers' }, 'a-kids': { name: 'Kids' } },
+    eventTypes: { 't-story': { name: 'Storytime & Early Literacy ' } }
+  } });
+  const icsOf = (rows) => ['BEGIN:VCALENDAR', 'VERSION:2.0', ...rows.flatMap(([uid, date, t, mins, title, loc, cats]) => ['BEGIN:VEVENT', `UID:${uid}`, `DTSTART;TZID=America/Los_Angeles:${stampZ(date, t)}`, `DTEND;TZID=America/Los_Angeles:${stampZ(date, `${String(+t.slice(0, 2) + Math.floor(mins / 60)).padStart(2, '0')}:${t.slice(3)}`)}`, `SUMMARY:${title}`, `LOCATION:${loc}`, ...(cats ? [`CATEGORIES:${cats}`] : []), 'END:VEVENT']), 'END:VCALENDAR'].join('\r\n');
+  const ocIcs = icsOf([['oc1', d1, '10:30', 60, 'Preschool Storytime', 'Community Room', 'Storytime'], ['oc2', d2, '00:00', 60, "Children's Creative Kit", 'At Home', 'Activity Kits']]);
+  const wvIcs = icsOf([['wv1', d2, '11:00', 60, 'Family Storytime', ' - Wilsonville Public Library 8200 SW Wilsonville Road Wilsonville', null]]);
+  const drupalMonth = (rows) => rows.map(([date, t, path, title]) => `<div class="calendar-1-field_date-0.0 contents"><span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="${date}T${t}:00-08:00">${t}</span> <a href="${path}?date=0">${title}</a></div>`).join('\n');
+  const loHtml = drupalMonth([[d1, '10:15', '/library/baby-storytime', 'Baby Storytime'], [d2, '13:00', '/library/lego-club', 'Lego Club']]);
+  const wlHtml = drupalMonth([[d1, '10:45', '/library/family-storytime-10', 'Family Storytime']]);
+  const ccHtml = [[d1, '18:00', 'baby-storytime-oak-lodge-public-library', 'Baby Storytime – Oak Lodge Public Library', 'Oak Lodge Library, 16201 SE McLoughlin Blvd'], [d2, '19:00', 'read-to-the-dog-gladstone-library', 'Read to the Dog – Gladstone Library', 'Gladstone Library, 525 Portland Avenue Gladstone, OR 97027']]
+    .map(([date, utc, slug, title, addr]) => `<div class="views-row"><a href="/event/${date}/${slug}" hreflang="en">${title}</a><time datetime="${date}T${utc}:00Z">x</time><time datetime="${date}T${utc.replace(/^(\d\d)/, (h) => String(+h + 1).padStart(2, '0'))}:00Z">x</time><div class="views-field views-field-field-ccts-map-link"><div class="field-content"><a href="https://maps.example/x">${addr}</a></div></div></div>`).join('');
+
   const fetchImpl = async (url) => {
+    if (url.includes('/libraries/fvrlibraries/')) return ok(fvrlJson);
+    if (url.includes('orcity-library.libcal.com')) return ok(ocIcs);
+    if (url.includes('wilsonvillelibrary.org')) return ok(url.includes('catID=29') ? wvIcs : icsOf([]));
+    if (url.includes('ci.oswego.or.us/calendar/month/')) return ok(loHtml);
+    if (url.includes('westlinnoregon.gov/library/calendar/')) return ok(wlHtml);
+    if (url.includes('clackamas.us/events')) return ok(ccHtml);
     if (url.startsWith('https://multcolib.org/hours-and-locations')) return ok(mclBranchMap());
     if (url.startsWith('https://multcolib.org/events-classes')) {
       const q = new URL(url).searchParams;

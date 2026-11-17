@@ -638,6 +638,11 @@
      "name": "Battle Ground",
      "lat": 45.781,
      "lon": -122.533
+    },
+    {
+     "name": "La Center",
+     "lat": 45.8623,
+     "lon": -122.6704
     }
    ]
   }
