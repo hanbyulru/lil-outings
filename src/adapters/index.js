@@ -8,9 +8,13 @@ import { fetchDrupalCalendar } from './drupal_calendar.js';
 import { fetchClackamasEvents } from './clackamas_events.js';
 import { fetchRevizeCalendar } from './revize_calendar.js';
 import { fetchTribeEvents } from './tribe_events.js';
+import { fetchGreshamEvents } from './gresham_events.js';
+import { fetchJuiceboxEvents } from './juicebox_events.js';
+import { fetchNuxtStrapiEvents } from './nuxt_strapi_events.js';
+import { fetchVancouverEvents } from './vancouver_events.js';
 import { fetchOsmPlaces } from './osm_places.js';
 import { fetchPortlandGovPrograms } from './portland_gov_programs.js';
 
-export const EVENT_ADAPTERS = { ical: fetchIcal, portland_gov: fetchPortlandGov, bibliocommons: fetchBiblioCommons, jsonld: fetchJsonLd, manual: fetchManual, multcolib: fetchMultcolib, drupal_calendar: fetchDrupalCalendar, clackamas_events: fetchClackamasEvents, revize_calendar: fetchRevizeCalendar, tribe_events: fetchTribeEvents };
+export const EVENT_ADAPTERS = { ical: fetchIcal, portland_gov: fetchPortlandGov, bibliocommons: fetchBiblioCommons, jsonld: fetchJsonLd, manual: fetchManual, multcolib: fetchMultcolib, drupal_calendar: fetchDrupalCalendar, clackamas_events: fetchClackamasEvents, revize_calendar: fetchRevizeCalendar, tribe_events: fetchTribeEvents, gresham_events: fetchGreshamEvents, juicebox_events: fetchJuiceboxEvents, nuxt_strapi_events: fetchNuxtStrapiEvents, vancouver_events: fetchVancouverEvents };
 export const PLACE_ADAPTERS = { osm: fetchOsmPlaces };
 export const PROGRAM_ADAPTERS = { portland_gov_programs: fetchPortlandGovPrograms };

@@ -35,11 +35,35 @@ export async function fetchIcal(source, ctx) {
     .filter((e) => !skipLoc.includes(String(e.location || '').trim().toLowerCase()))
     .filter((e) => !skipTitle.some((re) => re.test(e.title || '')))
     .map((e) => toRaw(source, e))
+    .map((r) => (source.config.geocode && r.lat == null ? splitCivicLocation(r, source.config.fallback_venue) : r))
     .map((r) => (v && r.lat == null
       ? (v.keep_location_name && r.venue_name
         ? { ...r, venue_name: r.venue_name.replace(/^\s*-\s*/, '').replace(/\s+\d+\s+(SW|SE|NW|NE|N|S|E|W)\s.*$/, ''), lat: v.lat, lon: v.lon } // town-level pin, the feed's own place name
         : { ...r, venue_name: v.name, address: v.address || r.address, lat: v.lat, lon: v.lon, room: r.venue_name })
       : r));
+}
+
+/**
+ * CivicPlus LOCATION is "Venue - 123 Street  Town OR 97000" (sometimes with an HTML blurb as the venue).
+ * Split it so src/geocode.js can place the street address; the town-level fallback covers misses.
+ */
+export function splitCivicLocation(r, fb) {
+  const loc = String(r.venue_name || '').replace(/&amp;/g, '&').replace(/\\([,;])/g, '$1').replace(/^\s*-\s+/, ' - ');
+  const cut = loc.lastIndexOf(' - ');
+  let name = (cut >= 0 ? loc.slice(0, cut) : '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (name.length > 60 || /[.!?]\s/.test(name)) name = ''; // a description pasted into the venue field
+  let rest = (cut >= 0 ? loc.slice(cut + 3) : loc).replace(/\s+/g, ' ').trim();
+  // "Tualatin Hills Nature Center 15655 SW Millikan Way Beaverton OR 97003": a venue name can lead the address too
+  const lead = rest.match(/^(\D+?)\s+(\d+\s.*)$/);
+  if (lead) { name ||= lead[1].trim(); rest = lead[2]; }
+  const m = rest.match(/^(\d+\s.+)\s+(\S+)\s+(OR|WA)\s+(\d{5})$/);
+  const street = m?.[1].replace(/\bSouthWest\b/, 'SW').replace(/\bNorthwest\b/, 'NW');
+  return {
+    ...r,
+    venue_name: name || fb?.name || null,
+    address: m ? `${street}, ${m[2]}, ${m[3]} ${m[4]}` : null,
+    geo_fallback: fb ? { lat: fb.lat, lon: fb.lon } : null
+  };
 }
 
 /** An event's own page: the URL property when it's a real page, else the first link in the description

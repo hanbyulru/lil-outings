@@ -166,3 +166,101 @@ test('The Events Calendar API: category include/exclude, venue geo, fallback ven
   assert.equal(ev[1].venue_name, 'Sherwood');
   assert.equal(ev[1].lat, 45.357);
 });
+
+import { parseGreshamEvents, parseTimeRange } from '../src/adapters/gresham_events.js';
+test('Gresham events service: times, cancellations, address for geocoding', () => {
+  assert.deepEqual(parseTimeRange('6:00 pm - 8:00 pm'), { start: '18:00', end: '20:00' });
+  assert.deepEqual(parseTimeRange('10 - 11:30 am'), { start: '10:00', end: '11:30' });
+  assert.equal(parseTimeRange(''), null);
+  const src = { id: 'g', config: { site: 'https://www.greshamoregon.gov', fallback_venue: { name: 'Gresham', lat: 45.4985, lon: -122.4302 } } };
+  const ev = parseGreshamEvents({ events: [
+    { start: '2026-12-11', end: '2026-12-11', canceled: false, title: 'Reindeer in Rockwood', url: '/events/2026/community-events/reindeer/', time: '4:00 pm - 7:00 pm', location: 'Rockwood Market Hall, 458 SE 185th Avenue' },
+    { start: '2026-11-18', end: '2026-11-18', canceled: true, title: 'Youth and Family Movie Night', url: '/events/x/', time: '6:00 pm', location: 'The Underground PDX' }
+  ] }, src, 'Community Events');
+  assert.equal(ev[0].start, '2026-12-11T16:00:00-08:00');
+  assert.equal(ev[0].end, '2026-12-11T19:00:00-08:00');
+  assert.equal(ev[0].url, 'https://www.greshamoregon.gov/events/2026/community-events/reindeer/');
+  assert.equal(ev[0].venue_name, 'Rockwood Market Hall');
+  assert.equal(ev[0].address, 'Rockwood Market Hall, 458 SE 185th Avenue, Gresham');
+  assert.deepEqual(ev[0].geo_fallback, { lat: 45.4985, lon: -122.4302 });
+  assert.equal(ev[1].cancelled, true);
+  assert.equal(ev[1].address, null); // no street address: town pin
+});
+
+import { parseJuiceboxEvent } from '../src/adapters/juicebox_events.js';
+test('Juicebox (Tualatin) event detail', () => {
+  const src = { id: 't', config: { town: 'Tualatin, OR', fallback_venue: { name: 'Tualatin Community Park', lat: 45.3866, lon: -122.7625 } } };
+  const e = parseJuiceboxEvent({ id: 14400, title: 'Kids Night Out (Parents Night Off)', url: 'https://parks.tualatinoregon.gov/events/kno/', location: 'Van Raden Community Center', all_day: false,
+    event_category: [{ name: 'Parks &amp; Recreation' }], event_audience: [{ name: 'Kids' }],
+    start_date: { date: { mysql: '2026-12-11 17:30:00' } }, end_date: { date: { mysql: '2026-12-11 21:00:00' } } }, src);
+  assert.equal(e.start, '2026-12-11T17:30:00-08:00');
+  assert.equal(e.address, 'Van Raden Community Center, Tualatin, OR');
+  assert.deepEqual(e.raw_categories, ['Parks & Recreation']);
+  assert.deepEqual(e.raw_audience, ['Kids']);
+  assert.equal(parseJuiceboxEvent({ id: 1, title: 'x' }, src), null);
+});
+
+import { parseNuxtStrapiEvents } from '../src/adapters/nuxt_strapi_events.js';
+test('Nuxt/Strapi (NCPRD) events: series occurrences from the __NUXT_DATA__ payload', () => {
+  // devalue: a flat array whose objects point at other indexes
+  const data = [['ShallowReactive', 1], { events: 2 }, [3, 12], { __typename: 4, title: 5, slug: 6, fullSlug: 7, excerpt: 8, address: 9, startTime: 10, endTime: 11, occurrences: 13 },
+    'Event', 'Indoor Playground', 'indoor-playground-thursdays', 'events/indoor-playground-thursdays', 'Playtime for young children and their caregivers.', '3811 S.E. Concord Rd. in Oak Grove', '2026-09-10T16:00:00.000Z', '2026-09-10T17:30:00.000Z',
+    { __typename: 4, title: 18, slug: 19, fullSlug: 20, excerpt: 21, address: 21, startTime: 22, endTime: 21, occurrences: 23 },
+    { data: 14 }, [15, 16], { attributes: 17 }, { attributes: 24 }, { startTime: 25, endTime: 26, status: 27 },
+    'Planting Party', 'planting', 'events/planting', null, '2026-11-21T18:00:00.000Z', { data: 28 },
+    { startTime: 29, endTime: 29, status: 30 }, '2026-11-19T17:00:00.000Z', '2026-11-19T18:30:00.000Z', 'scheduled', [], '2026-11-12T17:00:00.000Z', 'cancelled'];
+  const html = `<html><script type="application/json" id="__NUXT_DATA__" data-ssr="true">${JSON.stringify(data)}</script></html>`;
+  const ev = parseNuxtStrapiEvents(html, { id: 'n', config: { site: 'https://ncprd.org' } }, '2026-11-17');
+  assert.deepEqual(ev.map((e) => [e.title, e.start]), [['Indoor Playground', '2026-11-19T17:00:00.000Z'], ['Planting Party', '2026-11-21T18:00:00.000Z']]); // past + cancelled occurrences skipped
+  assert.equal(ev[0].url, 'https://ncprd.org/events/indoor-playground-thursdays');
+  assert.equal(ev[0].address, '3811 S.E. Concord Rd., Oak Grove');
+});
+
+import { parseVancouverEvents, parseVanWhen } from '../src/adapters/vancouver_events.js';
+test('Vancouver, WA calendar: events tab only, department, venue lines', () => {
+  assert.deepEqual(parseVanWhen('Friday, December 11, 2026', '6:00 pm - 8:00 pm'), { start: '2026-12-11T18:00:00-08:00', end: '2026-12-11T20:00:00-08:00', all_day: false });
+  const html = `<div id="tab1"><div id="section1" class="expanding-containerevt"><h3>City Council Meeting</h3><h5 class="m-0"> Monday, December 7, 2026 <br><span> 6:30 pm</span></h5></div></div>
+  <div id="tab2"><ul><li><a href="#section1"><div class="event_det"> <div class="h6">Parks, Recreation and Cultural Services </div><h3>Pizza with Santa</h3></div></a></li></ul>
+  <div id="section1" class="expanding-containerevt"><div class="exp_left"><h3>Pizza with Santa</h3><h5 class="m-0"> Friday, December 11, 2026 <br><span> 6:00 pm - 8:00 pm</span></h5>
+  <div class="addeventatc"><span class="description">Pizza, crafts &amp; photos with Santa.</span></div></div><h4> Firstenburg Community Center </br> 700 NE 136th Ave </br> Vancouver , WA 98684 </h4>
+  <a class="link" href="https://www.cityofvancouver.us/events/pizza-with-santa/">Learn More</a></div></div>`;
+  const ev = parseVancouverEvents(html, { id: 'v', config: {} });
+  assert.equal(ev.length, 1);
+  assert.equal(ev[0].title, 'Pizza with Santa');
+  assert.equal(ev[0].start, '2026-12-11T18:00:00-08:00');
+  assert.equal(ev[0].venue_name, 'Firstenburg Community Center');
+  assert.equal(ev[0].address, 'Firstenburg Community Center, 700 NE 136th Ave, Vancouver, WA 98684');
+  assert.deepEqual(ev[0].raw_categories, ['Parks, Recreation and Cultural Services']);
+  assert.match(ev[0].description, /photos with Santa/);
+});
+
+import { splitCivicLocation } from '../src/adapters/ical.js';
+test('CivicPlus LOCATION split into venue + street address (THPRD)', () => {
+  const fb = { name: 'THPRD', lat: 45.48, lon: -122.8 };
+  const f = (l) => { const r = splitCivicLocation({ venue_name: l }, fb); return [r.venue_name, r.address]; };
+  assert.deepEqual(f('Conestoga Recreation &amp\; Aquatic Center - 9985 SW 125th Avenue  Beaverton OR 97008'), ['Conestoga Recreation & Aquatic Center', '9985 SW 125th Avenue, Beaverton, OR 97008']);
+  assert.deepEqual(f('- Tualatin Hills Nature Center  15655 SW Millikan Way  Beaverton OR 97003'), ['Tualatin Hills Nature Center', '15655 SW Millikan Way, Beaverton, OR 97003']);
+  assert.deepEqual(f('<p>Free Admission! 80+ vendors\\, music.</p> - 5550 SW Hall Blvd  Beaverton OR 97005'), ['THPRD', '5550 SW Hall Blvd, Beaverton, OR 97005']);
+  assert.deepEqual(f(' -   Beaverton OR 97006'), ['THPRD', null]);
+});
+
+import { geocodeEvents, queriesFor } from '../src/geocode.js';
+test('geocoder: tidy queries, opt-in per source, town fallback on a miss', async () => {
+  assert.deepEqual(queriesFor('3811 S.E. Concord Rd. in Oak Grove'.replace(' in ', ', ')), ['3811 SE Concord Rd, Oak Grove']);
+  assert.deepEqual(queriesFor('Rockwood Market Hall, 458 SE 185th Avenue, Gresham'), ['Rockwood Market Hall, 458 SE 185th Avenue, Gresham', '458 SE 185th Avenue, Gresham']);
+  const { mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const calls = [];
+  const fetchImpl = async (url) => { calls.push(decodeURIComponent(url)); return { ok: true, status: 200, text: async () => JSON.stringify(url.includes('458') ? [{ lat: '45.519761', lon: '-122.472011' }] : []) }; };
+  const on = { config: { geocode: true } }, off = { config: {} };
+  const raws = [
+    { r: { address: 'Rockwood Market Hall, 458 SE 185th Avenue, Gresham', lat: null, geo_fallback: { lat: 1, lon: 2 } }, src: on },
+    { r: { address: 'Nowhere Hall', lat: null, geo_fallback: { lat: 1, lon: 2 } }, src: on },
+    { r: { address: '458 SE 185th Avenue', lat: null }, src: off }
+  ];
+  await geocodeEvents(raws, { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'geo-')), minGapMs: 0 });
+  assert.deepEqual([raws[0].r.lat, raws[0].r.lon, raws[0].r.geo_source], [45.51976, -122.47201, 'geocoded']);
+  assert.deepEqual([raws[1].r.lat, raws[1].r.geo_source], [1, 'town']);
+  assert.equal(raws[2].r.lat, null); // source didn't opt in
+  assert.ok(calls.every((u) => u.includes('nominatim.openstreetmap.org') && u.includes('bounded=1')));
+});

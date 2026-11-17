@@ -36,6 +36,11 @@ The prototype was built in a sandbox with no internet access. So:
 | Milwaukie Community Events (Revize) | `revize_calendar` | verified; parades, concerts in the park |
 | Wilsonville Parks & Recreation (CivicPlus categories 25, 27) | `ical` | verified |
 | City of Sherwood and City of Happy Valley events (WordPress The Events Calendar API) | `tribe_events` | verified; Sherwood library and meetings left out |
+| THPRD (Beaverton/Aloha; CivicPlus categories 24 Events, 35 Nature Center) | `ical` + geocoding | verified; venue split from LOCATION and geocoded |
+| Tualatin Parks & Recreation (WordPress/Juicebox; audiences Babies-Preschool and Kids) | `juicebox_events` | verified; list has no dates, so one detail call per event (cached a day) |
+| North Clackamas Parks & Recreation, ncprd.org/events (Nuxt/Strapi `__NUXT_DATA__`) | `nuxt_strapi_events` | verified; Indoor Playground Tue/Thu occurrences |
+| City of Gresham events (`/webservices/events/` JSON; Arts, Community, Parks & Rec, Youth) | `gresham_events` | verified; addresses geocoded |
+| City of Vancouver, WA calendar (Events tab) | `vancouver_events` | verified; addresses geocoded |
 | Portland Parks & Recreation `/parks/events` | `portland_gov` | list structure confirmed. Volunteer days and public meetings are excluded at the source (`exclude_labels`) |
 | PP&R class listings (`/parks/recreation/activities/sports`) | `portland_gov_programs` | experimental. Structure read from the live Sports page: region > age group > Class/Description/Location/Register tables. Adult and intergenerational sections skipped. These are *programs* (no dates/times/prices), shown on the Classes tab with a link to ActiveNet. Other category pages (Arts, Dance, Music, Swim Lessons, School Break Camps) need their URLs checked and added to `config/sources.json` |
 | PP&R ActiveNet sessions (dates, times, prices) | none yet | TODO: needs a look at the registration site's search API from a networked machine |

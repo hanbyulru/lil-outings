@@ -127,6 +127,7 @@ export function buildOffline(today) {
   // ---- South Metro and Vancouver (each in its real feed format; demo titles) ----
   const d1 = days.find((d) => dayOfWeek(d) === 3) || days[1]; // a Wednesday
   const d2 = days.find((d) => dayOfWeek(d) === 6) || days[2]; // a Saturday
+  const fmtLong = (date) => new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
   const stampZ = (date, hhmm) => `${date.replace(/-/g, '')}T${hhmm.replace(':', '')}00`;
   const fvrlJson = JSON.stringify({ events: { pagination: { page: 1, pages: 1 } }, entities: {
     events: {
@@ -169,6 +170,20 @@ export function buildOffline(today) {
       { title: 'City Council', primary_calendar_name: 'City Meetings', start: `${d1}T18:00:00`, rid: '902' },
       { title: 'Umbrella Parade & Tree Lighting', primary_calendar_name: 'Community Events', start: `${d2}T16:00:00`, location: 'Main Street, Milwaukie', rid: '903', desc: encodeURIComponent('<p>Free family fun: kids parade with umbrellas, then the tree lighting.</p>') }
     ]));
+    if (url.includes('tualatinhillsparks.org/common/modules/iCalendar')) return ok(url.includes('catID=35')
+      ? icsOf([['th1', d2, '10:00', 120, 'Indoor Nature Play Park', 'Tualatin Hills Nature Park - Tualatin Hills Nature Center  15655 SW Millikan Way Beaverton OR 97003', null]])
+      : icsOf([['th2', d1, '18:00', 120, 'Dive-in Movie @ Conestoga Pool', 'Conestoga Recreation & Aquatic Center - 9985 SW 125th Avenue  Beaverton OR 97008', null], ['th3', d1, '11:00', 60, 'Newcomers Welcome - Elsie Stuhr Center', ' - 5550 SW Hall Blvd  Beaverton OR 97005', null]]));
+    if (url.includes('tualatinoregon.gov/wp-json/wp/v2/events')) return ok(JSON.stringify([{ id: 9001 }]));
+    if (url.includes('tualatinoregon.gov/wp-json/juicebox/v1/events/')) return ok(JSON.stringify({ id: 9001, title: 'Kids Night Out (Parents Night Off)', url: 'https://parks.tualatinoregon.gov/events/kids-night-out/', location: 'Van Raden Community Center', all_day: false, event_category: [{ name: 'Parks &amp; Recreation' }], event_audience: [{ name: 'Kids' }], start_date: { date: { mysql: `${d1} 17:30:00` } }, end_date: { date: { mysql: `${d1} 21:00:00` } } }));
+    if (url.startsWith('https://ncprd.org/events')) {
+      const nd = ['Indoor Playground', 'indoor-playground-thursdays', 'events/indoor-playground-thursdays', 'Playtime for young children and their caregivers.', '3811 S.E. Concord Rd. in Oak Grove', `${d1}T17:00:00.000Z`, `${d1}T18:30:00.000Z`];
+      return ok(`<script type="application/json" id="__NUXT_DATA__">${JSON.stringify([{ title: 1, slug: 2, fullSlug: 3, excerpt: 4, address: 5, startTime: 6, endTime: 7, occurrences: 8 }, ...nd, { data: 9 }, []])}</script>`);
+    }
+    if (url.includes('greshamoregon.gov/webservices/events')) return ok(JSON.stringify({ page: 1, totalPages: 1, events: url.includes('category=49')
+      ? [{ start: d2, end: d2, canceled: false, title: 'Reindeer in Rockwood', url: '/events/2026/community-events/reindeer-in-rockwood/', time: '4:00 pm - 7:00 pm', location: 'Rockwood Market Hall, 458 SE 185th Avenue' }]
+      : url.includes('category=56') ? [{ start: d2, end: d2, canceled: false, title: 'Late-Night Basketball', url: '/events/2026/youth-events/late-night-basketball/', time: '6:00 pm - 10:00 pm', location: 'Reynolds Middle School, 1200 NE 201st Avenue' }] : [] }));
+    if (url.startsWith('https://www.cityofvancouver.us/government/calendar')) return ok(`<div id="tab2"><a href="#section1"><div class="h6">Parks, Recreation and Cultural Services</div></a>
+      <div id="section1" class="expanding-containerevt"><h3>Pizza with Santa</h3><h5 class="m-0"> ${fmtLong(d2)} <br><span> 11:00 am - 1:00 pm</span></h5><span class="description">Pizza, crafts and photos with Santa for the whole family.</span><h4> Firstenburg Community Center </br> 700 NE 136th Ave </br> Vancouver , WA 98684 </h4><a class="link" href="https://www.cityofvancouver.us/events/pizza-with-santa/">Learn More</a></div></div>`);
     if (url.startsWith('https://multcolib.org/hours-and-locations')) return ok(mclBranchMap());
     if (url.startsWith('https://multcolib.org/events-classes')) {
       const q = new URL(url).searchParams;

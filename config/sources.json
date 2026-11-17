@@ -450,6 +450,141 @@
       "notes": "WordPress The Events Calendar API; small list (tree lighting, community events). Venues usually carry coordinates."
     },
     {
+      "id": "thprd",
+      "name": "Tualatin Hills Park & Recreation District (THPRD)",
+      "type": "ical",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.tualatinhillsparks.org/calendar.aspx",
+      "config": {
+        "urls": [
+          "https://www.tualatinhillsparks.org/common/modules/iCalendar/iCalendar.aspx?catID=24&feed=calendar",
+          "https://www.tualatinhillsparks.org/common/modules/iCalendar/iCalendar.aspx?catID=35&feed=calendar"
+        ],
+        "geocode": true,
+        "exclude_titles": [
+          "\\bCLOSED\\b",
+          "MODIFIED HOURS",
+          "^Newcomers Welcome",
+          "^Social (Dance|Event)",
+          "\\bYoga\\b",
+          "Sound Bath",
+          "Murder Mystery"
+        ],
+        "fallback_venue": {
+          "name": "THPRD (Beaverton)",
+          "lat": 45.4871,
+          "lon": -122.8037
+        }
+      },
+      "notes": "CivicPlus iCal (thprd.org now redirects to tualatinhillsparks.org). Category 24 = Events, 35 = Nature Center Activity Schedule (Indoor Nature Play Park). Swim/gym/fitness schedules and board meetings are left out. LOCATION is 'Venue - street town OR zip', geocoded."
+    },
+    {
+      "id": "tualatin_parks",
+      "name": "Tualatin Parks & Recreation",
+      "type": "juicebox_events",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://tualatinoregon.gov/events/",
+      "config": {
+        "site": "https://tualatinoregon.gov",
+        "audiences": [
+          125,
+          130
+        ],
+        "categories": [
+          93
+        ],
+        "town": "Tualatin, OR",
+        "geocode": true,
+        "fallback_venue": {
+          "name": "Tualatin Community Park",
+          "lat": 45.3866,
+          "lon": -122.7625
+        }
+      },
+      "notes": "WordPress (Juicebox) events: the list API filters by audience (125 Babies/Toddlers/Preschool, 130 Kids) and category (93 Parks & Recreation) but has no dates, so each event's detail is fetched. Tualatin Library events come through WCCLS."
+    },
+    {
+      "id": "ncprd",
+      "name": "North Clackamas Parks & Recreation (NCPRD)",
+      "type": "nuxt_strapi_events",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://ncprd.org/events",
+      "config": {
+        "url": "https://ncprd.org/events",
+        "site": "https://ncprd.org",
+        "geocode": true,
+        "fallback_venue": {
+          "name": "NCPRD (Milwaukie)",
+          "lat": 45.4446,
+          "lon": -122.6393
+        }
+      },
+      "notes": "Nuxt + Strapi site; the events list is in the page's __NUXT_DATA__ payload. Series (Indoor Playground Tue/Thu at the Concord building) carry dated occurrences."
+    },
+    {
+      "id": "gresham_city",
+      "name": "City of Gresham events",
+      "type": "gresham_events",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.greshamoregon.gov/calendar/",
+      "config": {
+        "site": "https://www.greshamoregon.gov",
+        "categories": [
+          {
+            "id": 46,
+            "name": "Arts and Culture"
+          },
+          {
+            "id": 49,
+            "name": "Community Events"
+          },
+          {
+            "id": 52,
+            "name": "Parks and Rec"
+          },
+          {
+            "id": 56,
+            "name": "Youth Events"
+          }
+        ],
+        "geocode": true,
+        "fallback_venue": {
+          "name": "Gresham",
+          "lat": 45.4985,
+          "lon": -122.4302
+        }
+      },
+      "notes": "JSON web service behind the city calendar. Council/committee/planning categories are not requested; the classifier drops adult items (e.g. Late-Night Basketball for teens)."
+    },
+    {
+      "id": "vancouver_city",
+      "name": "City of Vancouver, WA events",
+      "type": "vancouver_events",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.cityofvancouver.us/government/calendar/",
+      "config": {
+        "url": "https://www.cityofvancouver.us/government/calendar/",
+        "geocode": true,
+        "geocode_state": "WA",
+        "fallback_venue": {
+          "name": "Vancouver, WA",
+          "lat": 45.628,
+          "lon": -122.6739
+        }
+      },
+      "notes": "Server-rendered calendar page; only the Events tab is read (meetings are tab 1). Parks & Rec family nights, tree lighting, Pizza with Santa; volunteer cleanups are dropped by the classifier."
+    },
+    {
       "id": "manual",
       "name": "Submitted & curated",
       "type": "manual",

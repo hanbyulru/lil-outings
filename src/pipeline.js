@@ -9,6 +9,7 @@ import { nearestPlace } from '../web/query.js';
 import { portlandDate } from './lib/time.js';
 import { buildOffline } from './offline.js';
 import { addPlaceImages } from './images.js';
+import { geocodeEvents } from './geocode.js';
 
 const OUT_OF_AREA_MILES = 15; // events farther than this from every named place are out of the metro
 
@@ -93,6 +94,10 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     }
   }
 
+  // Feeds with a street address but no coordinates (config.geocode): look them up, else a town-level pin.
+  if (!off) await geocodeEvents(raw, ctx.http, { log });
+  else for (const x of raw) if (x.r.lat == null && x.r.geo_fallback) { x.r.lat = x.r.geo_fallback.lat; x.r.lon = x.r.geo_fallback.lon; }
+  for (const x of raw) delete x.r.geo_fallback;
   const seen = new Set();
   let events = [];
   let dropped = { past_or_far: 0, invalid: 0, out_of_area: 0 };
