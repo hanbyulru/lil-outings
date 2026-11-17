@@ -20,7 +20,8 @@
   "note": "Hands-on science museum.",
   "explore": [
    "science"
-  ]
+  ],
+  "wikidata": "Q174617"
  },
  {
   "id": "seed-zoo",
@@ -43,7 +44,9 @@
   "note": "Zoo with a small train ride.",
   "explore": [
    "nature"
-  ]
+  ],
+  "wikidata": "Q7101428",
+  "commons": "Oregon Zoo entrance January 2024.jpeg"
  },
  {
   "id": "seed-rail",
@@ -65,7 +68,8 @@
   "explore": [
    "trains_planes",
    "history"
-  ]
+  ],
+  "wikidata": "Q7101305"
  },
  {
   "id": "seed-oaks",
@@ -84,7 +88,8 @@
   "cost": "paid",
   "setting": "both",
   "note": "Rides and roller rink with preschool skate sessions.",
-  "explore": []
+  "explore": [],
+  "wikidata": "Q14709151"
  },
  {
   "id": "seed-pam",
@@ -105,7 +110,8 @@
   "note": "Family programs; kids' admission is typically reduced or free (verify).",
   "explore": [
    "art"
-  ]
+  ],
+  "wikidata": "Q279049"
  },
  {
   "id": "seed-powells",
@@ -124,7 +130,8 @@
   "cost": "free",
   "setting": "indoor",
   "note": "Large children's section.",
-  "explore": []
+  "explore": [],
+  "wikidata": "Q2106972"
  },
  {
   "id": "seed-tryon",
@@ -146,7 +153,8 @@
   "note": "Most trails are natural-surface; a short all-abilities trail near the nature center works for strollers.",
   "explore": [
    "nature"
-  ]
+  ],
+  "wikidata": "Q7848552"
  },
  {
   "id": "seed-hoyt",
@@ -167,7 +175,8 @@
   "note": "Tree collection with easy trails.",
   "explore": [
    "nature"
-  ]
+  ],
+  "wikidata": "Q4157862"
  },
  {
   "id": "seed-pittock",
@@ -188,7 +197,8 @@
   "note": "Historic house with city views; grounds are free.",
   "explore": [
    "history"
-  ]
+  ],
+  "wikidata": "Q7199133"
  },
  {
   "id": "seed-japanese",
@@ -210,7 +220,8 @@
   "note": "",
   "explore": [
    "nature"
-  ]
+  ],
+  "wikidata": "Q2195976"
  },
  {
   "id": "seed-tabor",
@@ -232,7 +243,8 @@
   "explore": [
    "nature",
    "playgrounds"
-  ]
+  ],
+  "wikidata": "Q49529163"
  },
  {
   "id": "seed-laurelhurst",
@@ -255,7 +267,8 @@
   "explore": [
    "nature",
    "playgrounds"
-  ]
+  ],
+  "wikidata": "Q6500074"
  },
  {
   "id": "seed-sellwood",
@@ -276,7 +289,8 @@
   "note": "River beach and playground.",
   "explore": [
    "playgrounds"
-  ]
+  ],
+  "wikidata": "Q7448690"
  },
  {
   "id": "seed-peninsula",
@@ -298,7 +312,8 @@
   "note": "Playground, wading pool in summer.",
   "explore": [
    "playgrounds"
-  ]
+  ],
+  "wikidata": "Q7162948"
  },
  {
   "id": "seed-cathedral",
@@ -319,7 +334,8 @@
   "note": "Under the St. Johns Bridge.",
   "explore": [
    "nature"
-  ]
+  ],
+  "commons": "St. Johns Bridge from Cathedral Park in Portland, Oregon.jpg"
  },
  {
   "id": "seed-forestpark",
@@ -341,7 +357,8 @@
   "note": "Stroller-hostile trails; best for walkers.",
   "explore": [
    "nature"
-  ]
+  ],
+  "commons": "Lower Macleay Trail 1 (2026) 01.jpg"
  },
  {
   "id": "seed-dig",
@@ -419,7 +436,9 @@
   "explore": [
    "nature"
   ],
-  "note": "Mostly paved main path with wide views; some gravel sections."
+  "note": "Mostly paved main path with wide views; some gravel sections.",
+  "wikidata": "Q49545561",
+  "commons": "Powell Butte.jpg"
  },
  {
   "age_min": 0,
@@ -441,7 +460,8 @@
   "explore": [
    "nature"
   ],
-  "note": "Flat walking with herons and ducks; strollers do best on the paved Springwater edge."
+  "note": "Flat walking with herons and ducks; strollers do best on the paved Springwater edge.",
+  "wikidata": "Q7074207"
  },
  {
   "age_min": 0,
@@ -462,7 +482,8 @@
   "explore": [
    "nature"
   ],
-  "note": "One wide paved trail through the woods, plus a nature center."
+  "note": "One wide paved trail through the woods, plus a nature center.",
+  "wikidata": "Q21188904"
  },
  {
   "age_min": 0,
@@ -484,7 +505,8 @@
    "nature",
    "playgrounds"
   ],
-  "note": "Paved paths, the Rose Garden, and the Rose Garden Children's Park playground."
+  "note": "Paved paths, the Rose Garden, and the Rose Garden Children's Park playground.",
+  "commons": "Redwoods in Washington Park, Portland, Oregon.jpg"
  },
  {
   "age_min": 0,
@@ -506,7 +528,8 @@
    "nature",
    "playgrounds"
   ],
-  "note": "About a mile of paved loop, plus a playground."
+  "note": "About a mile of paved loop, plus a playground.",
+  "wikidata": "Q12058224"
  },
  {
   "age_min": 0,
@@ -591,7 +614,8 @@
   "explore": [
    "history"
   ],
-  "note": "Walk through a covered wagon and touch a beaver pelt in Experience Oregon. Free for Multnomah County residents."
+  "note": "Walk through a covered wagon and touch a beaver pelt in Experience Oregon. Free for Multnomah County residents.",
+  "wikidata": "Q7101235"
  },
  {
   "age_min": 0,
@@ -610,7 +634,9 @@
   "explore": [
    "history"
   ],
-  "note": "Reconstructed fur-trade fort with blacksmith demonstrations; the grounds are free."
+  "note": "Reconstructed fur-trade fort with blacksmith demonstrations; the grounds are free.",
+  "wikidata": "Q5472217",
+  "commons": "Vancouver, WA - Fort Vancouver Natl Historic Site - Fort Vancouver.jpg"
  },
  {
   "age_min": 0,
@@ -632,7 +658,8 @@
    "trains_planes",
    "history"
   ],
-  "note": "Historic airfield museum at Fort Vancouver."
+  "note": "Historic airfield museum at Fort Vancouver.",
+  "wikidata": "Q12859331"
  },
  {
   "age_min": 0,
@@ -653,7 +680,8 @@
   "explore": [
    "trains_planes"
   ],
-  "note": "About an hour from Portland: hundreds of aircraft and spacecraft, including the Spruce Goose."
+  "note": "About an hour from Portland: hundreds of aircraft and spacecraft, including the Spruce Goose.",
+  "wikidata": "Q490825"
  },
  {
   "age_min": 0,
@@ -674,7 +702,8 @@
   "explore": [
    "trains_planes"
   ],
-  "note": "Vintage trolley rides along the Willamette from Lake Oswego."
+  "note": "Vintage trolley rides along the Willamette from Lake Oswego.",
+  "wikidata": "Q8003306"
  },
  {
   "age_min": 0,

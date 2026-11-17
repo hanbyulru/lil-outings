@@ -44,6 +44,10 @@ export function parseOverpass(json, source) {
       hours_text: t.opening_hours || null,
       description: t.description || null,
       tags: { fee: t.fee || null, wheelchair: t.wheelchair || null },
+      // photo pointers, resolved to Wikimedia Commons images in src/images.js
+      wikidata: t.wikidata || null,
+      commons: /^File:/i.test(t.wikimedia_commons || '') ? t.wikimedia_commons : null,
+      image: t.image || null,
       explore: exploreFor(t)
     };
   }).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));

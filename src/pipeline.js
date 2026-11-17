@@ -8,6 +8,7 @@ import { locate, haversineMiles, GEO } from './lib/geo.js';
 import { nearestPlace } from '../web/query.js';
 import { portlandDate } from './lib/time.js';
 import { buildOffline } from './offline.js';
+import { addPlaceImages } from './images.js';
 
 const OUT_OF_AREA_MILES = 15; // events farther than this from every named place are out of the metro
 
@@ -41,7 +42,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
         const dup = places.find((p) => normalizeVenueKey(p.name) === normalizeVenueKey(f.name) || (haversineMiles(p, f) < 0.1 && normalizeVenueKey(p.name).split(' ')[0] === normalizeVenueKey(f.name).split(' ')[0]));
         if (dup) continue;
         const d = PLACE_DEFAULTS[f.kind] || { age_min: 0, age_max: 12, interests: [], cost: 'varies', setting: 'unknown' };
-        places.push({ id: `osm-${f.source_place_id.replace('/', '-')}`, name: f.name, kind: f.kind, lat: f.lat, lon: f.lon, address: f.address, url: f.url, hours_text: f.hours_text, note: f.description || '', ...d, explore: f.explore || [], source: 'osm', verified: false });
+        places.push({ id: `osm-${f.source_place_id.replace('/', '-')}`, name: f.name, kind: f.kind, lat: f.lat, lon: f.lon, address: f.address, url: f.url, hours_text: f.hours_text, note: f.description || '', ...d, explore: f.explore || [], wikidata: f.wikidata || undefined, commons: f.commons || undefined, image: f.image || undefined, source: 'osm', verified: false });
       }
       placeStatus.push({ id: src.id, name: src.name, ok: true, fetched: found.length });
       log(`  ${src.name} places: ${found.length}`);
@@ -50,6 +51,8 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
       log(`  ${src.name} places: FAILED (${err.message})`);
     }
   }
+  if (!offline) await addPlaceImages(places, ctx.http, log); // the demo has no photo fixtures: cards show their mosaic banner
+  else for (const p of places) delete p.commons;
   places = places.map((p) => { const l = locate(p.lat, p.lon); return { ...p, age_bands: bandsFor(p.age_min, p.age_max), neighborhood: l?.neighborhood || null, district: l?.district || null }; });
 
   // ---- programs (evergreen classes, no dates) ----

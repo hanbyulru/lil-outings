@@ -4,7 +4,6 @@ import { initMap, showPins } from './map.js';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const COLORS = { animals: '#F0614F', science: '#3B6FE0', trains: '#F2A93B', nature: '#2E9E6B', art: '#B05CD6', music: '#E4559B', dinosaurs: '#7A9A2E', books: '#1FA5B8' };
-const INTERESTS = ['animals', 'science', 'trains', 'nature', 'art', 'music', 'dinosaurs', 'books'];
 const LABEL = { animals: 'Animals', science: 'Science', trains: 'Trains', nature: 'Nature', art: 'Art', music: 'Music', dinosaurs: 'Dinosaurs', books: 'Books' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
@@ -22,13 +21,16 @@ const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
 const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['classes', 'Recurring Classes & Memberships']].map(([id, label]) => ({ id, label }));
+// "More to explore" icons: [mosaic tile shape, color] per config/vocab.json explore id.
+const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], classes: ['d', '#1FA5B8'] };
+const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
 let DATA, GEO;
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { when: 'today', age: 'all', open: null /* 'age' | 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, interest: 'all', explore: 'indoor_play', showN: 24, sel: null, showMap: false };
+const S = { when: 'today', age: 'all', open: null /* 'age' | 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, explore: 'indoor_play', showN: 24, sel: null, showMap: false };
 
 function loadLoc() {
   try {
@@ -94,11 +96,6 @@ function tile(kind, c, size = 120) {
     d: `<path d="M60 10a50 50 0 0 1 50 50 50 50 0 0 1-50 50H10V60A50 50 0 0 1 60 10z"/>`
   };
   return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" fill="${c}">${shapes[kind]}<circle cx="60" cy="60" r="14" fill="#fff" opacity=".9"/></svg>`;
-}
-
-function renderThemes() {
-  const kinds = ['a', 'b', 'c', 'd', 'c', 'a', 'd', 'b'];
-  $('#tgrid').innerHTML = INTERESTS.map((k, i) => `<button data-int="${k}"><span style="width:32px;height:32px;flex:none">${tile(kinds[i], COLORS[k], 32)}</span><span class="nm">${LABEL[k]}</span><span>→</span></button>`).join('');
 }
 
 /** Items at the same spot (e.g. six storytimes at one branch) share one pin. */
@@ -168,13 +165,36 @@ function renderEvent(e, n) {
     <div class="meta"><span>${esc(age)}</span>${cost}<span>${esc(reg)}</span>${srcLine(e)}${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">Details ↗</a>` : ''}</div></div></article>`;
 }
 
-function renderPlace(p) {
-  const c = COLORS[p.interests?.[0]] || '#5B5F6B';
-  return `<article class="place"><div class="kind">${dot(c)}${esc(p.kind || 'place')}${p.neighborhood ? ' · ' + esc(p.neighborhood) : ''}${p.miles != null ? ` · ${p.miles.toFixed(1)} mi` : ''}</div><h3>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} ↗</a>` : esc(p.name)}</h3>${p.address ? `<p class="addr">${esc(p.address)}</p>` : ''}${p.note ? `<p>${esc(p.note)}</p>` : ''}<p style="font-size:14px">${p.cost === 'free' ? 'Free' : p.cost === 'paid' ? 'Paid' : ''} · Ages ${p.age_min ?? 0}–${p.age_max ?? 12}${p.hours_text ? ' · ' + esc(p.hours_text) : ''}${p.verified ? '' : ' · from OpenStreetMap'}</p></article>`;
+/** Card banner: a Wikimedia Commons photo with its credit, or a mosaic of the category's tiles. */
+function banner(p, catId) {
+  if (p.image) return `<div class="banner"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.add('noimg');this.remove()">${p.image_page ? `<a class="credit" href="${esc(p.image_page)}" target="_blank" rel="noopener">${esc(p.image_credit || 'Photo: Wikimedia Commons')}</a>` : ''}</div>`;
+  return `<div class="banner mosaic" aria-hidden="true">${mosaic(p.id || p.name, catId)}</div>`;
+}
+/** A strip of rounded tiles in the category's color, varied per place so neighbors don't match. */
+function mosaic(seed, catId) {
+  const [, c] = lookOf(catId);
+  let h = 0; for (const ch of String(seed)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const kinds = ['a', 'b', 'c', 'd'], ops = [1, 0.55, 0.8, 0.35, 0.65];
+  const shapes = { a: 'M10 60A50 50 0 0 1 60 10h50v50A50 50 0 0 1 60 110H10z', b: 'M110 60A50 50 0 1 1 10 60a50 50 0 1 1 100 0z', c: 'M10 10h50a50 50 0 0 1 50 50v50H10z', d: 'M60 10a50 50 0 0 1 50 50 50 50 0 0 1-50 50H10V60A50 50 0 0 1 60 10z' };
+  // Two offset rows of small tiles; shape, shade and turn come from the place's id.
+  let g = '', r = h || 1;
+  const rnd = () => ((r = (r * 1103515245 + 12345) >>> 0) >>> 16) / 65536;
+  for (let row = 0; row < 3; row++) for (let i = 0; i < 9; i++) {
+    if (rnd() < 0.22) continue; // gaps keep it airy
+    const k = kinds[Math.floor(rnd() * 4)], o = ops[Math.floor(rnd() * ops.length)], rot = Math.floor(rnd() * 4) * 90;
+    const x = i * 46 - (row % 2 ? 0 : 23), y = row * 40 - 14;
+    g += `<g transform="translate(${x} ${y}) rotate(${rot} 21 21) scale(.35)"><path d="${shapes[k]}" fill="${c}" opacity="${o}"/></g>`;
+  }
+  return `<svg viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice" width="100%" height="100%"><rect width="400" height="100" fill="${c}" opacity=".12"/>${g}</svg>`;
+}
+
+function renderPlace(p, catId) {
+  const c = lookOf(catId)[1];
+  return `<article class="place">${banner(p, catId)}<div class="kind">${dot(c)}${esc(p.kind || 'place')}${p.neighborhood ? ' · ' + esc(p.neighborhood) : ''}${p.miles != null ? ` · ${p.miles.toFixed(1)} mi` : ''}</div><h3>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} ↗</a>` : esc(p.name)}</h3>${p.address ? `<p class="addr">${esc(p.address)}</p>` : ''}${p.note ? `<p>${esc(p.note)}</p>` : ''}<p style="font-size:14px">${p.cost === 'free' ? 'Free' : p.cost === 'paid' ? 'Paid' : ''} · Ages ${p.age_min ?? 0}–${p.age_max ?? 12}${p.hours_text ? ' · ' + esc(p.hours_text) : ''}${p.verified ? '' : ' · from OpenStreetMap'}</p></article>`;
 }
 
 function renderProgram(p) {
-  return `<article class="place"><div class="kind">${dot('#3B6FE0')}${esc(p.age_label)} · ages ${p.age_min}–${p.age_max}</div><h3>${esc(p.name)}</h3>${p.description ? `<p>${esc(p.description)}</p>` : ''}<p style="font-size:14px">${esc(p.location_text || '')}${p.region ? ` · ${esc(p.region)}` : ''}</p><p style="font-size:14px">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-weight:600;text-decoration:underline">Check availability ↗</a>` : ''} <span class="src">via ${esc(p.source?.name || '')}</span></p></article>`;
+  return `<article class="place">${banner(p, 'classes')}<div class="kind">${dot(lookOf('classes')[1])}${esc(p.age_label)} · ages ${p.age_min}–${p.age_max}</div><h3>${esc(p.name)}</h3>${p.description ? `<p>${esc(p.description)}</p>` : ''}<p style="font-size:14px">${esc(p.location_text || '')}${p.region ? ` · ${esc(p.region)}` : ''}</p><p style="font-size:14px">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-weight:600;text-decoration:underline">Check availability ↗</a>` : ''} <span class="src">via ${esc(p.source?.name || '')}</span></p></article>`;
 }
 
 /** "Something good to do with a small person [today ▾] in [SW ▾]": both underlined phrases are menus. */
@@ -214,19 +234,18 @@ function closeMenu() { if (S.open) { S.open = null; renderHeadline(); } }
 /** The day's list, right under the headline, with the map beside it. */
 function renderToday() {
   const c = ctx();
-  const opts = { when: S.when, interest: S.interest, loc: S.loc, age: ageGroup()[4] };
+  const opts = { when: S.when, loc: S.loc, age: ageGroup()[4] };
   const events = filterEvents(DATA.events, opts, c);
   const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).length - events.length : 0;
   events.forEach((e, i) => { e._n = i + 1; });
   const multiDay = S.when === 'weekend' || S.when === 'week';
-  const intChip = S.interest !== 'all' ? `<button class="chip on" data-clearint>${dot(COLORS[S.interest])}${LABEL[S.interest]} <span aria-hidden="true">✕</span><span class="sr">Show all interests</span></button>` : '';
-  const bar = `<div class="todaybar"><span class="count">${events.length} ${events.length === 1 ? 'thing' : 'things'} to do</span><span class="muted">${esc(rangeLabel(S.when))}${over > 0 ? ` · ${over} earlier ${over === 1 ? 'one is' : 'ones are'} over` : ''}</span>${intChip}<button class="tog maptoggle ${S.showMap ? 'on' : ''}" data-showmap>${S.showMap ? 'Hide map' : 'Map'}</button></div>`;
+  const bar = `<div class="todaybar"><span class="count">${events.length} ${events.length === 1 ? 'thing' : 'things'} to do</span><span class="muted">${esc(rangeLabel(S.when))}${over > 0 ? ` · ${over} earlier ${over === 1 ? 'one is' : 'ones are'} over` : ''}</span><button class="tog maptoggle ${S.showMap ? 'on' : ''}" data-showmap>${S.showMap ? 'Hide map' : 'Map'}</button></div>`;
   let body;
   if (!events.length) {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
     const phrase = WHEN.find((w) => w[0] === S.when)[1];
     const where = (S.age !== 'all' ? ` for a ${ageGroup()[1]}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
-    const msg = S.interest !== 'all' ? `Nothing tagged ${LABEL[S.interest]}${where} ${phrase}.` : S.when === 'today' && over > 0 && !S.loc ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
+    const msg = S.when === 'today' && over > 0 && !S.loc ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
     const wider = w ? `<button class="btn-ink" ${w.district ? `data-locdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
     const allAges = S.age !== 'all' ? `<button class="${w || S.loc ? 'textbtn' : 'btn-ink'}" data-agegroup="all">See all ages</button>` : '';
@@ -254,13 +273,13 @@ function renderMore() {
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
   const items = placesFor(cur.id);
   const shown = items.slice(0, S.showN);
-  let body = items.length ? `<div class="places">${shown.map(renderPlace).join('')}</div>` : '';
+  let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'classes' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation class series</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
   if (!items.length && !(cur.id === 'classes' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)} yet.</h3></div>`;
   $('#results-inner').innerHTML = `<h2>More to explore</h2>
-    <div class="chips explore-pills" role="group" aria-label="Kinds of places">${pills.map((x) => { const n = count(x.id); return `<button class="chip ${x.id === cur.id ? 'on' : ''}" data-explore="${x.id}" aria-pressed="${x.id === cur.id}">${esc(x.label)}<span class="n">${n}</span></button>`; }).join('')}</div>
-    <p class="explore-hint">${esc(cur.hint || '')}</p>${body}`;
+    <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 40)}</span><span class="nm">${esc(x.label)}<small>${esc(x.hint || '')}</small></span><span class="n">${count(x.id)}</span><span class="arr" aria-hidden="true">${on ? '↓' : '→'}</span></button>`; }).join('')}</div>
+    <div id="explore-results"><h3 class="explore-title"><span class="ic">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 28)}</span>${esc(cur.label)}</h3>${body}</div>`;
 }
 
 function renderFoot() {
@@ -303,10 +322,13 @@ document.addEventListener('click', (ev) => {
   if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.nav === 'events') { ev.preventDefault(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.nav === 'places') { ev.preventDefault(); $('#more').scrollIntoView({ behavior: 'smooth' }); return; }
-  if (d.int) { S.interest = d.int; S.sel = null; renderToday(); renderMore(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
-  if (d.clearint !== undefined) { S.interest = 'all'; renderToday(); renderMore(); return; }
   if (d.showmap !== undefined) { S.showMap = !S.showMap; return renderToday(); }
-  if (d.explore) { S.explore = d.explore; S.showN = 24; return renderMore(); }
+  if (d.explore) {
+    S.explore = d.explore; S.showN = 24; renderMore();
+    // Phones: the list of kinds is tall, so bring the cards into view.
+    if (matchMedia('(max-width:700px)').matches) $('#explore-results').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
   if (d.showmore !== undefined) { S.showN += 24; return renderMore(); }
   if (d.pin) { S.sel = d.pin; return renderToday(); }
 });
@@ -328,5 +350,5 @@ load().then((d) => {
   S.loc = loadLoc();
   S.age = loadAge();
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
-  renderThemes(); renderHeadline(); renderToday(); renderMore(); renderFoot();
+  renderHeadline(); renderToday(); renderMore(); renderFoot();
 }).catch((e) => { $('#today-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });
