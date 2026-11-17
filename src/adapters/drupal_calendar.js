@@ -9,7 +9,9 @@ import { portlandDate, addDays } from '../lib/time.js';
  * Each entry is a `.contents` block holding a title link and
  * <span class="date-display-single" content="2026-11-08T10:45:00-08:00">. "(All day)" entries start at 00:00.
  * The month view has no descriptions or locations, so every event gets the source's library as its venue.
- * config: { url_template: '...{month}...' (month = YYYY-MM), site, venue: { name, address, lat, lon }, months?: 2 }
+ * config: { url_template | url_templates: ['...{month}...'] (month = YYYY-MM), site, months?: 2,
+ *          venue: { name, address, lat, lon }                 one venue for everything (a library), or
+ *          venues: [{ match: 'LORAC', name, address, lat, lon }] matched against the title, then fallback_venue }
  */
 export function parseDrupalCalendarMonth(html, source) {
   const out = [];
@@ -27,7 +29,8 @@ export function parseDrupalCalendarMonth(html, source) {
     const key = `${url}|${d[1]}`;
     if (!title || seen.has(key)) continue;
     seen.add(key);
-    const v = source.config.venue || {};
+    const titleVenue = (source.config.venues || []).find((x) => title.toLowerCase().includes(x.match.toLowerCase()));
+    const v = source.config.venue || titleVenue || source.config.fallback_venue || {};
     out.push({
       source_id: source.id,
       source_event_id: key,
@@ -54,7 +57,10 @@ export function parseDrupalCalendarMonth(html, source) {
 export async function fetchDrupalCalendar(source, ctx) {
   const today = ctx.today || portlandDate();
   const months = [...new Set(Array.from({ length: source.config.months ?? 2 }, (_, i) => addDays(`${today.slice(0, 7)}-15`, i * 30).slice(0, 7)))];
-  const out = [];
-  for (const m of months) out.push(...parseDrupalCalendarMonth(await politeFetch(source.config.url_template.replace('{month}', m), ctx.http), source));
-  return out;
+  const templates = source.config.url_templates || [source.config.url_template];
+  const seen = new Map(); // the same event can sit in several groups (Parks & Recreation and Kids)
+  for (const t of templates) for (const m of months) {
+    for (const e of parseDrupalCalendarMonth(await politeFetch(t.replace('{month}', m), ctx.http), source)) if (!seen.has(e.source_event_id)) seen.set(e.source_event_id, e);
+  }
+  return [...seen.values()];
 }

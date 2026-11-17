@@ -11,13 +11,14 @@ const LABEL = { animals: 'Animals', science: 'Science', trains: 'Trains', nature
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['weekend', 'this weekend', 'This weekend'], ['week', 'this week', 'This week']];
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
+const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['classes', 'Recurring Classes & Memberships']].map(([id, label]) => ({ id, label }));
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
 let DATA, GEO;
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { when: 'today', open: null /* 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, interest: 'all', tab: 'places', sel: null, showMap: false };
+const S = { when: 'today', open: null /* 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, interest: 'all', explore: 'indoor_play', showN: 24, sel: null, showMap: false };
 
 function loadLoc() {
   try {
@@ -156,7 +157,7 @@ function renderEvent(e, n) {
 
 function renderPlace(p) {
   const c = COLORS[p.interests?.[0]] || '#5B5F6B';
-  return `<article class="place"><div class="kind">${dot(c)}${esc(p.kind || 'place')}${p.neighborhood ? ' · ' + esc(p.neighborhood) : ''}${p.miles != null ? ` · ${p.miles.toFixed(1)} mi` : ''}</div><h3>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} ↗</a>` : esc(p.name)}</h3>${p.note ? `<p>${esc(p.note)}</p>` : ''}<p style="font-size:14px">${p.cost === 'free' ? 'Free' : p.cost === 'paid' ? 'Paid' : ''} · Ages ${p.age_min ?? 0}–${p.age_max ?? 12}${p.hours_text ? ' · ' + esc(p.hours_text) : ''}${p.verified ? '' : ' · from OpenStreetMap'}</p></article>`;
+  return `<article class="place"><div class="kind">${dot(c)}${esc(p.kind || 'place')}${p.neighborhood ? ' · ' + esc(p.neighborhood) : ''}${p.miles != null ? ` · ${p.miles.toFixed(1)} mi` : ''}</div><h3>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} ↗</a>` : esc(p.name)}</h3>${p.address ? `<p class="addr">${esc(p.address)}</p>` : ''}${p.note ? `<p>${esc(p.note)}</p>` : ''}<p style="font-size:14px">${p.cost === 'free' ? 'Free' : p.cost === 'paid' ? 'Paid' : ''} · Ages ${p.age_min ?? 0}–${p.age_max ?? 12}${p.hours_text ? ' · ' + esc(p.hours_text) : ''}${p.verified ? '' : ' · from OpenStreetMap'}</p></article>`;
 }
 
 function renderProgram(p) {
@@ -226,16 +227,24 @@ function renderToday() {
   syncMap();
 }
 
-/** Below the fold: classes and the places directory. */
+/** Below the fold: "More to explore" pills over the places directory (and PP&R class series under Classes). */
 function renderMore() {
   const c = ctx();
-  const places = filterPlaces(DATA.places, { interest: S.interest, loc: S.loc }, c);
-  const programs = filterPrograms(DATA.programs || [], {}, c);
-  const body = S.tab === 'classes'
-    ? (programs.length ? `<p class="notice" style="margin:16px 0 0">Ongoing class programs at Portland Parks & Recreation. Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>` : `<div class="empty"><h3>No classes listed</h3></div>`)
-    : (places.length ? `<div class="places" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${places.map(renderPlace).join('')}</div>` : `<div class="empty"><h3>No places match</h3></div>`);
-  $('#results-inner').innerHTML = `<h2>More to explore</h2>
-    <div class="tabs"><button class="tab ${S.tab === 'places' ? 'on' : ''}" data-tab="places">Places (${places.length})</button><button class="tab ${S.tab === 'classes' ? 'on' : ''}" data-tab="classes">Classes (${programs.length})</button></div>${body}`;
+  const pills = DATA.meta.vocab?.explore || EXPLORE_FALLBACK;
+  const placesFor = (id) => filterPlaces(DATA.places, { explore: id, loc: S.loc }, c);
+  const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c);
+  const count = (id) => placesFor(id).length + (id === 'classes' ? programs.length : 0);
+  const cur = pills.find((x) => x.id === S.explore) || pills[0];
+  const items = placesFor(cur.id);
+  const where = S.loc ? ` in ${locPhrase(S.loc)}` : '';
+  const shown = items.slice(0, S.showN);
+  let body = items.length ? `<div class="places">${shown.map(renderPlace).join('')}</div>` : '';
+  if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
+  if (cur.id === 'classes' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation class series</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
+  if (!items.length && !(cur.id === 'classes' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${esc(where)} yet.</h3>${S.loc ? '<button class="btn-ink" data-locany>See anywhere in Portland</button>' : ''}</div>`;
+  $('#results-inner').innerHTML = `<h2>More to explore${esc(where)}</h2>
+    <div class="chips explore-pills" role="group" aria-label="Kinds of places">${pills.map((x) => { const n = count(x.id); return `<button class="chip ${x.id === cur.id ? 'on' : ''}" data-explore="${x.id}" aria-pressed="${x.id === cur.id}">${esc(x.label)}<span class="n">${n}</span></button>`; }).join('')}</div>
+    <p class="explore-hint">${esc(cur.hint || '')}</p>${body}`;
 }
 
 function renderFoot() {
@@ -275,11 +284,12 @@ document.addEventListener('click', (ev) => {
   if (d.locplace) return setLoc({ place: d.locplace });
   if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.nav === 'events') { ev.preventDefault(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
-  if (d.nav === 'places') { ev.preventDefault(); S.tab = 'places'; renderMore(); $('#more').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (d.nav === 'places') { ev.preventDefault(); $('#more').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.int) { S.interest = d.int; S.sel = null; renderToday(); renderMore(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.clearint !== undefined) { S.interest = 'all'; renderToday(); renderMore(); return; }
   if (d.showmap !== undefined) { S.showMap = !S.showMap; return renderToday(); }
-  if (d.tab) { S.tab = d.tab; return renderMore(); }
+  if (d.explore) { S.explore = d.explore; S.showN = 24; return renderMore(); }
+  if (d.showmore !== undefined) { S.showN += 24; return renderMore(); }
   if (d.pin) { S.sel = d.pin; return renderToday(); }
 });
 document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-ev]'); if (c && !ev.target.closest('a')) { S.sel = c.dataset.ev; const y = scrollY; renderToday(); scrollTo(0, y); } });

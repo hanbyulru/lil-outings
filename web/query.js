@@ -153,6 +153,7 @@ export function filterPlaces(places, opts = {}, ctx) {
   const out = [];
   for (const p of places) {
     if (!ageOverlap(p, opts.age)) continue;
+    if (opts.explore && !(p.explore || []).includes(opts.explore)) continue; // "More to explore" pill
     if (opts.interest && opts.interest !== 'all' && !(p.interests || []).includes(opts.interest)) continue;
     if (opts.category === 'outdoors' && p.setting !== 'outdoor' && p.setting !== 'both') continue;
     if (opts.category === 'seasonal' || opts.category === 'storytime') continue;

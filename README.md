@@ -29,12 +29,19 @@ The prototype was built in a sandbox with no internet access. So:
 | Wilsonville Public Library (CivicPlus iCal) | `ical` | verified; library + community categories; event link comes from DESCRIPTION |
 | Lake Oswego and West Linn libraries (Drupal 7 calendar) | `drupal_calendar` | verified; month views give titles and start times only (no descriptions) |
 | Oak Lodge & Gladstone libraries (Clackamas County events) | `clackamas_events` | verified; library department list, UTC times |
+| Happy Valley Library (LibCal iCal) | `ical` | verified Nov 2026; "CLOSED" entries dropped |
+| Ledding Library, Milwaukie (Revize calendar JSON) | `revize_calendar` | verified; repeating events expanded from RRULE blocks |
+| Lake Oswego Parks & Recreation (city calendar groups 19, 14, 37273, 22) | `drupal_calendar` | verified; venue from the title ("Indoor Playground at LORAC"), else town center |
+| West Linn Parks & Recreation | `drupal_calendar` | verified; town-level pin |
+| Milwaukie Community Events (Revize) | `revize_calendar` | verified; parades, concerts in the park |
+| Wilsonville Parks & Recreation (CivicPlus categories 25, 27) | `ical` | verified |
+| City of Sherwood and City of Happy Valley events (WordPress The Events Calendar API) | `tribe_events` | verified; Sherwood library and meetings left out |
 | Portland Parks & Recreation `/parks/events` | `portland_gov` | list structure confirmed. Volunteer days and public meetings are excluded at the source (`exclude_labels`) |
 | PP&R class listings (`/parks/recreation/activities/sports`) | `portland_gov_programs` | experimental. Structure read from the live Sports page: region > age group > Class/Description/Location/Register tables. Adult and intergenerational sections skipped. These are *programs* (no dates/times/prices), shown on the Classes tab with a link to ActiveNet. Other category pages (Arts, Dance, Music, Swim Lessons, School Break Camps) need their URLs checked and added to `config/sources.json` |
 | PP&R ActiveNet sessions (dates, times, prices) | none yet | TODO: needs a look at the registration site's search API from a networked machine |
 | Manual / curated (`data/manual/*.json`) | `manual` | works |
 | Places: curated seed + OpenStreetMap (Overpass) | `osm` | OSM live call unverified; seed coordinates are approximate, DiG PDX's address and coordinates are placeholders |
-| Ledding (Milwaukie) and Happy Valley libraries, venue JSON-LD | various | disabled TODOs |
+| Tigard, Hillsboro (block automated requests), Tualatin, THPRD, NCPRD, Beaverton, Gresham, Vancouver parks calendars; venue JSON-LD | various | TODO |
 
 First thing to do on your machine: `npm run refresh -- --no-llm` and look at `meta.json` source results and `data/cache`.
 

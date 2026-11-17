@@ -1,19 +1,757 @@
 [
-  { "id": "seed-omsi", "name": "OMSI (Oregon Museum of Science and Industry)", "kind": "museum", "lat": 45.5082, "lon": -122.6657, "address": "1945 SE Water Ave, Portland", "url": "https://omsi.edu", "hours_text": "Check site for current hours", "age_min": 0, "age_max": 12, "interests": ["science", "dinosaurs", "trains"], "cost": "paid", "setting": "indoor", "note": "Hands-on science museum." },
-  { "id": "seed-zoo", "name": "Oregon Zoo", "kind": "zoo", "lat": 45.5100, "lon": -122.7158, "address": "4001 SW Canyon Rd, Portland", "url": "https://www.oregonzoo.org", "hours_text": "Check site for current hours", "age_min": 0, "age_max": 12, "interests": ["animals", "nature", "trains"], "cost": "paid", "setting": "outdoor", "note": "Zoo with a small train ride." },
-  { "id": "seed-rail", "name": "Oregon Rail Heritage Center", "kind": "museum", "lat": 45.5057, "lon": -122.6663, "address": "2250 SE Water Ave, Portland", "url": "https://orhf.org", "hours_text": "Check site for current hours", "age_min": 2, "age_max": 12, "interests": ["trains"], "cost": "varies", "setting": "indoor", "note": "Historic locomotives; seasonal train rides." },
-  { "id": "seed-oaks", "name": "Oaks Amusement Park", "kind": "play", "lat": 45.4737, "lon": -122.6667, "address": "7805 SE Oaks Park Way, Portland", "url": "https://oakspark.com", "hours_text": "Seasonal; check site", "age_min": 2, "age_max": 12, "interests": ["music"], "cost": "paid", "setting": "both", "note": "Rides and roller rink with preschool skate sessions." },
-  { "id": "seed-pam", "name": "Portland Art Museum", "kind": "museum", "lat": 45.5164, "lon": -122.6836, "address": "1219 SW Park Ave, Portland", "url": "https://portlandartmuseum.org", "hours_text": "Check site for current hours", "age_min": 3, "age_max": 12, "interests": ["art"], "cost": "paid", "setting": "indoor", "note": "Family programs; kids' admission is typically reduced or free (verify)." },
-  { "id": "seed-powells", "name": "Powell's City of Books", "kind": "bookstore", "lat": 45.5231, "lon": -122.6814, "address": "1005 W Burnside St, Portland", "url": "https://www.powells.com", "hours_text": "Check site for current hours", "age_min": 0, "age_max": 12, "interests": ["books"], "cost": "free", "setting": "indoor", "note": "Large children's section." },
-  { "id": "seed-tryon", "name": "Tryon Creek State Natural Area", "kind": "park", "lat": 45.4350, "lon": -122.6720, "address": "11321 SW Terwilliger Blvd, Portland", "url": "https://stateparks.oregon.gov", "hours_text": "Dawn to dusk", "age_min": 2, "age_max": 12, "interests": ["nature", "animals"], "cost": "free", "setting": "outdoor", "note": "Forest trails and a nature center." },
-  { "id": "seed-hoyt", "name": "Hoyt Arboretum", "kind": "park", "lat": 45.5160, "lon": -122.7110, "address": "4000 SW Fairview Blvd, Portland", "url": "https://www.hoytarboretum.org", "hours_text": "Dawn to dusk", "age_min": 2, "age_max": 12, "interests": ["nature"], "cost": "free", "setting": "outdoor", "note": "Tree collection with easy trails." },
-  { "id": "seed-pittock", "name": "Pittock Mansion", "kind": "park", "lat": 45.5252, "lon": -122.7162, "address": "3229 NW Pittock Dr, Portland", "url": "https://pittockmansion.org", "hours_text": "Check site for current hours", "age_min": 5, "age_max": 12, "interests": ["art"], "cost": "paid", "setting": "both", "note": "Historic house with city views; grounds are free." },
-  { "id": "seed-japanese", "name": "Portland Japanese Garden", "kind": "park", "lat": 45.5190, "lon": -122.7080, "address": "611 SW Kingston Ave, Portland", "url": "https://japanesegarden.org", "hours_text": "Check site for current hours", "age_min": 3, "age_max": 12, "interests": ["nature", "art"], "cost": "paid", "setting": "outdoor", "note": "" },
-  { "id": "seed-tabor", "name": "Mt. Tabor Park", "kind": "park", "lat": 45.5119, "lon": -122.5937, "address": "SE 60th Ave & Salmon St, Portland", "url": "https://www.portland.gov/parks", "hours_text": "5am to midnight", "age_min": 1, "age_max": 12, "interests": ["nature"], "cost": "free", "setting": "outdoor", "note": "Playgrounds, an extinct volcano and wide lawns." },
-  { "id": "seed-laurelhurst", "name": "Laurelhurst Park", "kind": "park", "lat": 45.5190, "lon": -122.6270, "address": "SE 39th Ave & Oak St, Portland", "url": "https://www.portland.gov/parks", "hours_text": "5am to midnight", "age_min": 1, "age_max": 10, "interests": ["animals", "nature"], "cost": "free", "setting": "outdoor", "note": "Pond with ducks and a playground." },
-  { "id": "seed-sellwood", "name": "Sellwood Riverfront Park", "kind": "park", "lat": 45.4650, "lon": -122.6600, "address": "SE Spokane St, Portland", "url": "https://www.portland.gov/parks", "hours_text": "5am to midnight", "age_min": 1, "age_max": 12, "interests": ["nature"], "cost": "free", "setting": "outdoor", "note": "River beach and playground." },
-  { "id": "seed-peninsula", "name": "Peninsula Park & Rose Garden", "kind": "park", "lat": 45.5640, "lon": -122.6750, "address": "700 N Rosa Parks Way, Portland", "url": "https://www.portland.gov/parks", "hours_text": "5am to midnight", "age_min": 1, "age_max": 10, "interests": ["nature", "art"], "cost": "free", "setting": "outdoor", "note": "Playground, wading pool in summer." },
-  { "id": "seed-cathedral", "name": "Cathedral Park", "kind": "park", "lat": 45.5885, "lon": -122.7620, "address": "N Edison St & Pittsburg Ave, Portland", "url": "https://www.portland.gov/parks", "hours_text": "5am to midnight", "age_min": 1, "age_max": 12, "interests": ["nature"], "cost": "free", "setting": "outdoor", "note": "Under the St. Johns Bridge." },
-  { "id": "seed-forestpark", "name": "Forest Park (Lower Macleay)", "kind": "park", "lat": 45.5340, "lon": -122.7140, "address": "NW 29th Ave & Upshur St, Portland", "url": "https://forestparkconservancy.org", "hours_text": "5am to 10pm", "age_min": 3, "age_max": 12, "interests": ["nature", "animals"], "cost": "free", "setting": "outdoor", "note": "Stroller-hostile trails; best for walkers." },
-  { "id": "seed-dig", "name": "DiG PDX (indoor sandbox)", "kind": "play", "lat": 45.4690, "lon": -122.6420, "address": "Portland (verify address)", "url": "", "hours_text": "Check site for current hours", "age_min": 0, "age_max": 12, "interests": [], "cost": "paid", "setting": "indoor", "note": "Indoor sandbox play. Address and coordinates are placeholders to verify." }
+ {
+  "id": "seed-omsi",
+  "name": "OMSI (Oregon Museum of Science and Industry)",
+  "kind": "museum",
+  "lat": 45.50835,
+  "lon": -122.66566,
+  "address": "1945 SE Water Ave, Portland",
+  "url": "https://omsi.edu",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "science",
+   "dinosaurs",
+   "trains"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Hands-on science museum.",
+  "explore": [
+   "science"
+  ]
+ },
+ {
+  "id": "seed-zoo",
+  "name": "Oregon Zoo",
+  "kind": "zoo",
+  "lat": 45.50981,
+  "lon": -122.71269,
+  "address": "4001 SW Canyon Rd, Portland",
+  "url": "https://www.oregonzoo.org",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "animals",
+   "nature",
+   "trains"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "Zoo with a small train ride.",
+  "explore": [
+   "nature"
+  ]
+ },
+ {
+  "id": "seed-rail",
+  "name": "Oregon Rail Heritage Center",
+  "kind": "museum",
+  "lat": 45.50727,
+  "lon": -122.66162,
+  "address": "2250 SE Water Ave, Portland",
+  "url": "https://orhf.org",
+  "hours_text": "Check site for current hours",
+  "age_min": 2,
+  "age_max": 12,
+  "interests": [
+   "trains"
+  ],
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Free museum with steam locomotives; short train rides on many Saturdays and holiday trains in winter.",
+  "explore": [
+   "trains_planes",
+   "history"
+  ]
+ },
+ {
+  "id": "seed-oaks",
+  "name": "Oaks Amusement Park",
+  "kind": "play",
+  "lat": 45.4737,
+  "lon": -122.6667,
+  "address": "7805 SE Oaks Park Way, Portland",
+  "url": "https://oakspark.com",
+  "hours_text": "Seasonal; check site",
+  "age_min": 2,
+  "age_max": 12,
+  "interests": [
+   "music"
+  ],
+  "cost": "paid",
+  "setting": "both",
+  "note": "Rides and roller rink with preschool skate sessions.",
+  "explore": []
+ },
+ {
+  "id": "seed-pam",
+  "name": "Portland Art Museum",
+  "kind": "museum",
+  "lat": 45.51655,
+  "lon": -122.68341,
+  "address": "1219 SW Park Ave, Portland",
+  "url": "https://portlandartmuseum.org",
+  "hours_text": "Check site for current hours",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Family programs; kids' admission is typically reduced or free (verify).",
+  "explore": [
+   "art"
+  ]
+ },
+ {
+  "id": "seed-powells",
+  "name": "Powell's City of Books",
+  "kind": "bookstore",
+  "lat": 45.5231,
+  "lon": -122.6814,
+  "address": "1005 W Burnside St, Portland",
+  "url": "https://www.powells.com",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "books"
+  ],
+  "cost": "free",
+  "setting": "indoor",
+  "note": "Large children's section.",
+  "explore": []
+ },
+ {
+  "id": "seed-tryon",
+  "name": "Tryon Creek State Natural Area",
+  "kind": "park",
+  "lat": 45.435,
+  "lon": -122.672,
+  "address": "11321 SW Terwilliger Blvd, Portland",
+  "url": "https://stateparks.oregon.gov",
+  "hours_text": "Dawn to dusk",
+  "age_min": 2,
+  "age_max": 12,
+  "interests": [
+   "nature",
+   "animals"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "Most trails are natural-surface; a short all-abilities trail near the nature center works for strollers.",
+  "explore": [
+   "nature"
+  ]
+ },
+ {
+  "id": "seed-hoyt",
+  "name": "Hoyt Arboretum",
+  "kind": "park",
+  "lat": 45.516,
+  "lon": -122.711,
+  "address": "4000 SW Fairview Blvd, Portland",
+  "url": "https://www.hoytarboretum.org",
+  "hours_text": "Dawn to dusk",
+  "age_min": 2,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "Tree collection with easy trails.",
+  "explore": [
+   "nature"
+  ]
+ },
+ {
+  "id": "seed-pittock",
+  "name": "Pittock Mansion",
+  "kind": "park",
+  "lat": 45.5252,
+  "lon": -122.71624,
+  "address": "3229 NW Pittock Dr, Portland",
+  "url": "https://pittockmansion.org",
+  "hours_text": "Check site for current hours",
+  "age_min": 5,
+  "age_max": 12,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "both",
+  "note": "Historic house with city views; grounds are free.",
+  "explore": [
+   "history"
+  ]
+ },
+ {
+  "id": "seed-japanese",
+  "name": "Portland Japanese Garden",
+  "kind": "park",
+  "lat": 45.519,
+  "lon": -122.708,
+  "address": "611 SW Kingston Ave, Portland",
+  "url": "https://japanesegarden.org",
+  "hours_text": "Check site for current hours",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "nature",
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "",
+  "explore": [
+   "nature"
+  ]
+ },
+ {
+  "id": "seed-tabor",
+  "name": "Mt. Tabor Park",
+  "kind": "park",
+  "lat": 45.5119,
+  "lon": -122.5937,
+  "address": "SE 60th Ave & Salmon St, Portland",
+  "url": "https://www.portland.gov/parks",
+  "hours_text": "5am to midnight",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "Paved roads and paths around the reservoirs are stroller friendly; playground on the SE side.",
+  "explore": [
+   "nature",
+   "playgrounds"
+  ]
+ },
+ {
+  "id": "seed-laurelhurst",
+  "name": "Laurelhurst Park",
+  "kind": "park",
+  "lat": 45.519,
+  "lon": -122.627,
+  "address": "SE 39th Ave & Oak St, Portland",
+  "url": "https://www.portland.gov/parks",
+  "hours_text": "5am to midnight",
+  "age_min": 1,
+  "age_max": 10,
+  "interests": [
+   "animals",
+   "nature"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "Pond with ducks and a playground.",
+  "explore": [
+   "nature",
+   "playgrounds"
+  ]
+ },
+ {
+  "id": "seed-sellwood",
+  "name": "Sellwood Riverfront Park",
+  "kind": "park",
+  "lat": 45.465,
+  "lon": -122.66,
+  "address": "SE Spokane St, Portland",
+  "url": "https://www.portland.gov/parks",
+  "hours_text": "5am to midnight",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "River beach and playground.",
+  "explore": [
+   "playgrounds"
+  ]
+ },
+ {
+  "id": "seed-peninsula",
+  "name": "Peninsula Park & Rose Garden",
+  "kind": "park",
+  "lat": 45.564,
+  "lon": -122.675,
+  "address": "700 N Rosa Parks Way, Portland",
+  "url": "https://www.portland.gov/parks",
+  "hours_text": "5am to midnight",
+  "age_min": 1,
+  "age_max": 10,
+  "interests": [
+   "nature",
+   "art"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "Playground, wading pool in summer.",
+  "explore": [
+   "playgrounds"
+  ]
+ },
+ {
+  "id": "seed-cathedral",
+  "name": "Cathedral Park",
+  "kind": "park",
+  "lat": 45.5885,
+  "lon": -122.762,
+  "address": "N Edison St & Pittsburg Ave, Portland",
+  "url": "https://www.portland.gov/parks",
+  "hours_text": "5am to midnight",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "Under the St. Johns Bridge.",
+  "explore": [
+   "nature"
+  ]
+ },
+ {
+  "id": "seed-forestpark",
+  "name": "Forest Park (Lower Macleay)",
+  "kind": "park",
+  "lat": 45.534,
+  "lon": -122.714,
+  "address": "NW 29th Ave & Upshur St, Portland",
+  "url": "https://forestparkconservancy.org",
+  "hours_text": "5am to 10pm",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "nature",
+   "animals"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "Stroller-hostile trails; best for walkers.",
+  "explore": [
+   "nature"
+  ]
+ },
+ {
+  "id": "seed-dig",
+  "name": "DiG PDX",
+  "kind": "play",
+  "lat": 45.48553,
+  "lon": -122.76444,
+  "address": "8536 SW Apple Way, Portland, OR 97225",
+  "url": "https://digpdx.com",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Indoor sandbox play space; ages 0-12.",
+  "explore": [
+   "indoor_play"
+  ]
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-playdate",
+  "name": "PlayDate PDX",
+  "kind": "play",
+  "lat": 45.53337,
+  "lon": -122.68818,
+  "address": "1434 NW 17th Ave, Portland, OR 97209",
+  "url": "https://playdatepdx.com",
+  "cost": "paid",
+  "setting": "indoor",
+  "explore": [
+   "indoor_play"
+  ],
+  "note": "Big multi-level indoor play structure with a toddler area and cafe."
+ },
+ {
+  "age_min": 0,
+  "age_max": 6,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-twosisters",
+  "name": "Two Sisters Play Cafe",
+  "kind": "play",
+  "lat": 45.43758,
+  "lon": -122.6406,
+  "address": "11923 SE McLoughlin Blvd, Milwaukie, OR 97222",
+  "url": "",
+  "cost": "paid",
+  "setting": "indoor",
+  "explore": [
+   "indoor_play"
+  ],
+  "note": "Play cafe for little ones."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "hours_text": "Dawn to dusk",
+  "id": "seed-powellbutte",
+  "name": "Powell Butte Nature Park",
+  "kind": "park",
+  "lat": 45.48698,
+  "lon": -122.50639,
+  "address": "16160 SE Powell Blvd, Portland",
+  "url": "",
+  "cost": "free",
+  "setting": "outdoor",
+  "explore": [
+   "nature"
+  ],
+  "note": "Mostly paved main path with wide views; some gravel sections."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature",
+   "animals"
+  ],
+  "hours_text": "5am to midnight",
+  "id": "seed-oaksbottom",
+  "name": "Oaks Bottom Wildlife Refuge",
+  "kind": "park",
+  "lat": 45.47712,
+  "lon": -122.65545,
+  "address": "SE 7th Ave & Sellwood Blvd, Portland",
+  "url": "",
+  "cost": "free",
+  "setting": "outdoor",
+  "explore": [
+   "nature"
+  ],
+  "note": "Flat walking with herons and ducks; strollers do best on the paved Springwater edge."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "hours_text": "Dawn to dusk",
+  "id": "seed-thnp",
+  "name": "Tualatin Hills Nature Park",
+  "kind": "park",
+  "lat": 45.49975,
+  "lon": -122.84489,
+  "address": "15655 SW Millikan Way, Beaverton",
+  "url": "https://www.thprd.org",
+  "cost": "free",
+  "setting": "outdoor",
+  "explore": [
+   "nature"
+  ],
+  "note": "One wide paved trail through the woods, plus a nature center."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "hours_text": "5am to 10pm",
+  "id": "seed-washpark",
+  "name": "Washington Park",
+  "kind": "park",
+  "lat": 45.51552,
+  "lon": -122.70571,
+  "address": "SW Kingston Ave, Portland",
+  "url": "",
+  "cost": "free",
+  "setting": "outdoor",
+  "explore": [
+   "nature",
+   "playgrounds"
+  ],
+  "note": "Paved paths, the Rose Garden, and the Rose Garden Children's Park playground."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "hours_text": "5am to midnight",
+  "id": "seed-gabriel",
+  "name": "Gabriel Park",
+  "kind": "park",
+  "lat": 45.47265,
+  "lon": -122.71929,
+  "address": "SW 45th Ave & Vermont St, Portland",
+  "url": "",
+  "cost": "free",
+  "setting": "outdoor",
+  "explore": [
+   "nature",
+   "playgrounds"
+  ],
+  "note": "About a mile of paved loop, plus a playground."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "animals",
+   "nature"
+  ],
+  "hours_text": "Seasonal; check site",
+  "id": "seed-bella",
+  "name": "Bella Organic Farm",
+  "kind": "farm",
+  "lat": 45.63907,
+  "lon": -122.79487,
+  "address": "16205 NW Gillihan Rd, Portland, OR 97231",
+  "url": "",
+  "cost": "varies",
+  "setting": "outdoor",
+  "explore": [
+   "farms"
+  ],
+  "note": "Organic U-pick on Sauvie Island; spring and fall family festivals."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "animals",
+   "nature"
+  ],
+  "hours_text": "Seasonal; check site",
+  "id": "seed-pumpkinpatch",
+  "name": "The Pumpkin Patch (Sauvie Island)",
+  "kind": "farm",
+  "lat": 45.64172,
+  "lon": -122.79165,
+  "address": "16511 NW Gillihan Rd, Portland, OR 97231",
+  "url": "",
+  "cost": "varies",
+  "setting": "outdoor",
+  "explore": [
+   "farms"
+  ],
+  "note": "Market, animal barn and U-pick; corn maze in fall."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "animals",
+   "nature"
+  ],
+  "hours_text": "Seasonal; check site",
+  "id": "seed-topaz",
+  "name": "Topaz Farm",
+  "kind": "farm",
+  "lat": 45.64782,
+  "lon": -122.82364,
+  "address": "17100 NW Sauvie Island Rd, Portland, OR 97231",
+  "url": "",
+  "cost": "varies",
+  "setting": "outdoor",
+  "explore": [
+   "farms"
+  ],
+  "note": "U-pick berries and farm animals."
+ },
+ {
+  "age_min": 4,
+  "age_max": 12,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-ohs",
+  "name": "Oregon Historical Society Museum",
+  "kind": "museum",
+  "lat": 45.51586,
+  "lon": -122.68218,
+  "address": "1200 SW Park Ave, Portland, OR 97205",
+  "url": "https://www.ohs.org",
+  "cost": "varies",
+  "setting": "indoor",
+  "explore": [
+   "history"
+  ],
+  "note": "Walk through a covered wagon and touch a beaver pelt in Experience Oregon. Free for Multnomah County residents."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-fortvan",
+  "name": "Fort Vancouver National Historic Site",
+  "kind": "museum",
+  "lat": 45.6253,
+  "lon": -122.65995,
+  "address": "612 E Reserve St, Vancouver, WA 98661",
+  "url": "https://www.nps.gov/fova",
+  "cost": "varies",
+  "setting": "both",
+  "explore": [
+   "history"
+  ],
+  "note": "Reconstructed fur-trade fort with blacksmith demonstrations; the grounds are free."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "science"
+  ],
+  "hours_text": "Check site for current hours",
+  "id": "seed-pearson",
+  "name": "Pearson Air Museum",
+  "kind": "museum",
+  "lat": 45.62394,
+  "lon": -122.65628,
+  "address": "1115 E 5th St, Vancouver, WA 98661",
+  "url": "https://www.nps.gov/fova",
+  "cost": "free",
+  "setting": "indoor",
+  "explore": [
+   "trains_planes",
+   "history"
+  ],
+  "note": "Historic airfield museum at Fort Vancouver."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "science"
+  ],
+  "hours_text": "Check site for current hours",
+  "id": "seed-evergreen",
+  "name": "Evergreen Aviation & Space Museum",
+  "kind": "museum",
+  "lat": 45.20379,
+  "lon": -123.14292,
+  "address": "500 NE Captain Michael King Smith Way, McMinnville, OR 97128",
+  "url": "https://www.evergreenmuseum.org",
+  "cost": "paid",
+  "setting": "indoor",
+  "explore": [
+   "trains_planes"
+  ],
+  "note": "About an hour from Portland: hundreds of aircraft and spacecraft, including the Spruce Goose."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "trains"
+  ],
+  "hours_text": "Seasonal; check site",
+  "id": "seed-trolley",
+  "name": "Willamette Shore Trolley",
+  "kind": "attraction",
+  "lat": 45.41878,
+  "lon": -122.66277,
+  "address": "311 N State St, Lake Oswego, OR 97034",
+  "url": "",
+  "cost": "paid",
+  "setting": "outdoor",
+  "explore": [
+   "trains_planes"
+  ],
+  "note": "Vintage trolley rides along the Willamette from Lake Oswego."
+ },
+ {
+  "age_min": 0,
+  "age_max": 5,
+  "interests": [
+   "music"
+  ],
+  "hours_text": "Check site for current hours",
+  "id": "seed-musictogether",
+  "name": "Music Together of Portland",
+  "kind": "class",
+  "lat": 45.54802,
+  "lon": -122.63868,
+  "address": "Several locations; one is Fremont United Methodist Church, 2620 NE Fremont St, Portland",
+  "url": "https://www.musictogether-pdx.com",
+  "cost": "paid",
+  "setting": "indoor",
+  "explore": [
+   "classes"
+  ],
+  "note": "Weekly family music classes for babies to age 5, in semester sessions."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-littlegym-lo",
+  "name": "The Little Gym of Lake Oswego",
+  "kind": "class",
+  "lat": 45.39679,
+  "lon": -122.73697,
+  "address": "5820 Jean Rd, Lake Oswego, OR",
+  "url": "https://www.thelittlegym.com/regions/portland",
+  "cost": "paid",
+  "setting": "indoor",
+  "explore": [
+   "classes"
+  ],
+  "note": "Parent-child and kids gymnastics, dance and sports skills classes by membership."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-littlegym-van",
+  "name": "The Little Gym of Vancouver",
+  "kind": "class",
+  "lat": 45.59946,
+  "lon": -122.50477,
+  "address": "3000 SE 164th Ave, Vancouver, WA",
+  "url": "https://www.thelittlegym.com/regions/portland",
+  "cost": "paid",
+  "setting": "indoor",
+  "explore": [
+   "classes"
+  ],
+  "note": "Parent-child and kids gymnastics, dance and sports skills classes by membership."
+ },
+ {
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-metrogym",
+  "name": "Metro Gymnastics",
+  "kind": "class",
+  "lat": 45.38959,
+  "lon": -122.75389,
+  "address": "18084 SW Lower Boones Ferry Rd, Tualatin, OR 97224",
+  "url": "https://www.metrogymnastics.com",
+  "cost": "paid",
+  "setting": "indoor",
+  "explore": [
+   "classes"
+  ],
+  "note": "Recreational gymnastics classes for little ones and up."
+ }
 ]

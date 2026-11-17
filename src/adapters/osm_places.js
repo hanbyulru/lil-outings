@@ -6,17 +6,33 @@ export function overpassQuery(bbox) {
   const box = `${s},${w},${n},${e}`;
   return `[out:json][timeout:60];(
     nwr["leisure"="playground"]["name"](${box});
+    nwr["leisure"="indoor_play"]["name"](${box});
     nwr["tourism"~"^(museum|zoo|aquarium|theme_park)$"]["name"](${box});
     nwr["leisure"="water_park"]["name"](${box});
     nwr["leisure"="nature_reserve"]["name"](${box});
   );out center tags 400;`;
 }
 
+/** Which "More to explore" pills an OSM feature belongs to (config/vocab.json explore ids). */
+export function exploreFor(t) {
+  if (t.leisure === 'indoor_play' || (t.leisure === 'playground' && t.indoor === 'yes')) return ['indoor_play'];
+  if (t.leisure === 'playground') return ['playgrounds'];
+  if (t.tourism === 'zoo' || t.tourism === 'aquarium') return ['nature'];
+  if (t.tourism === 'museum') {
+    const m = String(t.museum || '').toLowerCase();
+    if (/^(art|arts)$/.test(m)) return ['art'];
+    if (/science|technology|children/.test(m)) return ['science'];
+    if (/railway|transport|aviation|aerospace/.test(m)) return ['trains_planes'];
+    if (/history|local|heritage|military|archaeolog/.test(m)) return ['history'];
+  }
+  return [];
+}
+
 export function parseOverpass(json, source) {
   return (json.elements || []).filter((el) => el.tags?.name).map((el) => {
     const lat = el.lat ?? el.center?.lat, lon = el.lon ?? el.center?.lon;
     const t = el.tags;
-    const kind = t.leisure === 'playground' ? 'playground' : t.tourism || t.leisure;
+    const kind = t.leisure === 'playground' ? 'playground' : t.leisure === 'indoor_play' ? 'play' : t.tourism || t.leisure;
     return {
       source_id: source.id,
       source_place_id: `${el.type}/${el.id}`,
@@ -27,7 +43,8 @@ export function parseOverpass(json, source) {
       url: t.website || t['contact:website'] || null,
       hours_text: t.opening_hours || null,
       description: t.description || null,
-      tags: { fee: t.fee || null, wheelchair: t.wheelchair || null }
+      tags: { fee: t.fee || null, wheelchair: t.wheelchair || null },
+      explore: exploreFor(t)
     };
   }).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));
 }

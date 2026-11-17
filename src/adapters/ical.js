@@ -28,12 +28,18 @@ export async function fetchIcal(source, ctx) {
   for (const e of texts.flatMap((t) => parseICal(t))) byUid.set(`${e.uid || e.title}|${e.start}`, e);
   const skip = (source.config.exclude_categories || []).map((c) => c.toLowerCase());
   const skipLoc = (source.config.exclude_locations || []).map((c) => c.toLowerCase());
+  const skipTitle = (source.config.exclude_titles || []).map((re) => new RegExp(re, 'i'));
   const v = source.config.default_venue; // feeds that give only a room name (LibCal) or free text (CivicPlus)
   return [...byUid.values()]
     .filter((e) => !(e.categories || []).some((c) => skip.includes(String(c).trim().toLowerCase())))
     .filter((e) => !skipLoc.includes(String(e.location || '').trim().toLowerCase()))
+    .filter((e) => !skipTitle.some((re) => re.test(e.title || '')))
     .map((e) => toRaw(source, e))
-    .map((r) => (v && r.lat == null ? { ...r, venue_name: v.name, address: v.address || r.address, lat: v.lat, lon: v.lon, room: r.venue_name } : r));
+    .map((r) => (v && r.lat == null
+      ? (v.keep_location_name && r.venue_name
+        ? { ...r, venue_name: r.venue_name.replace(/^\s*-\s*/, '').replace(/\s+\d+\s+(SW|SE|NW|NE|N|S|E|W)\s.*$/, ''), lat: v.lat, lon: v.lon } // town-level pin, the feed's own place name
+        : { ...r, venue_name: v.name, address: v.address || r.address, lat: v.lat, lon: v.lon, room: r.venue_name })
+      : r));
 }
 
 /** An event's own page: the URL property when it's a real page, else the first link in the description

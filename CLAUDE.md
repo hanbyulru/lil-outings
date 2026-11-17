@@ -15,7 +15,9 @@ Kids' events, classes and places for the Portland, OR metro. Zero npm deps, Node
 - First live run (Nov 2026): `pdx_parks`, `pdx_parks_classes` and `wccls` work as written. `mcl` now scrapes multcolib.org/events-classes (`multcolib` adapter, verified). OSM Overpass is unverified (connection reset from the sandbox).
 - Live runs from a proxied sandbox need `NODE_USE_ENV_PROXY=1` (Node's fetch ignores HTTPS_PROXY otherwise). The offline demo caches under `data/cache/offline-http` so it never feeds the live run.
 - Sources added Nov 2026: FVRL (Vancouver), Oregon City, Wilsonville, Lake Oswego, West Linn, Oak Lodge & Gladstone (see README table). Several give titles only, so tagging leans on titles; Claude handles that better than the rules fallback.
-- Next jobs: ActiveNet dated-session adapter for PP&R; more PP&R category pages; Ledding (Milwaukie) and Happy Valley libraries; review UI for `review.json`.
+- More to explore (Nov 2026): pills from `config/vocab.json` `explore` (Indoor Playgrounds, Public Playgrounds, Art, Science, Nature, Farms, History, Trains & Planes, Recurring Classes & Memberships) over the places directory; Classes also lists PP&R class series. Curated places (`config/places.seed.json`) only with an address confirmed by OSM/Nominatim or consistent sources; OSM places get pills from their tags (`exploreFor`).
+- City Parks & Rec calendars added: Lake Oswego, West Linn, Milwaukie, Wilsonville, Sherwood, Happy Valley (README table).
+- Next jobs: Parks & Rec calendars for Tigard and Hillsboro (block bots), Tualatin, THPRD, NCPRD, Beaverton, Gresham, Vancouver; ActiveNet dated-session adapter for PP&R; review UI for `review.json`.
 - Map: real basemap done (MapLibre + self-hosted Protomaps tiles, `web/map.js`); same-spot items share one pin with a list card.
 - Hosting: GitHub Pages via `.github/workflows/deploy.yml` (daily refresh + deploy). The site is static (`npm run build:site` -> `_site/`); `src/server.js` is for local dev.
 

@@ -154,10 +154,21 @@ export function buildOffline(today) {
   const fetchImpl = async (url) => {
     if (url.includes('/libraries/fvrlibraries/')) return ok(fvrlJson);
     if (url.includes('orcity-library.libcal.com')) return ok(ocIcs);
-    if (url.includes('wilsonvillelibrary.org')) return ok(url.includes('catID=29') ? wvIcs : icsOf([]));
-    if (url.includes('ci.oswego.or.us/calendar/month/')) return ok(loHtml);
+    if (url.includes('wilsonvillelibrary.org')) return ok(url.includes('catID=29') ? wvIcs : url.includes('catID=25') ? icsOf([['wp1', d2, '09:30', 60, 'Parent & Tot Open Gym', ' - Wilsonville Community Center 7965 SW Wilsonville Road Wilsonville', null]]) : icsOf([]));
+    if (url.includes('ci.oswego.or.us/calendar/month/')) return ok(url.endsWith('=13') ? loHtml : url.endsWith('=19') ? drupalMonth([[d1, '09:00', '/parksrec/indoor-playground-lorac', 'Indoor Playground at LORAC']]) : '');
     if (url.includes('westlinnoregon.gov/library/calendar/')) return ok(wlHtml);
+    if (url.includes('westlinnoregon.gov/parksrec/calendar/')) return ok(drupalMonth([[d2, '10:00', '/parksrec/family-nature-walk', 'Family Nature Walk at Mary S. Young Park']]));
     if (url.includes('clackamas.us/events')) return ok(ccHtml);
+    if (url.includes('/wp-json/tribe/events/v1/events')) return ok(JSON.stringify({ total_pages: 1, events: url.includes('sherwood')
+      ? [{ id: 501, title: 'Movies in the Park: Paddington', description: '<p>Free family movie night on the lawn. Bring a blanket.</p>', start_date: `${d2} 18:00:00`, end_date: `${d2} 20:00:00`, url: 'https://www.sherwoodoregon.gov/event/movie', categories: [{ name: 'Movies in the Parks' }], venue: { venue: 'Stella Olsen Park', geo_lat: '45.3535', geo_lng: '-122.8366' } },
+         { id: 502, title: 'City Council Meeting', start_date: `${d1} 17:30:00`, categories: [{ name: 'City Council' }], venue: [] }]
+      : [{ id: 601, title: 'Tree Lighting Ceremony', start_date: `${d2} 16:00:00`, end_date: `${d2} 18:00:00`, url: 'https://www.happyvalleyor.gov/event/tree', description: '<p>Bring the family for carols, cocoa and a visit from Santa. Free.</p>', categories: [{ name: 'Community Event' }], venue: { venue: 'Happy Valley City Hall', geo_lat: '45.4293831', geo_lng: '-122.4975936' } }] }));
+    if (url.includes('happyvalleyor.libcal.com')) return ok(icsOf([['hv1', d1, '10:30', 30, 'Toddler Storytime', 'Community Room A', 'Drop In, Storytime'], ['hv2', d2, '00:00', 60, 'CLOSED', 'Happy Valley Library', null]]));
+    if (url.includes('milwaukieoregon.gov/_assets_/plugins/revizeCalendar')) return ok(JSON.stringify([
+      { title: 'Drop-In Playgroup', primary_calendar_name: 'Library', start: `${d1}T10:30:00`, end: `${d1}T11:30:00`, location: 'Ledding Library, 10660 SE 21st Ave, Milwaukie', rid: '901', desc: encodeURIComponent('<p>Play time for little ones and their grown-ups.</p>'), rrule: `DTSTART:${d1.replace(/-/g, '')}T103000\nRRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=${['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][dayOfWeek(d1)]};COUNT=2` },
+      { title: 'City Council', primary_calendar_name: 'City Meetings', start: `${d1}T18:00:00`, rid: '902' },
+      { title: 'Umbrella Parade & Tree Lighting', primary_calendar_name: 'Community Events', start: `${d2}T16:00:00`, location: 'Main Street, Milwaukie', rid: '903', desc: encodeURIComponent('<p>Free family fun: kids parade with umbrellas, then the tree lighting.</p>') }
+    ]));
     if (url.startsWith('https://multcolib.org/hours-and-locations')) return ok(mclBranchMap());
     if (url.startsWith('https://multcolib.org/events-classes')) {
       const q = new URL(url).searchParams;

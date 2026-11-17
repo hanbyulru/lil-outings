@@ -137,6 +137,14 @@ nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500
 .mapcard.group .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .empty{padding:48px 0;border-top:1px solid var(--hair)}
 .empty h3{font-size:26px}
+.explore-pills{margin-top:24px}
+.explore-pills .chip{cursor:pointer;font-family:inherit;color:var(--ink)}
+.explore-pills .chip .n{margin-left:8px;min-width:22px;padding:1px 7px;border-radius:999px;background:var(--paper);color:var(--muted);font-size:13px;font-weight:600;text-align:center}
+.explore-pills .chip.on .n{background:#fff;color:var(--ink)}
+.explore-hint{margin:14px 0 0;color:var(--muted);font-size:15px}
+.subhead{font-family:'Instrument Sans',sans-serif;font-size:20px;margin:40px 0 0}
+.place .addr{font-size:14px;margin-top:4px}
+.more-btn{display:block;margin:24px auto 0;font-size:16px}
 .places{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:24px}
 .place{border:1px solid var(--hair);border-radius:20px;padding:20px;background:var(--paper)}
 .place h3{font-size:20px;line-height:1.25}
@@ -151,4 +159,4 @@ nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500
 .notice{margin:24px 0 0;font-size:14px;color:var(--muted)}
 footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-size:15px}
 .demo{background:var(--sun);border-bottom:1px solid #E9D68A;font-size:14px;font-weight:600;padding:8px 0;text-align:center}
-@media (max-width:700px){.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:78vh;overflow:auto}.reg small{font-size:13px}.regmore .lbl{display:none}.regmore{font-size:18px;padding:10px 14px;margin-right:4px}.ev{flex-direction:column;gap:8px}.ev .time{flex:none;display:flex;gap:10px;align-items:center}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}
+@media (max-width:700px){.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.explore-pills{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px;scrollbar-width:none}.explore-pills .chip{flex:none}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:78vh;overflow:auto}.reg small{font-size:13px}.regmore .lbl{display:none}.regmore{font-size:18px;padding:10px 14px;margin-right:4px}.ev{flex-direction:column;gap:8px}.ev .time{flex:none;display:flex;gap:10px;align-items:center}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}

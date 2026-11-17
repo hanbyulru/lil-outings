@@ -19,7 +19,7 @@ export function classifyRules(ev) {
   else if (has(text, /toddlers?/)) { min = 1; max = 3; }
   else if (has(text, /preschool/)) { min = 3; max = 5; }
   // Library calendars often give only a title (Lake Oswego, West Linn, Wilsonville): recognise common kid programs by name.
-  else if (has(text, /\b(family|kids|children|storytime|story time|all ages)\b|\blego\b|play ?group|playtime|story and play|music and movement|story ?walk|tales to tails|read(ing)? to (the )?(dogs?|cats?)/)) { min = 0; max = 12; }
+  else if (has(text, /\b(family|kids|children|storytime|story time|all ages)\b|\blego\b|play ?group|playtime|story and play|music and movement|story ?walk|tales to tails|read(ing)? to (the )?(dogs?|cats?)|indoor playground|playground|open gym|\btots?\b|parent (and|&) (child|tot|me)|little ones|tree lighting|parade|movies? (in|at) the park|concerts? in the park|music on the green|santa|egg hunt|trick[ -]or[ -]treat/)) { min = 0; max = 12; }
 
   let kid = !adultOnly && !teenOnly && min != null;
   const interests = [];

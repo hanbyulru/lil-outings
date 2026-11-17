@@ -138,7 +138,7 @@ test('classifyAll: listings that fell back to rules are retried with Claude on t
 
 test('rules: title-only library listings (no description) are still recognised as kid programs', () => {
   const kid = (title) => classifyRules({ title, description: '', raw_categories: [], raw_audience: [] }).kid_relevant;
-  for (const t of ['Lego Club', 'Play Group', 'Baby Time', 'Spanish Language Story and Play', 'Music and Movement in Mandarin', 'StoryWalk® at Fields Bridge Park!', 'Tales to Tails!', 'Read to the Dogs'])
+  for (const t of ['Lego Club', 'Play Group', 'Baby Time', 'Spanish Language Story and Play', 'Music and Movement in Mandarin', 'StoryWalk® at Fields Bridge Park!', 'Tales to Tails!', 'Read to the Dogs', 'Indoor Playground at LORAC', 'Parent & Tot Open Gym', 'Tree Lighting Ceremony', 'Movies in the Park: Paddington', 'Umbrella Parade & Tree Lighting'])
     assert.equal(kid(t), true, t);
   for (const t of ['Common Threads Crochet & Knit Group', 'Meet One-on-One with a Financial Advisor', 'Teen Art Meet', '(FULL) Adult Ukulele'])
     assert.equal(kid(t), false, t);

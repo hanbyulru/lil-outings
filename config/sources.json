@@ -175,6 +175,74 @@
       "notes": "Drupal 7 calendar month view (titles and start times only; no descriptions). Bookmobile ('Rover') stops are elsewhere in town."
     },
     {
+      "id": "lake_oswego_parks",
+      "name": "Lake Oswego Parks & Recreation",
+      "type": "drupal_calendar",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://www.ci.oswego.or.us/calendar",
+      "config": {
+        "url_templates": [
+          "https://www.ci.oswego.or.us/calendar/month/{month}?og_group_ref_target_id=19",
+          "https://www.ci.oswego.or.us/calendar/month/{month}?og_group_ref_target_id=14",
+          "https://www.ci.oswego.or.us/calendar/month/{month}?og_group_ref_target_id=37273",
+          "https://www.ci.oswego.or.us/calendar/month/{month}?og_group_ref_target_id=22"
+        ],
+        "site": "https://www.ci.oswego.or.us",
+        "venues": [
+          {
+            "match": "LORAC",
+            "name": "Lake Oswego Recreation and Aquatics Center",
+            "address": "17525 Stafford Rd, Lake Oswego, OR",
+            "lat": 45.39851,
+            "lon": -122.68733
+          },
+          {
+            "match": "Recreation and Aquatics",
+            "name": "Lake Oswego Recreation and Aquatics Center",
+            "address": "17525 Stafford Rd, Lake Oswego, OR",
+            "lat": 45.39851,
+            "lon": -122.68733
+          },
+          {
+            "match": "Luscher",
+            "name": "Luscher Farm",
+            "address": "125 Rosemont Rd, Lake Oswego, OR",
+            "lat": 45.39514,
+            "lon": -122.68585
+          },
+          {
+            "match": "Millennium",
+            "name": "Millennium Plaza Park",
+            "address": "200 First St, Lake Oswego, OR",
+            "lat": 45.41777,
+            "lon": -122.66492
+          },
+          {
+            "match": "West End",
+            "name": "West End Building",
+            "address": "4101 Kruse Way, Lake Oswego, OR",
+            "lat": 45.41805,
+            "lon": -122.71994
+          },
+          {
+            "match": "ACC",
+            "name": "Adult Community Center",
+            "address": "505 G Ave, Lake Oswego, OR",
+            "lat": 45.42642,
+            "lon": -122.6677
+          }
+        ],
+        "fallback_venue": {
+          "name": "Lake Oswego (see event page for location)",
+          "lat": 45.4207,
+          "lon": -122.6706
+        }
+      },
+      "notes": "City calendar groups: 19 Parks & Recreation, 14 Kids, 37273 LORAC, 22 Luscher Farm. Venue from the title (\"Indoor Playground at LORAC\"), else town center."
+    },
+    {
       "id": "west_linn_library",
       "name": "West Linn Public Library",
       "type": "drupal_calendar",
@@ -225,6 +293,163 @@
       "notes": "Clackamas County events list, library department. Titles end in the branch name; '18+' marks adult events."
     },
     {
+      "id": "happy_valley_library",
+      "name": "Happy Valley Library",
+      "type": "ical",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://happyvalleyor.libcal.com/calendar",
+      "config": {
+        "urls": [
+          "https://happyvalleyor.libcal.com/ical_subscribe.php?src=p&cid=16584"
+        ],
+        "exclude_titles": [
+          "^closed\\b"
+        ],
+        "default_venue": {
+          "name": "Happy Valley Library",
+          "address": "13793 SE Sieben Park Way, Happy Valley, OR 97015",
+          "lat": 45.42246,
+          "lon": -122.5134
+        }
+      },
+      "notes": "LibCal iCal (cid 16584 = Library Programs). Rooms only, so a fixed library venue."
+    },
+    {
+      "id": "ledding_library",
+      "name": "Ledding Library (Milwaukie)",
+      "type": "revize_calendar",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://www.milwaukieoregon.gov/calendar.php",
+      "config": {
+        "url": "https://www.milwaukieoregon.gov/_assets_/plugins/revizeCalendar/calendar_data_handler.php?webspace=milwaukie&relative_revize_url=//cms2.revize.com&protocol=https:",
+        "calendar": "Library",
+        "site": "https://www.milwaukieoregon.gov",
+        "venue": {
+          "name": "Ledding Library",
+          "match": "Ledding",
+          "address": "10660 SE 21st Ave, Milwaukie, OR 97222",
+          "lat": 45.44615,
+          "lon": -122.64036
+        }
+      },
+      "notes": "Revize calendar JSON for all city calendars; only primary_calendar_name 'Library' is used. Repeating events come as RRULE blocks, expanded in the adapter."
+    },
+    {
+      "id": "west_linn_parks",
+      "name": "West Linn Parks & Recreation",
+      "type": "drupal_calendar",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://westlinnoregon.gov/parksrec",
+      "config": {
+        "url_template": "https://westlinnoregon.gov/parksrec/calendar/{month}",
+        "site": "https://westlinnoregon.gov",
+        "fallback_venue": {
+          "name": "West Linn (see event page for location)",
+          "lat": 45.3657,
+          "lon": -122.6125
+        }
+      },
+      "notes": "Same Drupal 7 calendar as the library, parksrec section. No locations in the month view: town-level pin."
+    },
+    {
+      "id": "milwaukie_community",
+      "name": "Milwaukie Community Events",
+      "type": "revize_calendar",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.milwaukieoregon.gov/calendar.php",
+      "config": {
+        "url": "https://www.milwaukieoregon.gov/_assets_/plugins/revizeCalendar/calendar_data_handler.php?webspace=milwaukie&relative_revize_url=//cms2.revize.com&protocol=https:",
+        "calendar": "Community Events",
+        "site": "https://www.milwaukieoregon.gov",
+        "fallback_venue": {
+          "name": "Milwaukie",
+          "lat": 45.4462,
+          "lon": -122.6393
+        }
+      },
+      "notes": "Same Revize JSON as Ledding Library; the 'Community Events' calendar (parades, concerts in the park, Science in the Park)."
+    },
+    {
+      "id": "wilsonville_parks",
+      "name": "Wilsonville Parks & Recreation",
+      "type": "ical",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.wilsonvillelibrary.org/calendar.aspx?CID=25",
+      "config": {
+        "urls": [
+          "https://www.wilsonvillelibrary.org/common/modules/iCalendar/iCalendar.aspx?catID=25&feed=calendar",
+          "https://www.wilsonvillelibrary.org/common/modules/iCalendar/iCalendar.aspx?catID=27&feed=calendar"
+        ],
+        "default_venue": {
+          "name": "Wilsonville Community Center",
+          "address": "7965 SW Wilsonville Rd, Wilsonville, OR 97070",
+          "lat": 45.3013,
+          "lon": -122.7711,
+          "keep_location_name": true
+        }
+      },
+      "notes": "CivicPlus categories 25 (Parks & Recreation Programs and Classes) and 27 (Community Center drop-in)."
+    },
+    {
+      "id": "sherwood_city",
+      "name": "City of Sherwood events",
+      "type": "tribe_events",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.sherwoodoregon.gov/our-community/calendar/",
+      "config": {
+        "site": "https://www.sherwoodoregon.gov",
+        "include_categories": [
+          "Community Events",
+          "Cultural Arts",
+          "Events",
+          "General Events",
+          "Movies in the Parks",
+          "Music on the Green",
+          "Sherwood Center for the Arts",
+          "Community Garden"
+        ],
+        "fallback_venue": {
+          "name": "Sherwood",
+          "lat": 45.357,
+          "lon": -122.841
+        }
+      },
+      "notes": "WordPress The Events Calendar API. Library events are left out (WCCLS covers Sherwood Public Library); meetings and boards too."
+    },
+    {
+      "id": "happy_valley_city",
+      "name": "City of Happy Valley events",
+      "type": "tribe_events",
+      "enabled": true,
+      "trust": 7,
+      "status": "verified",
+      "homepage": "https://www.happyvalleyor.gov/events-calendar/",
+      "config": {
+        "site": "https://www.happyvalleyor.gov",
+        "exclude_categories": [
+          "Public Meeting"
+        ],
+        "fallback_venue": {
+          "name": "Happy Valley",
+          "lat": 45.446,
+          "lon": -122.53
+        }
+      },
+      "notes": "WordPress The Events Calendar API; small list (tree lighting, community events). Venues usually carry coordinates."
+    },
+    {
       "id": "manual",
       "name": "Submitted & curated",
       "type": "manual",
@@ -234,18 +459,6 @@
       "config": {
         "file": "data/manual/events.json"
       }
-    },
-    {
-      "id": "ccrls",
-      "name": "Ledding (Milwaukie) and Happy Valley libraries",
-      "type": "ical",
-      "enabled": false,
-      "trust": 8,
-      "status": "todo",
-      "config": {
-        "urls": []
-      },
-      "notes": "Still to do: Ledding Library (Milwaukie) and Happy Valley Library calendars. Oregon City, Oak Lodge and Gladstone are covered by their own sources."
     },
     {
       "id": "venues_jsonld",

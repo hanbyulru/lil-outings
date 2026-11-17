@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { parsePortlandGovList } from '../src/adapters/portland_gov.js';
 import { parseJsonLdEvents } from '../src/adapters/jsonld.js';
@@ -89,4 +90,30 @@ test('portland.gov events: exclude_labels drops volunteer/meeting rows at the so
   const fetchImpl = async () => ({ ok: true, status: 200, text: async () => html });
   const out = await fetchPortlandGov({ id: 't', config: { url: 'https://www.portland.gov/parks/events', max_pages: 1, exclude_labels: ['Volunteer event'] } }, { http: { fetchImpl, cacheDir: '/tmp/lo-x', minGapMs: 0, ttlMs: 0 } });
   assert.deepEqual(out.map((e) => e.title), ['Lantern Walk']);
+});
+
+import { exploreFor } from '../src/adapters/osm_places.js';
+test('OSM features map to "More to explore" pills', () => {
+  assert.deepEqual(exploreFor({ leisure: 'playground' }), ['playgrounds']);
+  assert.deepEqual(exploreFor({ leisure: 'playground', indoor: 'yes' }), ['indoor_play']);
+  assert.deepEqual(exploreFor({ leisure: 'indoor_play' }), ['indoor_play']);
+  assert.deepEqual(exploreFor({ tourism: 'zoo' }), ['nature']);
+  assert.deepEqual(exploreFor({ tourism: 'museum', museum: 'art' }), ['art']);
+  assert.deepEqual(exploreFor({ tourism: 'museum', museum: 'children' }), ['science']);
+  assert.deepEqual(exploreFor({ tourism: 'museum', museum: 'railway' }), ['trains_planes']);
+  assert.deepEqual(exploreFor({ tourism: 'museum', museum: 'local' }), ['history']);
+  assert.deepEqual(exploreFor({ tourism: 'museum' }), [], 'unknown museum type: no pill');
+  assert.deepEqual(exploreFor({ leisure: 'nature_reserve' }), [], 'not every reserve is stroller friendly');
+});
+
+test('curated places: valid explore ids, real coordinates, and every pill but none has something', () => {
+  const vocab = JSON.parse(readFileSync('config/vocab.json', 'utf8'));
+  const ids = new Set(vocab.explore.map((x) => x.id));
+  const seed = JSON.parse(readFileSync('config/places.seed.json', 'utf8'));
+  for (const p of seed) {
+    for (const e of p.explore || []) assert.ok(ids.has(e), `${p.name}: ${e}`);
+    assert.ok(Number.isFinite(p.lat) && Number.isFinite(p.lon), p.name);
+    assert.ok(!/verify/i.test(p.address || ''), `${p.name} still has a placeholder address`);
+  }
+  for (const id of ids) assert.ok(seed.some((p) => (p.explore || []).includes(id)) || id === 'playgrounds' || id === 'science' || id === 'art', `curated coverage for ${id}`);
 });

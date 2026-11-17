@@ -20,7 +20,8 @@ const PLACE_DEFAULTS = {
   museum: { age_min: 2, age_max: 12, interests: [], cost: 'paid', setting: 'indoor' },
   zoo: { age_min: 0, age_max: 12, interests: ['animals'], cost: 'paid', setting: 'outdoor' },
   aquarium: { age_min: 0, age_max: 12, interests: ['animals', 'science'], cost: 'paid', setting: 'indoor' },
-  theme_park: { age_min: 2, age_max: 12, interests: [], cost: 'paid', setting: 'outdoor' }
+  theme_park: { age_min: 2, age_max: 12, interests: [], cost: 'paid', setting: 'outdoor' },
+  play: { age_min: 0, age_max: 10, interests: [], cost: 'paid', setting: 'indoor' }
 };
 
 export async function refresh({ offline = false, now = new Date(), useLLM = true, outDir = 'data/public', horizonDays = 60, log = console.log, llmOptions = {}, cacheDir = 'data/cache' } = {}) {
@@ -40,7 +41,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
         const dup = places.find((p) => normalizeVenueKey(p.name) === normalizeVenueKey(f.name) || (haversineMiles(p, f) < 0.1 && normalizeVenueKey(p.name).split(' ')[0] === normalizeVenueKey(f.name).split(' ')[0]));
         if (dup) continue;
         const d = PLACE_DEFAULTS[f.kind] || { age_min: 0, age_max: 12, interests: [], cost: 'varies', setting: 'unknown' };
-        places.push({ id: `osm-${f.source_place_id.replace('/', '-')}`, name: f.name, kind: f.kind, lat: f.lat, lon: f.lon, address: f.address, url: f.url, hours_text: f.hours_text, note: f.description || '', ...d, source: 'osm', verified: false });
+        places.push({ id: `osm-${f.source_place_id.replace('/', '-')}`, name: f.name, kind: f.kind, lat: f.lat, lon: f.lon, address: f.address, url: f.url, hours_text: f.hours_text, note: f.description || '', ...d, explore: f.explore || [], source: 'osm', verified: false });
       }
       placeStatus.push({ id: src.id, name: src.name, ok: true, fetched: found.length });
       log(`  ${src.name} places: ${found.length}`);
@@ -127,7 +128,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     generated_at: now.toISOString(), today, mode: offline ? 'demo (sample feeds)' : 'live',
     counts: { raw: raw.length, normalized: beforeDedupe, after_dedupe: events.length, kid_events: kept.length, dropped_not_for_kids: notKids, dropped, places: places.length, programs: programs.length, needs_review: kept.filter((e) => e.needs_review).length },
     sources: status, place_sources: placeStatus, program_sources: programStatus,
-    vocab: { age_bands: VOCAB.age_bands, interests: VOCAB.interests, categories: VOCAB.categories }
+    vocab: { age_bands: VOCAB.age_bands, interests: VOCAB.interests, categories: VOCAB.categories, explore: VOCAB.explore }
   };
   writeFileSync(`${outDir}/events.json`, JSON.stringify(kept, null, 1));
   writeFileSync(`${outDir}/programs.json`, JSON.stringify(programs, null, 1));
