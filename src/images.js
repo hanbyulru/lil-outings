@@ -46,13 +46,15 @@ export async function addPlaceImages(places, http, log = () => {}) {
       const f = commonsFileFromTag(p.commons && !/^File:/i.test(p.commons) ? `File:${p.commons}` : p.commons) || commonsFileFromTag(p.image);
       if (f) fileOf.set(p.id, f);
     }
-    const qids = [...new Set(places.filter((p) => !fileOf.has(p.id) && QID.test(p.wikidata || '')).map((p) => p.wikidata))];
+    // A playground's wikidata tag usually points at its park or neighborhood, whose photo isn't the playground.
+    const usesWikidata = (p) => !fileOf.has(p.id) && QID.test(p.wikidata || '') && p.kind !== 'playground';
+    const qids = [...new Set(places.filter(usesWikidata).map((p) => p.wikidata))];
     const p18 = new Map();
     for (const ids of chunk(qids, 50)) {
       const j = JSON.parse(await politeFetch(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ids.join('|')}&props=claims&format=json`, h));
       for (const id of ids) { const v = j.entities?.[id]?.claims?.P18?.[0]?.mainsnak?.datavalue?.value; if (v) p18.set(id, v); }
     }
-    for (const p of places) if (!fileOf.has(p.id) && p18.has(p.wikidata)) fileOf.set(p.id, p18.get(p.wikidata));
+    for (const p of places) if (usesWikidata(p) && p18.has(p.wikidata)) fileOf.set(p.id, p18.get(p.wikidata));
 
     const info = new Map(); // normalized title -> { thumb, page, credit }
     const titles = [...new Set(fileOf.values())].map((f) => `File:${f}`);

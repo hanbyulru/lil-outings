@@ -40,6 +40,7 @@ test('addPlaceImages resolves hand-picked files and Wikidata P18, with credits',
     { id: 'a', commons: 'Powell_Butte.jpg' },
     { id: 'b', wikidata: 'Q7' },
     { id: 'c', wikidata: 'Q8' },
+    { id: 'e', wikidata: 'Q7', kind: 'playground' },
     { id: 'd', image: 'https://example.com/business.jpg' }
   ];
   await addPlaceImages(places, { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'img-')), minGapMs: 0 });
@@ -48,7 +49,8 @@ test('addPlaceImages resolves hand-picked files and Wikidata P18, with credits',
   assert.equal(places[1].image, 'https://upload.wikimedia.org/t/mt.jpg');
   assert.equal(places[1].image_page, 'https://commons.wikimedia.org/wiki/File:Mount_Tabor_pavilion.jpg');
   assert.equal(places[2].image, undefined);
-  assert.equal(places[3].image, undefined); // never a business website photo
+  assert.equal(places[3].image, undefined); // a playground's neighborhood photo isn't used
+  assert.equal(places[4].image, undefined); // never a business website photo
   assert.ok(places.every((p) => !('commons' in p)));
   assert.ok(seen.every((s) => s.ua === WIKIMEDIA_UA));
 });
