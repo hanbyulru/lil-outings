@@ -33,7 +33,7 @@ export function normalizeEvent(raw, source, { horizonDays = 60, today } = {}) {
     address: raw.address || null,
     lat, lon,
     neighborhood: loc?.neighborhood || null,
-    area: loc?.area || null,
+    district: loc?.district || null,
     url: raw.url || null,
     price_text: raw.price_text || null,
     image: raw.image || null,
@@ -63,5 +63,5 @@ export function guessVenue(ev, places) {
   }
   if (!best) return ev;
   const loc = locate(best.p.lat, best.p.lon);
-  return { ...ev, venue_name: best.p.name, lat: best.p.lat, lon: best.p.lon, neighborhood: loc?.neighborhood || null, area: loc?.area || null, geo_source: 'place-name' };
+  return { ...ev, venue_name: best.p.name, lat: best.p.lat, lon: best.p.lon, neighborhood: loc?.neighborhood || null, district: loc?.district || null, geo_source: 'place-name' };
 }

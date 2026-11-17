@@ -22,10 +22,11 @@ test('offline refresh: runs every adapter, drops non-kid events, tags and locate
   assert.ok(titles.has('Winter Lantern Walk at Mt. Tabor'), 'community event from parks feed kept');
   for (const e of events) {
     assert.ok(e.age_min != null && e.age_max != null, e.title);
-    assert.ok(e.area, `${e.title} has an area`);
     assert.ok(e.date >= '2026-11-16');
   }
-  assert.ok(new Set(events.map((e) => e.area)).size === 5, 'all five areas represented');
+  const inMetro = events.filter((e) => e.district);
+  assert.ok(inMetro.length >= events.length - 2, 'nearly every demo event lands in a district');
+  assert.ok(new Set(inMetro.map((e) => e.district)).size >= 8, 'events spread across many districts');
   assert.ok(places.some((p) => p.source === 'osm') && places.some((p) => p.source === 'curated'));
   const written = JSON.parse(readFileSync(join(out, 'events.json'), 'utf8'));
   assert.equal(written.length, events.length);
@@ -46,10 +47,13 @@ test('dedupe keeps different venues/times apart', () => {
 });
 
 test('geo: neighborhood + area from coordinates, ZIP lookup', () => {
-  assert.equal(locate(45.5360, -122.6240).area, 'NE');
-  assert.equal(locate(45.5880, -122.7540).area, 'N');
-  assert.equal(locate(45.4207, -122.6706).neighborhood, 'Lake Oswego');
-  assert.equal(locate(40.7, -74.0), null, 'far away -> no area');
+  assert.equal(locate(45.5360, -122.6240).district, 'inner-ne'); // Hollywood
+  assert.equal(locate(45.5880, -122.7540).district, 'north-portland'); // St. Johns
+  assert.equal(locate(45.4207, -122.6706).neighborhood, 'Downtown Lake Oswego');
+  assert.equal(locate(45.3843, -122.7585).district, 'tualatin-sherwood'); // Tualatin library
+  assert.equal(locate(45.6290, -122.6730).district, 'vancouver-central');
+  assert.equal(locate(45.30, -122.97), null, 'Newberg: outside every district');
+  assert.equal(locate(40.7, -74.0), null, 'far away -> no district');
   assert.ok(zipPoint('97214'));
   assert.equal(zipPoint('00000'), null);
 });
@@ -59,7 +63,7 @@ test('guessVenue infers location from a known place name in the title', () => {
   const places = [{ name: 'Mt. Tabor Park', lat: 45.5119, lon: -122.5937 }, { name: 'Park', lat: 0, lon: 0 }];
   const e = guessVenue({ title: 'Winter Lantern Walk at Mt. Tabor', description: '' }, places);
   assert.equal(e.venue_name, 'Mt. Tabor Park');
-  assert.equal(e.area, 'SE');
+  assert.equal(e.district, 'inner-se');
   assert.equal(e.geo_source, 'place-name');
   assert.equal(guessVenue({ title: 'Something else', description: '' }, places).lat, undefined);
 });

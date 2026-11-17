@@ -29,19 +29,56 @@ export function whenRange(when, today) {
   return [today, today];
 }
 
-/** Resolve a location choice to { point?, area?, neighborhood? }.
- *  loc: { zip } | { area: 'NW' } | { neighborhood: 'Pearl District' } | null */
+/** Max distance (miles) from a named place for an item to count as being in its district. */
+export const PLACE_RADIUS_MILES = 5;
+
+/** Every named place with its district: [{ name, lat, lon, district }]. */
+const placeCache = new WeakMap();
+export function allPlaces(geo) {
+  if (!placeCache.has(geo)) placeCache.set(geo, geo.districts.flatMap((d) => d.places.map((p) => ({ ...p, district: d.id }))));
+  return placeCache.get(geo);
+}
+
+/** Nearest named place within PLACE_RADIUS_MILES -> { place, district, miles } or null. */
+export function nearestPlace(lat, lon, geo) {
+  if (!Number.isFinite(+lat) || !Number.isFinite(+lon) || lat === null || lon === null) return null;
+  let best = null;
+  for (const p of allPlaces(geo)) {
+    const d = haversineMiles({ lat: +lat, lon: +lon }, p);
+    if (!best || d < best.miles) best = { place: p.name, district: p.district, miles: d };
+  }
+  return best && best.miles <= PLACE_RADIUS_MILES ? best : null;
+}
+
+/** Regions a district belongs to (Tigard is in two). */
+export const regionsOf = (districtId, geo) => geo.regions.filter((r) => r.districts.includes(districtId)).map((r) => r.id);
+
+/** An item's district: stored by the pipeline, else worked out from its coordinates. */
+function districtOf(item, geo) {
+  if (item.district) return item.district;
+  return nearestPlace(item.lat, item.lon, geo)?.district || null;
+}
+
+/** Resolve a location choice.
+ *  loc: { region: 'westside' } | { district: 'tigard' } | { place: 'Bull Mountain' } | { zip } | null */
 export function resolveLoc(loc, geo) {
   if (!loc) return null;
   if (loc.zip) {
     const z = geo.zips[String(loc.zip)];
     return z ? { kind: 'zip', point: { lat: z[0], lon: z[1] }, label: String(loc.zip) } : { kind: 'zip', unknown: true, label: String(loc.zip) };
   }
-  if (loc.neighborhood) {
-    const n = geo.neighborhoods.find((x) => x.name === loc.neighborhood);
-    return n ? { kind: 'neighborhood', neighborhood: n.name, area: n.area, point: { lat: n.lat, lon: n.lon }, label: `${n.name} · ${n.area}` } : null;
+  if (loc.region) {
+    const r = geo.regions.find((x) => x.id === loc.region);
+    return r ? { kind: 'region', region: r.id, districts: r.districts, label: r.short } : null;
   }
-  if (loc.area) return { kind: 'area', area: loc.area, label: loc.area === 'N' ? 'All North Portland' : `All ${loc.area}` };
+  if (loc.district) {
+    const d = geo.districts.find((x) => x.id === loc.district);
+    return d ? { kind: 'district', district: d.id, districts: [d.id], label: d.name } : null;
+  }
+  if (loc.place) {
+    const p = allPlaces(geo).find((x) => x.name === loc.place);
+    return p ? { kind: 'place', place: p.name, district: p.district, districts: [p.district], point: { lat: p.lat, lon: p.lon }, label: p.name } : null;
+  }
   return null;
 }
 
@@ -57,12 +94,12 @@ function categoryMatch(item, category) {
   return (item.categories || []).includes(category);
 }
 
-function locMatch(item, r, radiusMiles) {
+function locMatch(item, r, radiusMiles, geo) {
   if (!r) return { ok: true, miles: null };
   let miles = null;
   if (r.point && item.lat != null) miles = haversineMiles(r.point, item);
-  if (r.kind === 'area') return { ok: item.area === r.area, miles };
-  if (r.kind === 'neighborhood') return { ok: item.neighborhood === r.neighborhood || (miles != null && miles <= 1.5), miles };
+  if (r.kind === 'region' || r.kind === 'district') return { ok: r.districts.includes(districtOf(item, geo)), miles };
+  if (r.kind === 'place') return { ok: item.neighborhood === r.place || (miles != null && miles <= 1.5), miles };
   if (r.kind === 'zip') return r.unknown ? { ok: true, miles: null } : { ok: miles != null && miles <= radiusMiles, miles };
   return { ok: true, miles };
 }
@@ -86,7 +123,7 @@ export function filterEvents(events, opts = {}, ctx) {
     if (opts.free && e.cost_type !== 'free') continue;
     if (opts.dropin && e.registration !== 'drop_in') continue;
     if (opts.indoor && e.setting !== 'indoor') continue;
-    const l = locMatch(e, r, radius);
+    const l = locMatch(e, r, radius, ctx.geo);
     if (!l.ok) continue;
     out.push({ ...e, miles: l.miles });
   }
@@ -122,7 +159,7 @@ export function filterPlaces(places, opts = {}, ctx) {
     if (opts.category === 'babies_toddlers' && p.age_min > 2) continue;
     if (opts.free && p.cost !== 'free') continue;
     if (opts.indoor && p.setting !== 'indoor') continue;
-    const l = locMatch(p, r, radius);
+    const l = locMatch(p, r, radius, ctx.geo);
     if (!l.ok) continue;
     out.push({ ...p, miles: l.miles });
   }
@@ -130,13 +167,14 @@ export function filterPlaces(places, opts = {}, ctx) {
   return out;
 }
 
-/** Evergreen class/program listings (no dates). Area match uses the program's region areas. */
+/** Evergreen class/program listings (no dates). Location match uses the program's regions. */
 export function filterPrograms(programs, opts = {}, ctx) {
   const r = resolveLoc(opts.loc, ctx.geo);
   const out = [];
   for (const p of programs) {
     if (!ageOverlap(p, opts.age)) continue;
-    if (r && r.area && !(p.areas || []).includes(r.area)) continue;
+    // Programs list the regions they're offered in (from PP&R's own region headings).
+    if (r && r.kind !== 'zip' && !r.districts.some((d) => regionsOf(d, ctx.geo).some((x) => (p.regions || []).includes(x)))) continue;
     if (opts.category === 'seasonal' || opts.category === 'storytime' || opts.category === 'outdoors') continue;
     if (opts.category === 'babies_toddlers' && p.age_min > 2) continue;
     out.push(p);

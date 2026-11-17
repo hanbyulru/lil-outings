@@ -10,7 +10,7 @@ const DATA = process.env.DATA_DIR || 'data/public';
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.pbf': 'application/x-protobuf', '.pmtiles': 'application/octet-stream' };
 
 const load = (f) => JSON.parse(readFileSync(join(DATA, f), 'utf8'));
-const parseLoc = (q) => q.zip ? { zip: q.zip } : q.neighborhood ? { neighborhood: q.neighborhood } : q.area ? { area: q.area } : null;
+const parseLoc = (q) => q.zip ? { zip: q.zip } : q.place ? { place: q.place } : q.district ? { district: q.district } : q.region ? { region: q.region } : null;
 const parseAge = (q) => (q.age_min != null && q.age_max != null ? [+q.age_min, +q.age_max] : null);
 
 /**

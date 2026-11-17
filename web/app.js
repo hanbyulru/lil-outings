@@ -11,28 +11,35 @@ const LABEL = { animals: 'Animals', science: 'Science', trains: 'Trains', nature
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['weekend', 'this weekend', 'This weekend'], ['week', 'this week', 'This week']];
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
-const AREAS = ['NW', 'N', 'NE', 'SW', 'SE'];
-const AREA_NAMES = { NW: 'Northwest', N: 'North Portland', NE: 'Northeast', SW: 'Southwest', SE: 'Southeast' };
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
 let DATA, GEO;
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { when: 'today', open: null /* 'when' | 'loc' */, loc: null /* null | {area} | {neighborhood} */, locTab: 'SW', interest: 'all', tab: 'places', sel: null, showMap: false };
+const S = { when: 'today', open: null /* 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, interest: 'all', tab: 'places', sel: null, showMap: false };
 
 function loadLoc() {
   try {
     const v = JSON.parse(localStorage.getItem(LOC_KEY) || 'null');
-    if (v?.area && AREAS.includes(v.area)) return { area: v.area };
-    if (v?.neighborhood && GEO.neighborhoods.some((n) => n.name === v.neighborhood)) return { neighborhood: v.neighborhood };
+    if (v?.region && regionById(v.region)) return { region: v.region };
+    if (v?.district && districtById(v.district)) return { district: v.district };
+    if (v?.place && districtOfPlace(v.place)) return { place: v.place };
   } catch { /* storage blocked: start with anywhere */ }
   return null;
 }
 function saveLoc() { try { localStorage.setItem(LOC_KEY, JSON.stringify(S.loc)); } catch { /* not critical */ } }
-const locArea = (loc) => loc?.area || (loc?.neighborhood && GEO.neighborhoods.find((n) => n.name === loc.neighborhood)?.area) || null;
-/** The word(s) after "in": Portland (anywhere), a quadrant, or a neighborhood. */
-const locPhrase = (loc) => (!loc ? 'Portland' : loc.area ? (loc.area === 'N' ? 'N Portland' : loc.area) : loc.neighborhood);
+// Geography (config/geo.json): regions ("a quick drive from home") > districts > named towns/neighborhoods.
+const regionById = (id) => GEO.regions.find((r) => r.id === id);
+const districtById = (id) => GEO.districts.find((d) => d.id === id);
+const districtOfPlace = (name) => GEO.districts.find((d) => d.places.some((p) => p.name === name));
+const districtOfLoc = (loc) => (loc?.district ? districtById(loc.district) : loc?.place ? districtOfPlace(loc.place) : null);
+/** The region to show expanded for a choice (Tigard sits in two; the first wins). */
+const regionOfLoc = (loc) => (loc?.region ? regionById(loc.region) : GEO.regions.find((r) => r.districts.includes(districtOfLoc(loc)?.id)) || null);
+/** The words after "in": Portland (anywhere), a region, a district, or a town. */
+const locPhrase = (loc) => (!loc ? 'Portland' : loc.region ? regionById(loc.region).short : loc.district ? districtById(loc.district).name : loc.place);
+/** One step wider: town -> its district -> its region -> anywhere. */
+const widerLoc = (loc) => (loc?.place ? { district: districtOfLoc(loc).id } : loc?.district ? { region: regionOfLoc(loc).id } : null);
 
 async function load() {
   if (window.__DATA__) return window.__DATA__;
@@ -162,12 +169,16 @@ function renderHeadline() {
   const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${WHEN.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
   let locMenu = '';
   if (S.open === 'loc') {
-    const q = S.locTab;
-    const hoods = GEO.neighborhoods.filter((n) => n.area === q);
+    const isOn = (k, v) => S.loc?.[k] === v;
+    const rows = GEO.regions.map((r) => {
+      const open = S.locOpen === r.id;
+      const dists = r.districts.map(districtById);
+      const detail = open ? `<span class="regdetail">${dists.map((d) => `<span class="dist"><button class="opt distbtn ${isOn('district', d.id) ? 'on' : ''}" data-locdistrict="${d.id}">${esc(d.name)}</button>${d.places.map((p) => `<button class="opt town ${isOn('place', p.name) ? 'on' : ''}" data-locplace="${esc(p.name)}">${esc(p.name)}</button>`).join('')}</span>`).join('')}</span>` : '';
+      return `<span class="regrow ${open ? 'open' : ''}"><button class="reg ${isOn('region', r.id) ? 'on' : ''}" data-locregion="${r.id}"><b>${esc(r.name)}</b><small>${esc(dists.map((d) => d.name).join(' · '))}</small></button><button class="regmore" data-locexpand="${r.id}" aria-expanded="${open}" aria-label="${open ? 'Close' : 'Narrow down'} ${esc(r.name)}"><span class="lbl">${open ? 'Close' : 'Narrow'} </span><span aria-hidden="true">${open ? '▴' : '▾'}</span></button>${detail}</span>`;
+    }).join('');
     locMenu = `<span class="locmenu menu" role="dialog" aria-label="Choose where">
       <button class="opt any ${!S.loc ? 'on' : ''}" data-locany>Anywhere in Portland &amp; the metro</button>
-      <span class="quads">${AREAS.map((a) => `<button class="quad ${q === a ? 'on' : ''}" data-loctab="${a}" aria-pressed="${q === a}"><b>${a}</b><small>${AREA_NAMES[a]}</small></button>`).join('')}</span>
-      <span class="opts"><button class="opt ${S.loc?.area === q ? 'on' : ''}" data-locarea="${q}">All ${esc(AREA_NAMES[q])}</button>${hoods.map((n) => `<button class="opt ${S.loc?.neighborhood === n.name ? 'on' : ''}" data-lochood="${esc(n.name)}">${esc(n.name)}</button>`).join('')}</span>
+      <span class="reglist">${rows}</span>
     </span>`;
   }
   const trigger = (kind, text, open) => `<button class="whenbtn" data-menu="${kind}" aria-haspopup="${kind === 'when' ? 'menu' : 'dialog'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
@@ -200,7 +211,8 @@ function renderToday() {
     const phrase = WHEN.find((w) => w[0] === S.when)[1];
     const where = S.loc ? ` in ${locPhrase(S.loc)}` : '';
     const msg = S.interest !== 'all' ? `Nothing tagged ${LABEL[S.interest]}${where} ${phrase}.` : S.when === 'today' && over > 0 && !S.loc ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
-    const wider = S.loc?.neighborhood ? `<button class="btn-ink" data-locarea="${locArea(S.loc)}">See all of ${esc(locPhrase({ area: locArea(S.loc) }))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
+    const w = widerLoc(S.loc);
+    const wider = w ? `<button class="btn-ink" ${w.district ? `data-locdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
     body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${S.loc ? next.replace('btn-ink', 'textbtn') : ''}</div></div>`;
   } else {
     let list;
@@ -243,16 +255,24 @@ document.addEventListener('click', (ev) => {
   const d = t.dataset;
   if (d.menu) {
     S.open = S.open === d.menu ? null : d.menu;
-    if (S.open === 'loc') S.locTab = locArea(S.loc) || S.locTab;
+    if (S.open === 'loc') S.locOpen = S.loc && !S.loc.region ? regionOfLoc(S.loc)?.id || null : null;
     renderHeadline();
     if (S.open === 'when') $('.whenmenu [aria-checked="true"]')?.focus();
-    if (S.open === 'loc') $('.locmenu .quad.on')?.focus();
+    if (S.open === 'loc') ($('.locmenu .on') || $('.locmenu .any'))?.focus();
     return;
   }
-  if (d.loctab) { S.locTab = d.loctab; renderHeadline(); $(`.locmenu [data-loctab="${d.loctab}"]`)?.focus(); return; }
+  if (d.locexpand) {
+    S.locOpen = S.locOpen === d.locexpand ? null : d.locexpand;
+    renderHeadline();
+    const btn = $(`.locmenu [data-locexpand="${d.locexpand}"]`);
+    btn?.focus({ preventScroll: true });
+    btn?.closest('.regrow')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); // phones: the opened row may be below the fold
+    return;
+  }
   if (d.locany !== undefined) return setLoc(null);
-  if (d.locarea) return setLoc({ area: d.locarea });
-  if (d.lochood) return setLoc({ neighborhood: d.lochood });
+  if (d.locregion) return setLoc({ region: d.locregion });
+  if (d.locdistrict) return setLoc({ district: d.locdistrict });
+  if (d.locplace) return setLoc({ place: d.locplace });
   if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.nav === 'events') { ev.preventDefault(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.nav === 'places') { ev.preventDefault(); S.tab = 'places'; renderMore(); $('#more').scrollIntoView({ behavior: 'smooth' }); return; }

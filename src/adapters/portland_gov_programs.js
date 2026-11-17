@@ -15,7 +15,8 @@ const AGE_GROUPS = [
   [/all ages|family/i, 0, 12, 'All ages']
 ];
 const SKIP_GROUP = /adult|intergenerational|older|55|60|senior|lifelong/i;
-const REGION_AREAS = [[/northwest/i, ['NW']], [/north/i, ['N', 'NE']], [/southwest/i, ['SW']], [/southeast|east/i, ['SE']]];
+// PP&R region headings -> our regions (config/geo.json). "East and Southeast Portland" spans inner SE and East Portland.
+const REGION_AREAS = [[/northwest/i, ['inner-core']], [/north/i, ['north-east']], [/southwest/i, ['westside']], [/southeast|east/i, ['se-clackamas', 'north-east']]];
 const strip = (h) => decodeEntities(h.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 
 function ageFor(heading) {
@@ -51,7 +52,7 @@ export function parsePortlandGovPrograms(html, source) {
       out.push({
         source_id: source.id, program_key: `${source.id}:${region}:${age.label}:${name}`,
         name, description: desc, age_min: age.min, age_max: age.max, age_label: age.label,
-        region, areas, location_text: loc,
+        region, regions: areas, location_text: loc,
         url: href ? decodeEntities(href) : null, price_text: null
       });
     }

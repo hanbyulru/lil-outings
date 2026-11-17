@@ -46,7 +46,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
       log(`  ${src.name} places: FAILED (${err.message})`);
     }
   }
-  places = places.map((p) => { const l = locate(p.lat, p.lon); return { ...p, age_bands: bandsFor(p.age_min, p.age_max), neighborhood: l?.neighborhood || null, area: l?.area || null }; });
+  places = places.map((p) => { const l = locate(p.lat, p.lon); return { ...p, age_bands: bandsFor(p.age_min, p.age_max), neighborhood: l?.neighborhood || null, district: l?.district || null }; });
 
   // ---- programs (evergreen classes, no dates) ----
   let programs = [];

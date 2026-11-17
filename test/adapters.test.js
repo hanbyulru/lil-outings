@@ -75,10 +75,10 @@ const progHtml = `<h2>North and Northeast Portland</h2><h3>Child with Adult</h3>
 test('PP&R programs: region/age sections, adult + intergenerational skipped, tolerant of missing Description column', () => {
   const p = parsePortlandGovPrograms(progHtml, { id: 'x' });
   assert.deepEqual(p.map((x) => x.name), ['Soccer', 'Tae Kwon Do']);
-  assert.deepEqual(p[0].areas, ['N', 'NE']);
+  assert.deepEqual(p[0].regions, ['north-east']);
   assert.deepEqual([p[0].age_min, p[0].age_max], [0, 5]);
   assert.equal(p[0].url, 'https://anc.example/search?x=1&y=2');
-  assert.deepEqual(p[1].areas, ['SW']);
+  assert.deepEqual(p[1].regions, ['westside']);
   assert.deepEqual([p[1].age_min, p[1].age_max], [6, 12]);
 });
 

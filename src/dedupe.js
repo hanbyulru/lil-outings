@@ -22,7 +22,7 @@ export function dedupe(events) {
     }
     const [keep, drop] = (e.source.trust > existing.source.trust) ? [e, existing] : [existing, e];
     keep.also_listed_on = [...new Set([...(keep.also_listed_on || []), ...(drop.also_listed_on || []), drop.source.name])];
-    if (!keep.lat && drop.lat) { keep.lat = drop.lat; keep.lon = drop.lon; keep.neighborhood = drop.neighborhood; keep.area = drop.area; }
+    if (!keep.lat && drop.lat) { keep.lat = drop.lat; keep.lon = drop.lon; keep.neighborhood = drop.neighborhood; keep.district = drop.district; }
     if (!keep.description && drop.description) keep.description = drop.description;
     byKey.set(k, keep);
     if (u) byUrl.set(u, keep);

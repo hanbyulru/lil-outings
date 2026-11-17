@@ -24,13 +24,19 @@ test('age overlap, interest, category, cost filters', () => {
   assert.deepEqual(titles({ free: true }), ['baby', 'dino']);
 });
 
-test('area / neighborhood / zip location filters', () => {
-  const list = [e({ title: 'ne', area: 'NE' }), e({ title: 'sw', area: 'SW', neighborhood: 'Tigard', lat: 45.43, lon: -122.77 })];
+test('region / district / place / zip location filters', () => {
+  // Hollywood (Inner NE) and Tigard; neither carries a district, so it is worked out from coordinates.
+  const list = [e({ title: 'ne', lat: 45.537, lon: -122.621 }), e({ title: 'sw', neighborhood: 'Tigard', lat: 45.43, lon: -122.77 }), e({ title: 'far', lat: 45.30, lon: -122.97 })];
   const t = (loc, extra = {}) => filterEvents(list, { loc, ...extra }, ctx).map((x) => x.title);
-  assert.deepEqual(t({ area: 'NE' }), ['ne']);
-  assert.deepEqual(t({ neighborhood: 'Tigard' }), ['sw']);
+  assert.deepEqual(t({ region: 'north-east' }), ['ne']);
+  assert.deepEqual(t({ region: 'westside' }), ['sw']);
+  assert.deepEqual(t({ region: 'south-metro' }), ['sw'], 'Tigard is in two regions');
+  assert.deepEqual(t({ district: 'tigard' }), ['sw']);
+  assert.deepEqual(t({ place: 'Tigard' }), ['sw']);
+  assert.deepEqual(t({ place: 'Bull Mountain' }), [], '2.6 mi away is not "in" Bull Mountain');
+  assert.deepEqual(t(null).length, 3, 'anywhere includes places outside every district (Newberg)');
   assert.deepEqual(t({ zip: '97212' }, { radius: 5 }), ['ne']); // Tigard is ~10 mi from 97212
-  assert.equal(t({ zip: '97212' }, { radius: 30 }).length, 2);
+  assert.equal(t({ zip: '97212' }, { radius: 20 }).length, 2); // Tigard yes, Newberg (~25 mi) no
   assert.equal(resolveLoc({ zip: '00000' }, geo).unknown, true);
 });
 
@@ -51,9 +57,10 @@ test('places filter respects outdoors and free', () => {
 
 import { filterPrograms } from '../web/query.js';
 test('programs filter by age overlap and area', () => {
-  const progs = [{ name: 'A', age_min: 0, age_max: 5, areas: ['SE'] }, { name: 'B', age_min: 6, age_max: 12, areas: ['SW'] }];
+  const progs = [{ name: 'A', age_min: 0, age_max: 5, regions: ['se-clackamas'] }, { name: 'B', age_min: 6, age_max: 12, regions: ['westside'] }];
   assert.deepEqual(filterPrograms(progs, { age: [6, 8] }, ctx).map((p) => p.name), ['B']);
-  assert.deepEqual(filterPrograms(progs, { loc: { area: 'SE' } }, ctx).map((p) => p.name), ['A']);
+  assert.deepEqual(filterPrograms(progs, { loc: { region: 'se-clackamas' } }, ctx).map((p) => p.name), ['A']);
+  assert.deepEqual(filterPrograms(progs, { loc: { district: 'tigard' } }, ctx).map((p) => p.name), ['B']);
 });
 
 test('tomorrow is the next day only', () => {
