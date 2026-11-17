@@ -8,7 +8,17 @@ const INTERESTS = ['animals', 'science', 'trains', 'nature', 'art', 'music', 'di
 const LABEL = { animals: 'Animals', science: 'Science', trains: 'Trains', nature: 'Nature', art: 'Art', music: 'Music', dinosaurs: 'Dinosaurs', books: 'Books' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
-const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['weekend', 'this weekend', 'This weekend'], ['week', 'this week', 'This week']];
+const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend']];
+// The headline's age picker. [value, phrase after "a", menu label, menu hint, age range (years) or null for everyone].
+// Upper bounds stop just short of the next group so a "babies 0-1" listing isn't also a toddler listing.
+const AGE_GROUPS = [
+  ['all', 'small person', 'Small Person (All)', 'Every age, 0–12', null],
+  ['baby', 'baby', 'Baby', '0–12 months', [0, 0.99]],
+  ['toddler', 'toddler', 'Toddler', '1–3 years', [1, 2.99]],
+  ['preschool', 'preschooler', 'Preschooler', '3–5 years', [3, 4.99]],
+  ['school', 'school-age kid', 'School-Age Kid', '5–12 years', [5, 12]]
+];
+const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
 const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['classes', 'Recurring Classes & Memberships']].map(([id, label]) => ({ id, label }));
@@ -18,7 +28,7 @@ let DATA, GEO;
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { when: 'today', open: null /* 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, interest: 'all', explore: 'indoor_play', showN: 24, sel: null, showMap: false };
+const S = { when: 'today', age: 'all', open: null /* 'age' | 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, interest: 'all', explore: 'indoor_play', showN: 24, sel: null, showMap: false };
 
 function loadLoc() {
   try {
@@ -29,6 +39,9 @@ function loadLoc() {
   } catch { /* storage blocked: start with anywhere */ }
   return null;
 }
+function loadAge() { try { const v = localStorage.getItem(AGE_KEY); return AGE_GROUPS.some((a) => a[0] === v) ? v : 'all'; } catch { return 'all'; } }
+function saveAge() { try { localStorage.setItem(AGE_KEY, S.age); } catch { /* not critical */ } }
+const ageGroup = () => AGE_GROUPS.find((a) => a[0] === S.age) || AGE_GROUPS[0];
 function saveLoc() { try { localStorage.setItem(LOC_KEY, JSON.stringify(S.loc)); } catch { /* not critical */ } }
 // Geography (config/geo.json): regions ("a quick drive from home") > districts > named towns/neighborhoods.
 const regionById = (id) => GEO.regions.find((r) => r.id === id);
@@ -182,8 +195,10 @@ function renderHeadline() {
       <span class="reglist">${rows}</span>
     </span>`;
   }
-  const trigger = (kind, text, open) => `<button class="whenbtn" data-menu="${kind}" aria-haspopup="${kind === 'when' ? 'menu' : 'dialog'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
-  $('#headline').innerHTML = `Something good to do with a small person <span class="whenwrap">${trigger('when', cur[1], S.open === 'when')}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc')}${locMenu}</span>`;
+  const ag = ageGroup();
+  const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemradio" aria-checked="${v === S.age}" class="${v === S.age ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}</span>` : '';
+  const trigger = (kind, text, open) => `<button class="whenbtn" data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
+  $('#headline').innerHTML = `Something good to do with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age')}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when')}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc')}${locMenu}</span>`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $('#headline .menu');
   if (m && getComputedStyle(m).position === 'absolute') {
@@ -199,7 +214,7 @@ function closeMenu() { if (S.open) { S.open = null; renderHeadline(); } }
 /** The day's list, right under the headline, with the map beside it. */
 function renderToday() {
   const c = ctx();
-  const opts = { when: S.when, interest: S.interest, loc: S.loc };
+  const opts = { when: S.when, interest: S.interest, loc: S.loc, age: ageGroup()[4] };
   const events = filterEvents(DATA.events, opts, c);
   const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).length - events.length : 0;
   events.forEach((e, i) => { e._n = i + 1; });
@@ -210,11 +225,12 @@ function renderToday() {
   if (!events.length) {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
     const phrase = WHEN.find((w) => w[0] === S.when)[1];
-    const where = S.loc ? ` in ${locPhrase(S.loc)}` : '';
+    const where = (S.age !== 'all' ? ` for a ${ageGroup()[1]}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
     const msg = S.interest !== 'all' ? `Nothing tagged ${LABEL[S.interest]}${where} ${phrase}.` : S.when === 'today' && over > 0 && !S.loc ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
     const wider = w ? `<button class="btn-ink" ${w.district ? `data-locdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
-    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${S.loc ? next.replace('btn-ink', 'textbtn') : ''}</div></div>`;
+    const allAges = S.age !== 'all' ? `<button class="${w || S.loc ? 'textbtn' : 'btn-ink'}" data-agegroup="all">See all ages</button>` : '';
+    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allAges}${S.loc || S.age !== 'all' ? next.replace('btn-ink', 'textbtn') : ''}</div></div>`;
   } else {
     let list;
     if (multiDay) {
@@ -227,22 +243,22 @@ function renderToday() {
   syncMap();
 }
 
-/** Below the fold: "More to explore" pills over the places directory (and PP&R class series under Classes). */
+/** Below the fold: "More to explore" pills over the places directory (and PP&R class series under Classes).
+ *  Independent of the headline's age / day / place choices (owner's call, Nov 2026). */
 function renderMore() {
   const c = ctx();
   const pills = DATA.meta.vocab?.explore || EXPLORE_FALLBACK;
-  const placesFor = (id) => filterPlaces(DATA.places, { explore: id, loc: S.loc }, c);
-  const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c);
+  const placesFor = (id) => filterPlaces(DATA.places, { explore: id }, c);
+  const programs = filterPrograms(DATA.programs || [], {}, c);
   const count = (id) => placesFor(id).length + (id === 'classes' ? programs.length : 0);
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
   const items = placesFor(cur.id);
-  const where = S.loc ? ` in ${locPhrase(S.loc)}` : '';
   const shown = items.slice(0, S.showN);
   let body = items.length ? `<div class="places">${shown.map(renderPlace).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'classes' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation class series</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
-  if (!items.length && !(cur.id === 'classes' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${esc(where)} yet.</h3>${S.loc ? '<button class="btn-ink" data-locany>See anywhere in Portland</button>' : ''}</div>`;
-  $('#results-inner').innerHTML = `<h2>More to explore${esc(where)}</h2>
+  if (!items.length && !(cur.id === 'classes' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)} yet.</h3></div>`;
+  $('#results-inner').innerHTML = `<h2>More to explore</h2>
     <div class="chips explore-pills" role="group" aria-label="Kinds of places">${pills.map((x) => { const n = count(x.id); return `<button class="chip ${x.id === cur.id ? 'on' : ''}" data-explore="${x.id}" aria-pressed="${x.id === cur.id}">${esc(x.label)}<span class="n">${n}</span></button>`; }).join('')}</div>
     <p class="explore-hint">${esc(cur.hint || '')}</p>${body}`;
 }
@@ -255,7 +271,8 @@ function renderFoot() {
 }
 
 function setWhen(v) { S.when = v; S.open = null; S.sel = null; renderHeadline(); renderToday(); }
-function setLoc(loc) { S.loc = loc; S.open = null; S.sel = null; saveLoc(); renderHeadline(); renderToday(); renderMore(); }
+function setLoc(loc) { S.loc = loc; S.open = null; S.sel = null; saveLoc(); renderHeadline(); renderToday(); }
+function setAge(v) { S.age = v; S.open = null; S.sel = null; saveAge(); renderHeadline(); renderToday(); }
 
 document.addEventListener('click', (ev) => {
   // Any click outside the day menu closes it.
@@ -266,7 +283,7 @@ document.addEventListener('click', (ev) => {
     S.open = S.open === d.menu ? null : d.menu;
     if (S.open === 'loc') S.locOpen = S.loc && !S.loc.region ? regionOfLoc(S.loc)?.id || null : null;
     renderHeadline();
-    if (S.open === 'when') $('.whenmenu [aria-checked="true"]')?.focus();
+    if (S.open === 'when' || S.open === 'age') $('#headline .whenmenu [aria-checked="true"]')?.focus();
     if (S.open === 'loc') ($('.locmenu .on') || $('.locmenu .any'))?.focus();
     return;
   }
@@ -278,6 +295,7 @@ document.addEventListener('click', (ev) => {
     btn?.closest('.regrow')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); // phones: the opened row may be below the fold
     return;
   }
+  if (d.agegroup) { setAge(d.agegroup); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.locany !== undefined) return setLoc(null);
   if (d.locregion) return setLoc({ region: d.locregion });
   if (d.locdistrict) return setLoc({ district: d.locdistrict });
@@ -296,8 +314,8 @@ document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-
 document.addEventListener('keydown', (ev) => {
   if (!S.open) return;
   if (ev.key === 'Escape') { const k = S.open; closeMenu(); $(`[data-menu="${k}"]`)?.focus(); return; }
-  if (S.open === 'when' && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) {
-    const items = [...document.querySelectorAll('.whenmenu button')];
+  if ((S.open === 'when' || S.open === 'age') && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) {
+    const items = [...document.querySelectorAll('#headline .whenmenu button')];
     const i = items.indexOf(document.activeElement);
     items[(i + (ev.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length]?.focus();
     ev.preventDefault();
@@ -308,6 +326,7 @@ initMap().then((ok) => { MAP = ok; if (DATA) renderToday(); });
 load().then((d) => {
   DATA = d; GEO = d.geo;
   S.loc = loadLoc();
+  S.age = loadAge();
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
   renderThemes(); renderHeadline(); renderToday(); renderMore(); renderFoot();
 }).catch((e) => { $('#today-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });

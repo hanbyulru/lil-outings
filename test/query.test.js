@@ -82,3 +82,13 @@ test("today hides events that are already over; other days and all-day events st
   assert.deepEqual(filterEvents(list, { when: 'week' }, at1pm).map((x) => x.title).sort(), ['allday', 'later', 'running', 'tomorrow']);
   assert.equal(filterEvents(list, { when: 'today' }, ctx).length, 5); // no clock given: nothing hidden
 });
+
+test('headline age groups: babies, toddlers, preschoolers, school-age kids; untagged listings always show', () => {
+  const list = [e({ title: 'babies', age_min: 0, age_max: 1 }), e({ title: 'toddlers', age_min: 1, age_max: 3 }), e({ title: 'family', age_min: 0, age_max: 12 }),
+    e({ title: 'school', age_min: 6, age_max: 10 }), e({ title: 'untagged', age_min: null, age_max: null })];
+  const t = (age) => filterEvents(list, { age }, ctx).map((x) => x.title).sort();
+  assert.deepEqual(t([0, 0.99]), ['babies', 'family', 'untagged']);
+  assert.deepEqual(t([1, 2.99]), ['babies', 'family', 'toddlers', 'untagged']);
+  assert.deepEqual(t([3, 4.99]), ['family', 'toddlers', 'untagged']);
+  assert.deepEqual(t([5, 12]), ['family', 'school', 'untagged']);
+});
