@@ -2,7 +2,7 @@ import { mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 
-export const USER_AGENT = 'LilOutingsBot/0.1 (+https://example.org/lil-outings; contact: set CONTACT_EMAIL)';
+export const USER_AGENT = 'LilOutingsBot/0.1 (+https://liloutings.com/)';
 
 const lastHit = new Map();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

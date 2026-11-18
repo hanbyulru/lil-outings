@@ -7,7 +7,7 @@ import { politeFetch } from './lib/http.js';
  * so results are cached for six months and each run looks up at most `max` new addresses.
  * An address it can't place keeps the adapter's town-level fallback (geo_fallback).
  */
-export const GEOCODE_UA = 'LilOutings/0.2 (https://hanbyulru.github.io/lil-outings/; kids events site)';
+export const GEOCODE_UA = 'LilOutings/0.2 (https://liloutings.com/; kids events site)';
 const VIEWBOX = '-123.3,45.9,-122.2,45.1'; // Portland metro + Vancouver
 
 /** "Name, 123 Main St, Town" -> candidate queries, most specific first. */

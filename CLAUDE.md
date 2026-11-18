@@ -22,7 +22,7 @@ Kids' events, classes and places for the Portland, OR metro. Zero npm deps, Node
 - Geocoding (Nov 2026): sources with `config.geocode` get street addresses placed by Nominatim (`src/geocode.js`; cached six months, at most 60 new lookups a run), else the adapter's town-level `geo_fallback`. The offline demo uses the fallback only.
 - Next jobs: Tigard/Hillsboro/Beaverton calendars; ActiveNet dated-session adapter for PP&R; review UI for `review.json`.
 - Map: real basemap done (MapLibre + self-hosted Protomaps tiles, `web/map.js`); same-spot items share one pin with a list card.
-- Hosting: GitHub Pages via `.github/workflows/deploy.yml` (daily refresh + deploy). The site is static (`npm run build:site` -> `_site/`); `src/server.js` is for local dev.
+- Hosting: GitHub Pages via `.github/workflows/deploy.yml` (daily refresh + deploy), custom domain liloutings.com (set in repo Settings > Pages; DNS at the registrar; no CNAME file needed with Actions deploys). All asset paths are relative, so the site works at a domain root or under /lil-outings/. The site is static (`npm run build:site` -> `_site/`); `src/server.js` is for local dev.
 
 ## Conventions
 - Adapters return raw events/places/programs; normalization, dedupe, tagging and geo happen in `src/pipeline.js`.

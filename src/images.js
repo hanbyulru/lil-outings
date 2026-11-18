@@ -9,7 +9,7 @@ import { politeFetch } from './lib/http.js';
  * Business websites' own photos are deliberately not used (copyright).
  * Wikimedia asks API clients for a descriptive User-Agent; generic ones get rate limited.
  */
-export const WIKIMEDIA_UA = 'LilOutings/0.2 (https://hanbyulru.github.io/lil-outings/; kids events site)';
+export const WIKIMEDIA_UA = 'LilOutings/0.2 (https://liloutings.com/; kids events site)';
 const WIDTH = 640;
 const chunk = (a, n) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
 const QID = /^Q\d+$/;
