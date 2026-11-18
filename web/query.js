@@ -16,18 +16,21 @@ function dow(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return
 
 /** Inclusive [from, to] date range for a "when" value. A literal YYYY-MM-DD picks that day. */
 export const isFriday = (dateStr) => dow(dateStr) === 5;
+export const isSunday = (dateStr) => dow(dateStr) === 0;
 
 export function whenRange(when, today) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(when)) return [when, when];
   if (when === 'tomorrow') return [addDays(today, 1), addDays(today, 1)];
   // This week: today through Friday (owner, Nov 2026); on a weekend, through the coming Friday. The menu hides it on Fridays.
-  if (when === 'week') return [today, addDays(today, (5 - dow(today) + 7) % 7)];
+  // On a Sunday the week is over: "week" is the coming Monday-Friday and "weekend" the coming Saturday-Sunday (the app labels them
+  // "Next week" / "Next weekend" and hides the separate Next week option; owner, Nov 2026).
+  if (when === 'week') return dow(today) === 0 ? [addDays(today, 1), addDays(today, 5)] : [today, addDays(today, (5 - dow(today) + 7) % 7)];
   // Next week: the whole Monday-to-Sunday week after this one (owner, Nov 2026); on a Sunday that's tomorrow onward.
   if (when === 'nextweek') { const mon = addDays(today, (8 - dow(today)) % 7 || 7); return [mon, addDays(mon, 6)]; }
   if (when === 'weekend') {
     const d = dow(today);
     if (d === 6) return [today, addDays(today, 1)];
-    if (d === 0) return [today, today];
+    if (d === 0) return [addDays(today, 6), addDays(today, 7)];
     const sat = addDays(today, 6 - d);
     return [sat, addDays(sat, 1)];
   }

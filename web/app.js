@@ -1,4 +1,4 @@
-import { filterEvents, filterPlaces, filterPrograms, whenRange, isFriday } from './query.js';
+import { filterEvents, filterPlaces, filterPrograms, whenRange, isFriday, isSunday } from './query.js';
 import { initMap, showPins } from './map.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -315,11 +315,18 @@ function renderProgram(p) {
 }
 
 /** "Something good to do with a small person [today ▾] in [SW ▾]": both underlined phrases are menus. */
+/** The day menu's options for today (owner, Nov 2026). Fridays: no "This week" (today is its end). Sundays: the week is over, so
+ *  "This week" becomes "Next week" (Mon-Fri) and "This weekend" becomes "Next weekend" (Sat-Sun); the full Next week option is hidden. */
+function whenOptions() {
+  const d = NOW().date;
+  if (isFriday(d)) return WHEN.filter((w) => w[0] !== 'week');
+  if (isSunday(d)) return WHEN.filter((w) => w[0] !== 'nextweek').map((w) => (w[0] === 'week' ? ['week', 'next week', 'Next week'] : w[0] === 'weekend' ? ['weekend', 'next weekend', 'Next weekend'] : w));
+  return WHEN;
+}
 function renderHeadline() {
-  // No "This week" on Fridays: today is the end of it (owner, Nov 2026).
-  const whens = isFriday(NOW().date) ? WHEN.filter((w) => w[0] !== 'week') : WHEN;
+  const whens = whenOptions();
   if (!whens.some((w) => w[0] === S.when)) S.when = 'today';
-  const cur = WHEN.find((w) => w[0] === S.when);
+  const cur = whens.find((w) => w[0] === S.when);
   const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${whens.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
   let locMenu = '';
   if (S.open === 'loc') {
@@ -386,7 +393,7 @@ function renderToday() {
   let body;
   if (!events.length) {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
-    const phrase = WHEN.find((w) => w[0] === S.when)[1];
+    const phrase = whenOptions().find((w) => w[0] === S.when)[1];
     const where = (S.whats.length ? ` under ${joinList(pickedWhats().map((w) => w[3]))}` : '') + (S.ages.length ? ` for a ${agePhrase(false)}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
     const msg = S.when === 'today' && over > 0 && !S.loc && !S.whats.length ? 'That’s everything for today.' : `No events listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
