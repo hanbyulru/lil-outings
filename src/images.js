@@ -102,6 +102,12 @@ const unent = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&#0?39;|&ap
 
 /** The page's share image (og:image, twitter:image, image_src) and site name, or null. Logos and icons are skipped. */
 export function shareImage(html, pageUrl) {
+  const r = pickShareImage(html, pageUrl);
+  return r.image ? r : null;
+}
+
+/** Same, but says why nothing was picked: { image, site } or { why }. */
+export function pickShareImage(html, pageUrl) {
   const metas = [...String(html).matchAll(/<meta\b[^>]*>/gi)].map((m) => m[0]);
   const meta = (keys) => { for (const k of keys) for (const t of metas) if ((attr(t, 'property') || attr(t, 'name') || '').toLowerCase() === k) { const c = attr(t, 'content'); if (c) return unent(c); } return null; };
   let src = meta(['og:image:secure_url', 'og:image', 'og:image:url', 'twitter:image', 'twitter:image:src']);
@@ -115,16 +121,16 @@ export function shareImage(html, pageUrl) {
       if (im) { src = im[1].replace(/\\\//g, '/'); break; }
     }
   }
-  if (!src) return null;
+  if (!src) return { why: `no og:image (${String(html).length} bytes, title "${(String(html).match(/<title[^>]*>([^<]{0,50})/i)?.[1] || '').trim()}")` };
   let abs;
-  try { abs = new URL(src, pageUrl).href; } catch { return null; }
+  try { abs = new URL(src, pageUrl).href; } catch { return { why: `bad image URL ${src.slice(0, 60)}` }; }
   abs = abs.replace(/^http:\/\//, 'https://'); // Squarespace and others still list http:// share images; their CDNs serve https
-  if (!/^https:\/\//.test(abs) || /\.(svg|ico|gif)(\?|$)/i.test(abs)) return null;
+  if (!/^https:\/\//.test(abs) || /\.(svg|ico|gif)(\?|$)/i.test(abs)) return { why: `not a photo: ${abs.slice(0, 80)}` };
   // Logos and icons: judged on the file name only (CDN paths often contain words like 'icon' for other reasons).
   const file = decodeURIComponent(new URL(abs).pathname.split('/').pop() || '');
-  if (/(^|[^a-z])(logo|favicon|icon|placeholder)s?([^a-z]|$)|apple-touch|default[-_]?(og|share)/i.test(file)) return null;
+  if (/(^|[^a-z])(logo|favicon|icon|placeholder)s?([^a-z]|$)|apple-touch|default[-_]?(og|share)/i.test(file)) return { why: `logo/icon: ${file.slice(0, 60)}` };
   const w = +meta(['og:image:width']);
-  if (w && w < 300) return null;
+  if (w && w < 300) return { why: `too small (${w}px): ${file.slice(0, 50)}` };
   const site = meta(['og:site_name']) || new URL(pageUrl).hostname.replace(/^www\./, '');
   return { image: abs, site };
 }
@@ -136,9 +142,9 @@ export async function addWebsiteImages(places, http, log = () => {}) {
   for (const p of todo) {
     try {
       const html = await politeFetch(p.url, { ...http, ttlMs: 30 * 24 * 3600 * 1000, timeoutMs: 15000, retries: 0, headers: { ...(http.headers || {}), accept: 'text/html' } });
-      const got = shareImage(html.slice(0, 400000), p.url);
-      if (got) { p.image = got.image; p.image_credit = `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website'; n++; }
-      else misses.push(`${p.name}: no share image${/cf-chl|challenge-platform|<title>Just a moment|Attention Required! \| Cloudflare/i.test(html) ? ' (bot check page)' : ''}`);
+      const got = pickShareImage(html.slice(0, 400000), p.url);
+      if (got.image) { p.image = got.image; p.image_credit = `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website'; n++; }
+      else misses.push(`${p.name}: ${/cf-chl|challenge-platform|<title>Just a moment|Attention Required! \| Cloudflare/i.test(html) ? 'bot check page' : got.why}`);
     } catch (err) { failed++; misses.push(`${p.name}: ${String(err.message).slice(0, 60)}`); }
   }
   if (todo.length) log(`  website photos: ${n} of ${todo.length} places${failed ? ` (${failed} sites unreachable)` : ''}`);
