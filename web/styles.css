@@ -11,14 +11,15 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 a{color:var(--ink);text-decoration:none}
 .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
 .ribbon{display:flex;height:6px}.ribbon span{flex:1}
-header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding:24px 0}
+header.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:24px 0} /* logo | centered toggle | spacer */
 .logo{font-weight:600;font-size:26px;letter-spacing:-.01em}
 nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500;font-size:16px}
 .link:hover{text-decoration:underline;text-underline-offset:5px}
-.viewtoggle{gap:0;padding:4px;border:1.5px solid var(--ink);border-radius:999px;background:#fff}
+.viewtoggle{gap:0;padding:0;justify-self:center}
+.viewtoggle a+a{margin-left:-16px} /* 16px less space between the two (owner) */
 .viewtoggle a{padding:8px 22px;border-radius:999px;font-weight:600;font-size:16px;line-height:1.2;transition:background .15s,color .15s}
 .viewtoggle a[aria-selected="true"]{background:var(--ink);color:#fff}
-.viewtoggle a[aria-selected="false"]:hover{background:var(--paper)}
+.viewtoggle a[aria-selected="false"]:hover{background:rgba(22,24,29,.06)}
 body[data-view="places"] .results{border-top:0;padding-top:40px}
 .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--hair2);border-radius:999px;font-size:15px;font-weight:600}
 .btn-ink{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;background:var(--ink);color:#fff;font-weight:600;font-size:15px;padding:10px 18px}
@@ -190,4 +191,4 @@ body[data-view="places"] .results{border-top:0;padding-top:40px}
 .notice{margin:24px 0 0;font-size:14px;color:var(--muted)}
 footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-size:15px}
 .demo{background:var(--sun);border-bottom:1px solid #E9D68A;font-size:14px;font-weight:600;padding:8px 0;text-align:center}
-@media (max-width:700px){.hero.today h1{font-size:29px;line-height:1.38}.whenbtn .whentext{text-underline-offset:8px;text-decoration-thickness:4px}header.top{flex-wrap:nowrap}.logo{font-size:22px}.viewtoggle a{padding:7px 14px;font-size:15px}.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.explore-list{grid-template-columns:minmax(0,1fr)}.explore-list button{padding:11px 8px 11px 0;gap:12px}.explore-list button .ic{width:34px;height:34px}.explore-list button .ic svg{width:34px;height:34px}.explore-list button .nm{font-size:18px}.explore-list button .nm small{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.explore-list button:hover{padding-left:0}.explore-list button.on{padding-left:8px}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:78vh;overflow:auto}.reg small{font-size:13px}.regmore .lbl{display:none}.regmore{font-size:18px;padding:10px 14px;margin-right:4px}.ev{flex-direction:column;gap:8px}.ev .time{flex:none;display:flex;gap:10px;align-items:center}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}
+@media (max-width:700px){.hero.today h1{font-size:29px;line-height:1.38}.whenbtn .whentext{text-underline-offset:8px;text-decoration-thickness:4px}header.top{grid-template-columns:1fr}.logo{font-size:22px}.viewtoggle{position:fixed;z-index:50;left:50%;flex-wrap:nowrap;width:max-content;white-space:nowrap;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:5px;border-radius:999px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 24px rgba(22,24,29,.18)}.viewtoggle a{padding:10px 24px;font-size:16px}body{padding-bottom:84px}.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.explore-list{grid-template-columns:minmax(0,1fr)}.explore-list button{padding:11px 8px 11px 0;gap:12px}.explore-list button .ic{width:34px;height:34px}.explore-list button .ic svg{width:34px;height:34px}.explore-list button .nm{font-size:18px}.explore-list button .nm small{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.explore-list button:hover{padding-left:0}.explore-list button.on{padding-left:8px}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:78vh;overflow:auto}.reg small{font-size:13px}.regmore .lbl{display:none}.regmore{font-size:18px;padding:10px 14px;margin-right:4px}.ev{flex-direction:column;gap:8px}.ev .time{flex:none;display:flex;gap:10px;align-items:center}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}
