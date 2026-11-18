@@ -17,6 +17,7 @@ function dow(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return
 /** Inclusive [from, to] date range for a "when" value. A literal YYYY-MM-DD picks that day. */
 export const isFriday = (dateStr) => dow(dateStr) === 5;
 export const isSunday = (dateStr) => dow(dateStr) === 0;
+export const isSaturday = (dateStr) => dow(dateStr) === 6;
 
 export function whenRange(when, today) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(when)) return [when, when];

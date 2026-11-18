@@ -1,4 +1,4 @@
-import { filterEvents, filterPlaces, filterPrograms, whenRange, isFriday, isSunday } from './query.js';
+import { filterEvents, filterPlaces, filterPrograms, whenRange, isFriday, isSaturday, isSunday } from './query.js';
 import { initMap, showPins } from './map.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -315,11 +315,11 @@ function renderProgram(p) {
 }
 
 /** "Something good to do with a small person [today ▾] in [SW ▾]": both underlined phrases are menus. */
-/** The day menu's options for today (owner, Nov 2026). Fridays: no "This week" (today is its end). Sundays: the week is over, so
+/** The day menu's options for today (owner, Nov 2026). Fridays and Saturdays: no "This week". Sundays: the week is over, so
  *  "This week" becomes "Next week" (Mon-Fri) and "This weekend" becomes "Next weekend" (Sat-Sun); the full Next week option is hidden. */
 function whenOptions() {
   const d = NOW().date;
-  if (isFriday(d)) return WHEN.filter((w) => w[0] !== 'week');
+  if (isFriday(d) || isSaturday(d)) return WHEN.filter((w) => w[0] !== 'week'); // Fri: today ends the week; Sat: it's over
   if (isSunday(d)) return WHEN.filter((w) => w[0] !== 'nextweek').map((w) => (w[0] === 'week' ? ['week', 'next week', 'Next week'] : w[0] === 'weekend' ? ['weekend', 'next weekend', 'Next weekend'] : w));
   return WHEN;
 }
