@@ -141,7 +141,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     kept.push({
       ...e,
       age_min: t.age_min, age_max: t.age_max, age_bands: bandsFor(t.age_min, t.age_max),
-      interests: extraInterests(e, canonicalInterests(t.interests)), categories: t.categories, setting: t.setting, registration: t.registration,
+      interests: extraInterests({ ...e, categories: t.categories }, canonicalInterests(t.interests)), categories: t.categories, setting: t.setting, registration: t.registration,
       cost_type: t.cost_type, cost_amount: t.cost_amount,
       confidence: t.confidence, needs_review: t.needs_review, tag_source: t.tag_source
     });

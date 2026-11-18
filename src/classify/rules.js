@@ -70,13 +70,23 @@ const TAG_RULES = [
   ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport/i]
 ];
 export function extraInterests(ev, interests = []) {
-  const title = String(ev.title || '');
-  const text = `${title} ${String(ev.description || '').slice(0, 300)}`;
-  const out = [...interests];
+  // "song ngữ" is Vietnamese for bilingual, not a song
+  const title = String(ev.title || '').replace(/song ng[ữu]/gi, 'bilingual');
+  const text = `${title} ${String(ev.description || '').slice(0, 300).replace(/song ng[ữu]/gi, 'bilingual')}`;
+  let out = [...interests];
   for (const [tag, re] of TAG_RULES) {
     // Science and trains from the title only (descriptions mention "build community", "train your staff"...)
     const hay = tag === 'science' || tag === 'trains' ? title : text;
     if (!out.includes(tag) && re.test(hay)) out.push(tag);
   }
+  // Storytimes mention songs and rhymes as a matter of course: that alone isn't Music & Art (owner, Nov 2026).
+  // Keep Music & Art only when the title itself is about music or art ("Music & Movement Storytime", "Storytime & Craft").
+  if (isStorytime(ev) && !TAG_RULES.find(([t]) => t === 'art')[1].test(title.replace(/story ?times?/ig, ''))) {
+    out = out.filter((t) => t !== 'art');
+    if (!out.includes('books')) out.unshift('books');
+  }
   return out;
 }
+
+const STORYTIME = /story ?times?|lapsit|baby time|toddler time|book babies|babies and books|tiny tots|\bstory and (play|song|rhyme)s?\b|\bhora de cuentos\b|cuentos/i;
+export const isStorytime = (ev) => (ev.categories || []).includes('storytime') || STORYTIME.test(String(ev.title || ''));

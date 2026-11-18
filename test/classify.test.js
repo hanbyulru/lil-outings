@@ -167,5 +167,15 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
 });
 test('interest tags: town names are not topics', () => {
   assert.deepEqual(extraInterests({ title: 'Garden Home Family Storytime' }, ['books']), ['books']);
-  assert.deepEqual(extraInterests({ title: 'Forest Grove Baby Time' }, []), []);
+  assert.deepEqual(extraInterests({ title: 'Forest Grove Open Gym' }, []), []);
+});
+
+test('storytimes: songs in the description are not Music & Art; a music title still is', () => {
+  const desc = 'Stories, songs and rhymes for little ones and their grown-ups.';
+  assert.deepEqual(extraInterests({ title: 'Family Storytime', description: desc }, ['books', 'art']), ['books']);
+  assert.deepEqual(extraInterests({ title: 'Wednesday Wigglers', description: desc, categories: ['storytime'] }, ['art']), ['books']);
+  assert.deepEqual(extraInterests({ title: 'Bilingual Family Storytime | Hora de Cuentos', description: 'singing, dancing, crafts' }, []), ['books']);
+  assert.deepEqual(extraInterests({ title: 'Music & Movement Storytime', description: desc }, ['books']).sort(), ['art', 'books']);
+  assert.deepEqual(extraInterests({ title: 'Vietnamese-English Bilingual Storytime / Giờ kể chuyện song ngữ Việt - Anh' }, ['books', 'art']), ['books'], 'song ngữ = bilingual');
+  assert.deepEqual(extraInterests({ title: 'Toddler Dance Party', description: 'Dance and sing along.' }, ['art']), ['art'], 'not a storytime: untouched');
 });
