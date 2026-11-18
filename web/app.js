@@ -14,7 +14,7 @@ const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'],
 // Only the first part is the underlined menu; "to do" / "to go to" sit outside the underline. 'other' = no interest tag.
 const WHAT = [
   ['all', 'Something good', 'to do', 'All Happenings', null],
-  ['books', 'Storytime', 'to go to', 'Storytime', 'books'],
+  ['books', 'Storytimes', 'to go to', 'Storytime', 'books'], // "Storytimes to go to" (owner, Nov 2026)
   ['art', 'Music & art things', 'to do', 'Music & Art', 'art'],
   ['science', 'Science things', 'to do', 'Science', 'science'],
   ['nature', 'Animal & nature things', 'to do', 'Animals & Nature', 'nature'],
@@ -306,7 +306,8 @@ function renderHeadline() {
   const ag = ageGroup();
   const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemradio" aria-checked="${v === S.age}" class="${v === S.age ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}</span>` : '';
   const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemradio" aria-checked="${v === S.what}" class="${v === S.what ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}</span>` : '';
-  const trigger = (kind, text, open, color) => `<button class="whenbtn"${color ? ` style="--ul:${color}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
+  const cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1); // each menu phrase starts with a capital (owner, Nov 2026)
+  const trigger = (kind, text, open, color) => `<button class="whenbtn"${color ? ` style="--ul:${color}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
   const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
   const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? '' : locMenu}</span>`;
   $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? locMenu : ''}</span>`;
