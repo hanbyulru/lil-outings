@@ -67,15 +67,20 @@ test('addPlaceImages fails soft', async () => {
 });
 
 import { shareImage, addWebsiteImages } from '../src/images.js';
-test('shareImage: og:image (either attribute order), relative URLs, logos skipped', () => {
-  assert.deepEqual(shareImage('<meta property="og:site_name" content="DiG PDX"><meta content="/uploads/sandbox.jpg" property="og:image">', 'https://digpdx.com/'), { image: 'https://digpdx.com/uploads/sandbox.jpg', site: 'DiG PDX' });
+test('shareImage: photos first, logos as the fallback', () => {
+  assert.deepEqual(shareImage('<meta property="og:site_name" content="DiG PDX"><meta content="/uploads/sandbox.jpg" property="og:image">', 'https://digpdx.com/'), { image: 'https://digpdx.com/uploads/sandbox.jpg', site: 'DiG PDX', logo: false });
   assert.equal(shareImage('<meta name="twitter:image" content="https://x.com/a.jpg?w=1&amp;h=2">', 'https://www.x.com/').image, 'https://x.com/a.jpg?w=1&h=2');
   assert.equal(shareImage('<meta name="twitter:image" content="https://x.com/a.jpg">', 'https://www.x.com/').site, 'x.com');
-  assert.equal(shareImage('<meta property="og:image" content="https://x.com/site-logo.png">', 'https://x.com/'), null);
+  assert.deepEqual(shareImage('<meta property="og:image" content="https://x.com/site-logo.png">', 'https://x.com/'), { image: 'https://x.com/site-logo.png', site: 'x.com', logo: true }, 'a logo share image is used, flagged as a logo');
   assert.equal(shareImage('<meta property="og:image" content="http://static1.squarespace.com/static/5f/t/barn.jpg?format=1500w">', 'https://leefarmsoregon.squarespace.com').image, 'https://static1.squarespace.com/static/5f/t/barn.jpg?format=1500w', 'http share images are upgraded to https');
-  assert.equal(shareImage('<title>no share image</title>', 'https://x.com/'), null);
+  assert.equal(shareImage('<title>no share image</title>', 'https://x.com/'), null, 'nothing at all: mosaic');
   assert.equal(shareImage('<meta property="og:image" content="https://cdn.x.com/icons-site/hero-photo.jpg">', 'https://x.com/').image, 'https://cdn.x.com/icons-site/hero-photo.jpg', 'a folder named icons is fine');
-  assert.equal(shareImage('<meta property="og:image" content="https://x.com/img/Little-Gym_logo.png">', 'https://x.com/'), null);
+  assert.equal(shareImage('<meta property="og:image" content="https://x.com/img/Little-Gym_logo.png">', 'https://x.com/').logo, true);
+  assert.equal(shareImage('<meta property="og:image" content="https://x.com/hero.jpg">', 'https://x.com/').logo, false);
+  // no share image: the site's logo
+  assert.deepEqual(shareImage('<header><img class="site-logo" src="/img/farm.png" alt="Smith Berry Barn"></header><img src="/a.jpg">', 'https://farm.example/'), { image: 'https://farm.example/img/farm.png', site: 'farm.example', logo: true });
+  assert.equal(shareImage('<script type="application/ld+json">{"@type":"Organization","logo":"https://gym.example/brand.png"}</script>', 'https://gym.example/').image, 'https://gym.example/brand.png');
+  assert.equal(shareImage('<link rel="apple-touch-icon" href="/apple-touch-icon.png">', 'https://gym.example/').image, 'https://gym.example/apple-touch-icon.png');
   assert.equal(shareImage('<script type="application/ld+json">{"@type":"LocalBusiness","image":["https:\\/\\/x.com\\/barn.jpg"]}</script>', 'https://x.com/').image, 'https://x.com/barn.jpg', 'JSON-LD image');
 });
 

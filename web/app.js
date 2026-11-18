@@ -170,6 +170,8 @@ function banner(p, catId) {
   // The mosaic sits under the photo, so a photo that fails to load (some sites block hotlinking) leaves the mosaic.
   const tiles = `<div class="tiles" aria-hidden="true">${mosaic(p.id || p.name, catId)}</div>`;
   if (!p.image) return `<div class="banner mosaic">${tiles}</div>`;
+  // A logo: shown whole on a tinted tile, not cropped. If it fails to load, the tile turns back into the mosaic.
+  if (p.image_logo) return `<div class="banner logo" style="--c:${lookOf(catId)[1]}">${tiles}<img src="${esc(p.image)}" alt="${esc(p.name)} logo" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.className='banner mosaic';this.remove()"></div>`;
   return `<div class="banner">${tiles}<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.querySelector('.credit')?.remove();this.remove()">${p.image_page ? `<a class="credit" href="${esc(p.image_page)}" target="_blank" rel="noopener">${esc(p.image_credit || 'Photo: Wikimedia Commons')}</a>` : ''}</div>`;
 }
 /** A strip of rounded tiles in the category's color, varied per place so neighbors don't match. */

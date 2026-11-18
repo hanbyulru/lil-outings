@@ -162,6 +162,9 @@ nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500
 .place .banner .credit{position:absolute;right:6px;bottom:6px;max-width:calc(100% - 12px);padding:2px 7px;border-radius:999px;background:rgba(22,24,29,.62);color:#fff;font-size:11px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 .place .banner .credit:hover{background:rgba(22,24,29,.85)}
 .place .banner svg{display:block}
+.place .banner.logo{display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 10%,#fff);padding:18px 28px}
+.place .banner.logo .tiles{display:none}
+.place .banner.logo img{width:auto;height:auto;max-width:70%;max-height:100%;object-fit:contain}
 .place h3{font-size:20px;line-height:1.25}
 .place .kind{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .place p{margin:8px 0 0;font-size:15px;color:var(--muted)}

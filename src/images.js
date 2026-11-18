@@ -106,47 +106,68 @@ export function shareImage(html, pageUrl) {
   return r.image ? r : null;
 }
 
-/** Same, but says why nothing was picked: { image, site } or { why }. */
+/**
+ * The site's own picture for a place card: { image, site, logo } or { why }.
+ * A photo (the share image) wins; if the share image is a logo, or there is none, the site's logo is used
+ * (owner's call, Nov 2026) and flagged logo: true so the card shows it whole on a tile instead of cropping it.
+ * Logo sources, in order: the share image, JSON-LD "logo", an <img> named/classed/alt'd logo, apple-touch-icon.
+ */
 export function pickShareImage(html, pageUrl) {
-  const metas = [...String(html).matchAll(/<meta\b[^>]*>/gi)].map((m) => m[0]);
+  html = String(html);
+  const metas = [...html.matchAll(/<meta\b[^>]*>/gi)].map((m) => m[0]);
+  const links = [...html.matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]);
   const meta = (keys) => { for (const k of keys) for (const t of metas) if ((attr(t, 'property') || attr(t, 'name') || '').toLowerCase() === k) { const c = attr(t, 'content'); if (c) return unent(c); } return null; };
-  let src = meta(['og:image:secure_url', 'og:image', 'og:image:url', 'twitter:image', 'twitter:image:src']);
-  if (!src) {
-    const link = [...String(html).matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]).find((t) => /\brel\s*=\s*["']image_src["']/i.test(t));
-    src = link ? unent(attr(link, 'href')) : null;
-  }
-  if (!src) { // schema.org JSON-LD: "image": "url" | ["url", ...] | { "url": ... }
-    for (const m of String(html).matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
-      const im = m[1].match(/"image"\s*:\s*(?:\[\s*)?(?:\{[^}]*?"url"\s*:\s*)?"([^"]+)"/);
-      if (im) { src = im[1].replace(/\\\//g, '/'); break; }
-    }
-  }
-  if (!src) return { why: `no og:image (${String(html).length} bytes, title "${(String(html).match(/<title[^>]*>([^<]{0,50})/i)?.[1] || '').trim()}")` };
-  let abs;
-  try { abs = new URL(src, pageUrl).href; } catch { return { why: `bad image URL ${src.slice(0, 60)}` }; }
-  abs = abs.replace(/^http:\/\//, 'https://'); // Squarespace and others still list http:// share images; their CDNs serve https
-  if (!/^https:\/\//.test(abs) || /\.(svg|ico|gif)(\?|$)/i.test(abs)) return { why: `not a photo: ${abs.slice(0, 80)}` };
-  // Logos and icons: judged on the file name only (CDN paths often contain words like 'icon' for other reasons).
-  const file = decodeURIComponent(new URL(abs).pathname.split('/').pop() || '');
-  if (/(^|[^a-z])(logo|favicon|icon|placeholder)s?([^a-z]|$)|apple-touch|default[-_]?(og|share)/i.test(file)) return { why: `logo/icon: ${file.slice(0, 60)}` };
-  const w = +meta(['og:image:width']);
-  if (w && w < 300) return { why: `too small (${w}px): ${file.slice(0, 50)}` };
+  const abs = (src) => {
+    if (!src || /^data:/i.test(src)) return null;
+    try { return new URL(src.trim(), pageUrl).href.replace(/^http:\/\//, 'https://'); } catch { return null; } // http share images: their CDNs serve https
+  };
+  const fileOf = (u) => decodeURIComponent(new URL(u).pathname.split('/').pop() || '');
+  const LOGOISH = /(^|[^a-z])(logo|favicon|icon|brand|mark)s?([^a-z]|$)|apple-touch/i;
   const site = meta(['og:site_name']) || new URL(pageUrl).hostname.replace(/^www\./, '');
-  return { image: abs, site };
+
+  // 1. share image (og / twitter / image_src / JSON-LD image)
+  let share = meta(['og:image:secure_url', 'og:image', 'og:image:url', 'twitter:image', 'twitter:image:src']);
+  if (!share) { const l = links.find((t) => /\brel\s*=\s*["']image_src["']/i.test(t)); share = l ? unent(attr(l, 'href')) : null; }
+  const ldBlocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
+  const ld = (key) => { for (const b of ldBlocks) { const m = b.match(new RegExp(`"${key}"\\s*:\\s*(?:\\[\\s*)?(?:\\{[^}]*?"url"\\s*:\\s*)?"([^"]+)"`)); if (m) return m[1].replace(/\\\//g, '/'); } return null; };
+  if (!share) share = ld('image');
+  const shareAbs = abs(share);
+  let why = shareAbs ? null : `no share image (${html.length} bytes, title "${(html.match(/<title[^>]*>([^<]{0,50})/i)?.[1] || '').trim()}")`;
+  if (shareAbs && /^https:\/\//.test(shareAbs) && !/\.(ico)(\?|$)/i.test(shareAbs)) {
+    const w = +meta(['og:image:width']);
+    const isLogo = LOGOISH.test(fileOf(shareAbs)) || /\.svg(\?|$)/i.test(shareAbs) || (w && w < 300);
+    if (!isLogo) return { image: shareAbs, site, logo: false };
+    // the share image is the logo: keep it as the logo candidate, but look for a better logo file first? No: it's the site's own choice.
+    return { image: shareAbs, site, logo: true };
+  }
+  // 2. no share image: the site's logo
+  const imgs = [...html.matchAll(/<img\b[^>]*>/gi)].map((m) => m[0]);
+  const imgSrc = (t) => attr(t, 'src') || attr(t, 'data-src') || attr(t, 'data-image') || (attr(t, 'srcset') || '').split(/[ ,]/)[0];
+  const logoImg = imgs.find((t) => LOGOISH.test(`${attr(t, 'class') || ''} ${attr(t, 'alt') || ''} ${attr(t, 'id') || ''} ${imgSrc(t) || ''}`) && imgSrc(t));
+  const touch = links.find((t) => /\brel\s*=\s*["'][^"']*apple-touch-icon/i.test(t));
+  for (const c of [ld('logo'), logoImg && imgSrc(logoImg), touch && attr(touch, 'href')]) {
+    const u = abs(c && unent(c));
+    if (u && /^https:\/\//.test(u) && !/\.ico(\?|$)/i.test(u)) return { image: u, site, logo: true };
+  }
+  return { why: why || 'no usable image' };
 }
 
 export async function addWebsiteImages(places, http, log = () => {}) {
   const todo = places.filter((p) => !p.image && p.url && /^https?:\/\//.test(p.url) && (p.explore || []).some((e) => WEBSITE_PHOTO_KINDS.includes(e)));
-  let n = 0, failed = 0;
+  let n = 0, failed = 0, logos = 0;
   const misses = [];
   for (const p of todo) {
     try {
       const html = await politeFetch(p.url, { ...http, ttlMs: 30 * 24 * 3600 * 1000, timeoutMs: 15000, retries: 0, headers: { ...(http.headers || {}), accept: 'text/html' } });
       const got = pickShareImage(html.slice(0, 400000), p.url);
-      if (got.image) { p.image = got.image; p.image_credit = `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website'; n++; }
+      if (got.image) {
+        p.image = got.image; p.image_credit = got.logo ? got.site : `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website';
+        if (got.logo) { p.image_logo = true; logos++; }
+        n++;
+      }
       else misses.push(`${p.name}: ${/cf-chl|challenge-platform|<title>Just a moment|Attention Required! \| Cloudflare/i.test(html) ? 'bot check page' : got.why}`);
     } catch (err) { failed++; misses.push(`${p.name}: ${String(err.message).slice(0, 60)}`); }
   }
-  if (todo.length) log(`  website photos: ${n} of ${todo.length} places${failed ? ` (${failed} sites unreachable)` : ''}`);
+  if (todo.length) log(`  website photos: ${n} of ${todo.length} places (${logos} of them logos)${failed ? ` (${failed} sites unreachable)` : ''}`);
   for (const m of misses) log(`    - ${m}`);
 }
