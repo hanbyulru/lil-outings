@@ -43,7 +43,7 @@ const AGE_KEY = 'lilOutings.age';
 const EVENING_HOUR = 18;
 const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Vehicles'], ['gymnastics', 'Gymnastics'], ['eateries', 'Eateries'], ['holidays', 'Holidays', true]].map(([id, label, soon]) => ({ id, label, soon }));
 // "More to explore" icons: [mosaic tile shape, color] per config/vocab.json explore id.
-const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'], eateries: ['c', '#F2B705'], holidays: ['sparkle', '#C8323C'] };
+const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'], eateries: ['c', '#F2B705'], holidays: ['sparkle', '#8E97A3'] };
 const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
@@ -143,9 +143,15 @@ function tile(kind, c, size = 120) {
     c: `<path d="M10 10h50a50 50 0 0 1 50 50v50H10z"/>`,
     d: `<path d="M60 10a50 50 0 0 1 50 50 50 50 0 0 1-50 50H10V60A50 50 0 0 1 60 10z"/>`
   };
-  // Holidays (owner, Nov 2026): a round tile with a white four-point star and gold sparkles that twinkle (CSS, .tw).
+  // Holidays (owner, Nov 2026): glimmery silver. A brushed-silver disc whose highlight band sweeps across every few seconds,
+  // a white four-point star, and gold sparkles that twinkle (CSS, .tw; owner: keep them gold). No sweep with reduced motion.
   const star = (x, y, r) => `M${x} ${y - r}Q${x + r * .18} ${y - r * .18} ${x + r} ${y}Q${x + r * .18} ${y + r * .18} ${x} ${y + r}Q${x - r * .18} ${y + r * .18} ${x - r} ${y}Q${x - r * .18} ${y - r * .18} ${x} ${y - r}z`;
-  if (kind === 'sparkle') return `<svg class="sparkly" viewBox="0 0 120 120" width="${size}" height="${size}" fill="${c}"><circle cx="60" cy="60" r="46"/><path d="${star(60, 60, 26)}" fill="#fff"/><path class="tw" d="${star(101, 19, 15)}" fill="#F2B705"/><path class="tw t2" d="${star(20, 102, 11)}" fill="#F2B705"/><path class="tw t3" d="${star(104, 96, 8)}" fill="#F2B705"/></svg>`;
+  if (kind === 'sparkle') {
+    const id = `ag${tile.n = (tile.n || 0) + 1}`;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sweep = still ? '' : `<animateTransform attributeName="gradientTransform" type="translate" values="-1.2 0;1.2 0;1.2 0" keyTimes="0;.45;1" dur="3.6s" repeatCount="indefinite"/>`;
+    return `<svg class="sparkly" viewBox="0 0 120 120" width="${size}" height="${size}"><defs><linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F8"/><stop offset=".35" stop-color="#B9C0C8"/><stop offset=".55" stop-color="#E3E7EB"/><stop offset=".8" stop-color="#8E97A3"/><stop offset="1" stop-color="#C9CFD6"/></linearGradient><linearGradient id="${id}g" x1="0" y1="0" x2="1" y2=".35"><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".85"/><stop offset=".7" stop-color="#fff" stop-opacity="0"/>${sweep}</linearGradient></defs><circle cx="60" cy="60" r="46" fill="url(#${id}b)"/><circle cx="60" cy="60" r="46" fill="url(#${id}g)"/><circle cx="60" cy="60" r="45.5" fill="none" stroke="#7E8794" stroke-opacity=".45"/><path d="${star(60, 60, 26)}" fill="#fff" stroke="#7E8794" stroke-opacity=".35" stroke-width="1.5"/><path class="tw" d="${star(101, 19, 15)}" fill="#F2B705"/><path class="tw t2" d="${star(20, 102, 11)}" fill="#F2B705"/><path class="tw t3" d="${star(104, 96, 8)}" fill="#F2B705"/></svg>`;
+  }
   return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" fill="${c}">${shapes[kind]}<circle cx="60" cy="60" r="14" fill="#fff" opacity=".9"/></svg>`;
 }
 
