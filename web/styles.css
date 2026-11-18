@@ -157,7 +157,8 @@ nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500
 .places{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:24px}
 .place{border:1px solid var(--hair);border-radius:20px;padding:20px;background:var(--paper);overflow:hidden}
 .place .banner{position:relative;margin:-20px -20px 16px;aspect-ratio:12/5;background:#EDE7DC;overflow:hidden}
-.place .banner img{display:block;width:100%;height:100%;object-fit:cover}
+.place .banner .tiles{position:absolute;inset:0}
+.place .banner img{position:relative;display:block;width:100%;height:100%;object-fit:cover}
 .place .banner .credit{position:absolute;right:6px;bottom:6px;max-width:calc(100% - 12px);padding:2px 7px;border-radius:999px;background:rgba(22,24,29,.62);color:#fff;font-size:11px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 .place .banner .credit:hover{background:rgba(22,24,29,.85)}
 .place .banner svg{display:block}

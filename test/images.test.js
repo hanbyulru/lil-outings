@@ -65,3 +65,31 @@ test('addPlaceImages fails soft', async () => {
   assert.equal(places[0].image, undefined);
   assert.match(logs[0], /FAILED/);
 });
+
+import { shareImage, addWebsiteImages } from '../src/images.js';
+test('shareImage: og:image (either attribute order), relative URLs, logos skipped', () => {
+  assert.deepEqual(shareImage('<meta property="og:site_name" content="DiG PDX"><meta content="/uploads/sandbox.jpg" property="og:image">', 'https://digpdx.com/'), { image: 'https://digpdx.com/uploads/sandbox.jpg', site: 'DiG PDX' });
+  assert.equal(shareImage('<meta name="twitter:image" content="https://x.com/a.jpg?w=1&amp;h=2">', 'https://www.x.com/').image, 'https://x.com/a.jpg?w=1&h=2');
+  assert.equal(shareImage('<meta name="twitter:image" content="https://x.com/a.jpg">', 'https://www.x.com/').site, 'x.com');
+  assert.equal(shareImage('<meta property="og:image" content="https://x.com/site-logo.png">', 'https://x.com/'), null);
+  assert.equal(shareImage('<meta property="og:image" content="http://x.com/a.jpg">', 'https://x.com/'), null); // https only
+  assert.equal(shareImage('<title>no share image</title>', 'https://x.com/'), null);
+});
+
+test('addWebsiteImages: only businesses without a photo, credited to the site', async () => {
+  const fetched = [];
+  const fetchImpl = async (url) => { fetched.push(url); if (url.includes('down')) throw new Error('ECONNRESET'); return { ok: true, status: 200, text: async () => '<meta property="og:site_name" content="PlayDate PDX"><meta property="og:image" content="https://playdatepdx.com/hero.jpg">' }; };
+  const places = [
+    { id: 'a', url: 'https://playdatepdx.com/', explore: ['indoor_play'] },
+    { id: 'b', url: 'https://parks.example/', explore: ['playgrounds'] }, // public park: Commons only
+    { id: 'c', url: 'https://farm.example/', explore: ['farms'], image: 'https://upload.wikimedia.org/x.jpg', image_credit: 'Photo: X, CC0' },
+    { id: 'd', url: 'https://down.example/', explore: ['classes'] }
+  ];
+  await addWebsiteImages(places, { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'web-')), minGapMs: 0 });
+  assert.deepEqual(fetched, ['https://playdatepdx.com/', 'https://down.example/']);
+  assert.equal(places[0].image, 'https://playdatepdx.com/hero.jpg');
+  assert.equal(places[0].image_credit, 'Photo: PlayDate PDX');
+  assert.equal(places[0].image_page, 'https://playdatepdx.com/');
+  assert.equal(places[2].image, 'https://upload.wikimedia.org/x.jpg'); // a Commons photo wins
+  assert.equal(places[3].image, undefined); // unreachable site: mosaic banner
+});

@@ -38,7 +38,7 @@ export function creditFrom(meta = {}) {
   return ['Photo' + (artist ? `: ${artist}` : ''), lic].filter(Boolean).join(', ');
 }
 
-/** Adds image, image_credit, image_page to places that have a Commons photo. Never throws: a failure just means no photos. */
+/** Adds image, image_credit, image_page: a Commons photo, else (for businesses) the place's website share image. Never throws. */
 export async function addPlaceImages(places, http, log = () => {}) {
   // Photos rarely change: cache a month, and space requests out (the APIs rate limit shared IPs).
   const h = { ...http, headers: { ...(http.headers || {}), 'user-agent': WIKIMEDIA_UA }, ttlMs: 30 * 24 * 3600 * 1000, minGapMs: Math.max(http.minGapMs ?? 0, 2000) };
@@ -89,5 +89,45 @@ export async function addPlaceImages(places, http, log = () => {}) {
     for (const p of places) { if (!p.image_credit) delete p.image; delete p.commons; }
     log(`  Wikimedia Commons photos: FAILED (${err.message})`);
   }
+  await addWebsiteImages(places, http, log);
   return places;
+}
+
+// Businesses rarely have free photos. Owner's call (Nov 2026): for these kinds, use the place's own website
+// share image (og:image), credited to the site and linking back to it.
+export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'classes'];
+
+const attr = (tag, name) => tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'))?.[2];
+const unent = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"').trim();
+
+/** The page's share image (og:image, twitter:image, image_src) and site name, or null. Logos and icons are skipped. */
+export function shareImage(html, pageUrl) {
+  const metas = [...String(html).matchAll(/<meta\b[^>]*>/gi)].map((m) => m[0]);
+  const meta = (keys) => { for (const k of keys) for (const t of metas) if ((attr(t, 'property') || attr(t, 'name') || '').toLowerCase() === k) { const c = attr(t, 'content'); if (c) return unent(c); } return null; };
+  let src = meta(['og:image:secure_url', 'og:image', 'og:image:url', 'twitter:image', 'twitter:image:src']);
+  if (!src) {
+    const link = [...String(html).matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]).find((t) => /\brel\s*=\s*["']image_src["']/i.test(t));
+    src = link ? unent(attr(link, 'href')) : null;
+  }
+  if (!src) return null;
+  let abs;
+  try { abs = new URL(src, pageUrl).href; } catch { return null; }
+  if (!/^https:\/\//.test(abs) || /\.(svg|ico|gif)(\?|$)/i.test(abs) || /logo|favicon|icon|placeholder|default[-_]?(og|share)/i.test(abs)) return null;
+  const w = +meta(['og:image:width']);
+  if (w && w < 300) return null;
+  const site = meta(['og:site_name']) || new URL(pageUrl).hostname.replace(/^www\./, '');
+  return { image: abs, site };
+}
+
+export async function addWebsiteImages(places, http, log = () => {}) {
+  const todo = places.filter((p) => !p.image && p.url && /^https?:\/\//.test(p.url) && (p.explore || []).some((e) => WEBSITE_PHOTO_KINDS.includes(e)));
+  let n = 0, failed = 0;
+  for (const p of todo) {
+    try {
+      const html = await politeFetch(p.url, { ...http, ttlMs: 30 * 24 * 3600 * 1000, timeoutMs: 15000, retries: 0, headers: { ...(http.headers || {}), accept: 'text/html' } });
+      const got = shareImage(html.slice(0, 300000), p.url);
+      if (got) { p.image = got.image; p.image_credit = `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website'; n++; }
+    } catch { failed++; }
+  }
+  if (todo.length) log(`  website photos: ${n} of ${todo.length} places${failed ? ` (${failed} sites unreachable)` : ''}`);
 }

@@ -167,8 +167,10 @@ function renderEvent(e, n) {
 
 /** Card banner: a Wikimedia Commons photo with its credit, or a mosaic of the category's tiles. */
 function banner(p, catId) {
-  if (p.image) return `<div class="banner"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.add('noimg');this.remove()">${p.image_page ? `<a class="credit" href="${esc(p.image_page)}" target="_blank" rel="noopener">${esc(p.image_credit || 'Photo: Wikimedia Commons')}</a>` : ''}</div>`;
-  return `<div class="banner mosaic" aria-hidden="true">${mosaic(p.id || p.name, catId)}</div>`;
+  // The mosaic sits under the photo, so a photo that fails to load (some sites block hotlinking) leaves the mosaic.
+  const tiles = `<div class="tiles" aria-hidden="true">${mosaic(p.id || p.name, catId)}</div>`;
+  if (!p.image) return `<div class="banner mosaic">${tiles}</div>`;
+  return `<div class="banner">${tiles}<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.querySelector('.credit')?.remove();this.remove()">${p.image_page ? `<a class="credit" href="${esc(p.image_page)}" target="_blank" rel="noopener">${esc(p.image_credit || 'Photo: Wikimedia Commons')}</a>` : ''}</div>`;
 }
 /** A strip of rounded tiles in the category's color, varied per place so neighbors don't match. */
 function mosaic(seed, catId) {
