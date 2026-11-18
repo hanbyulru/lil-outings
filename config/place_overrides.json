@@ -17,8 +17,10 @@
     "url": "https://www.classicaircraft.org/"
   },
   "osm-node-5260591435": {
-    "_why": "Outdoors In - Park @ the plaza: OSM has no website (owner, Nov 2026)",
-    "url": "https://www.hillsboro-oregon.gov/our-city/departments/parks-recreation/facilities-rentals/outdoors-in"
+    "_why": "Outdoors In - Park @ the plaza: OSM has no website; paid, $4+ (owner, Nov 2026)",
+    "url": "https://www.hillsboro-oregon.gov/our-city/departments/parks-recreation/facilities-rentals/outdoors-in",
+    "cost": "paid",
+    "price": "$4+"
   },
   "osm-way-1551899944": {
     "_why": "Playland (Beaverton): removed from the lists (owner, Nov 2026)",
@@ -27,5 +29,10 @@
   "osm-node-10765209397": {
     "_why": "Bucky's Backyard at Washington Square is free (owner, Nov 2026)",
     "cost": "free"
+  },
+  "osm-way-324119384": {
+    "_why": "Monkey King Play Palace is paid, $15 (owner, Nov 2026)",
+    "cost": "paid",
+    "price": "$15"
   }
 }
