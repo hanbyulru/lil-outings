@@ -71,6 +71,7 @@
       "homepage": "https://www.portland.gov/parks/events",
       "config": {
         "url": "https://www.portland.gov/parks/events",
+        "geocode": true,
         "max_pages": 3,
         "exclude_labels": [
           "Volunteer event",

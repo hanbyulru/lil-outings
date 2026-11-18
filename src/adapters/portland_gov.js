@@ -24,12 +24,16 @@ export function parsePortlandGovList(html, source) {
     const from = m.index + m[0].length;
     const to = Math.min(from + 700, matches[i + 1] ? matches[i + 1].index : Infinity);
     const after = html.slice(from, to);
-    const t = after.match(/(\d{1,2}(?::\d{2})?\s*[ap]m)\s*(?:to|-|–)\s*(\d{1,2}(?::\d{2})?\s*[ap]m)/i);
+    const t = after.match(/(\d{1,2}(?::\d{2})?\s*[ap]m)\s*(?:to\s*[–-]?|-|–)\s*(\d{1,2}(?::\d{2})?\s*[ap]m)/i); // also \"11:00 am to – 1:00 pm\"
     const label = after.match(/(?:Label:\s*)?(Volunteer event|Public meeting|Community event|Meeting|Class|Festival|Workshop)/i)?.[1] || null;
     const desc = decodeEntities(after.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').replace(/^\s*(\d{1,2}(?::\d{2})?\s*[ap]m\s*(?:to|-|–)\s*\d{1,2}(?::\d{2})?\s*[ap]m)?\s*(Label:\s*[A-Za-z ]+?(?=\s{2,}|$|[A-Z][a-z]+ ))?/, '').trim().slice(0, 400);
     const startMin = t ? parseClock(t[1]) : null;
     const endMin = t ? parseClock(t[2]) : null;
     const date = `${y}-${pad(+mo)}-${pad(+d)}`;
+    // The feed has no venue field, but many titles end with it ("Explore Your Park Series Event at Wallace Park"):
+    // use it as the venue and geocode "<park>, Portland, OR" (config.geocode).
+    const at = title.match(/\bat ((?:[A-Z][\w.'’&-]*\s?)+?(?:Park|Gardens?|Natural Area|Nature Park|Community Center|Plaza|Square|Center))\s*!?$/);
+    const venue = at ? at[1].trim() : null;
     const iso = (min) => (min == null ? `${date}T00:00:00` : `${date}T${pad(Math.floor(min / 60))}:${pad(min % 60)}:00`);
     out.push({
       source_id: source.id,
@@ -40,8 +44,8 @@ export function parsePortlandGovList(html, source) {
       end: endMin == null ? null : withOffset(iso(endMin)),
       all_day: startMin == null,
       url,
-      venue_name: null,
-      address: null,
+      venue_name: venue,
+      address: venue ? `${venue}, Portland, OR` : null,
       lat: null,
       lon: null,
       raw_categories: label ? [label] : [],

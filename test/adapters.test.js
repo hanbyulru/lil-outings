@@ -20,6 +20,17 @@ test('portland.gov list: date comes from URL, time and label from following text
   assert.equal(ev[1].url, 'https://www.portland.gov/parks/nature/events/2026/12/9/marquam-trail-work');
 });
 
+test('portland.gov list: "11:00 am to – 1:00 pm" times and the park in the title (Explore Your Park, Nov 2026)', () => {
+  const html = `<article><a href="/parks/events/2026/11/23/explore-your-park-series-event-wallace-park">Explore Your Park Series Event at Wallace Park</a>
+    <p>Join us this time at the playground at Wallace Park! November 23, 2026 11:00 am to – 1:00 pm</p></article>`;
+  const [e] = parsePortlandGovList(html, src);
+  assert.equal(e.start, '2026-11-23T11:00:00-08:00');
+  assert.equal(e.end, '2026-11-23T13:00:00-08:00');
+  assert.equal(e.all_day, false);
+  assert.equal(e.venue_name, 'Wallace Park');
+  assert.equal(e.address, 'Wallace Park, Portland, OR');
+});
+
 test('JSON-LD: finds Events inside @graph and ItemList, reads price and geo', () => {
   const html = `<script type="application/ld+json">${JSON.stringify({ '@graph': [
     { '@type': 'Event', name: 'Reptile Show', startDate: '2026-12-05T11:00:00', url: 'https://x.org/e/1', offers: { price: 0 }, location: { '@type': 'Place', name: 'Library', geo: { latitude: '45.5', longitude: '-122.7' } } },
