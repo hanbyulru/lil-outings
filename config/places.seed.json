@@ -24,6 +24,28 @@
   "wikidata": "Q174617"
  },
  {
+  "id": "seed-rice",
+  "name": "Rice Northwest Museum of Rocks and Minerals",
+  "kind": "museum",
+  "lat": 45.57427,
+  "lon": -122.94836,
+  "address": "26385 NW Groveland Dr, Hillsboro, OR 97124",
+  "url": "https://www.ricenorthwestmuseum.org",
+  "hours_text": "Wed-Sun 10am-4pm (Dec-Mar), 10am-5pm (Apr-Nov)",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "science"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Rocks, minerals and fossils in a historic ranch house in north Hillsboro.",
+  "explore": [
+   "science"
+  ],
+  "wikidata": "Q7323031"
+ },
+ {
   "id": "seed-zoo",
   "name": "Oregon Zoo",
   "kind": "zoo",
