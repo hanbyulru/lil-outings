@@ -5,7 +5,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:'Instrument S
 h1,h2{font-family:'Palette Mosaic','Instrument Sans',Georgia,serif;font-weight:400;margin:0;letter-spacing:-1px;color:var(--ink)}
 /* Palette Mosaic's space is a full 1em: halve the gaps between words (owner), letters untouched. Only once the font has
    loaded (html.pm, set in app.js): a fallback font's narrow space would make words touch. */
-.pm h1,.pm h2{word-spacing:-.5em}
+.pm h1,.pm h2{word-spacing:-.4em}
 h3{font-family:'Instrument Sans',system-ui,sans-serif;font-weight:600;margin:0;letter-spacing:-.01em}
 button{font-family:inherit;cursor:pointer;color:inherit}
 a{color:var(--ink);text-decoration:none}
