@@ -80,6 +80,7 @@ test('shareImage: photos first, logos as the fallback', () => {
   // no share image: the site's logo
   assert.deepEqual(shareImage('<header><img class="site-logo" src="/img/farm.png" alt="Smith Berry Barn"></header><img src="/a.jpg">', 'https://farm.example/'), { image: 'https://farm.example/img/farm.png', site: 'farm.example', logo: true });
   assert.equal(shareImage('<script type="application/ld+json">{"@type":"Organization","logo":"https://gym.example/brand.png"}</script>', 'https://gym.example/').image, 'https://gym.example/brand.png');
+  assert.equal(shareImage('<img src="/style/icon/read-more.png"><link rel="apple-touch-icon" href="/touch.png">', 'https://gym.example/').image, 'https://gym.example/touch.png', 'an arrow in an icon folder is not the logo');
   assert.equal(shareImage('<link rel="apple-touch-icon" href="/apple-touch-icon.png">', 'https://gym.example/').image, 'https://gym.example/apple-touch-icon.png');
   assert.equal(shareImage('<script type="application/ld+json">{"@type":"LocalBusiness","image":["https:\\/\\/x.com\\/barn.jpg"]}</script>', 'https://x.com/').image, 'https://x.com/barn.jpg', 'JSON-LD image');
 });

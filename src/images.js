@@ -143,7 +143,9 @@ export function pickShareImage(html, pageUrl) {
   // 2. no share image: the site's logo
   const imgs = [...html.matchAll(/<img\b[^>]*>/gi)].map((m) => m[0]);
   const imgSrc = (t) => attr(t, 'src') || attr(t, 'data-src') || attr(t, 'data-image') || (attr(t, 'srcset') || '').split(/[ ,]/)[0];
-  const logoImg = imgs.find((t) => LOGOISH.test(`${attr(t, 'class') || ''} ${attr(t, 'alt') || ''} ${attr(t, 'id') || ''} ${imgSrc(t) || ''}`) && imgSrc(t));
+  // An <img> counts as the logo only if its class, alt, id or file name says "logo" (folder names like /icon/ don't count).
+  const fname = (u) => { try { return decodeURIComponent(new URL(u, pageUrl).pathname.split('/').pop()); } catch { return ''; } };
+  const logoImg = imgs.find((t) => imgSrc(t) && /logo/i.test(`${attr(t, 'class') || ''} ${attr(t, 'alt') || ''} ${attr(t, 'id') || ''} ${fname(imgSrc(t))}`));
   const touch = links.find((t) => /\brel\s*=\s*["'][^"']*apple-touch-icon/i.test(t));
   for (const c of [ld('logo'), logoImg && imgSrc(logoImg), touch && attr(touch, 'href')]) {
     const u = abs(c && unent(c));
@@ -153,7 +155,7 @@ export function pickShareImage(html, pageUrl) {
 }
 
 export async function addWebsiteImages(places, http, log = () => {}) {
-  const todo = places.filter((p) => !p.image && p.url && /^https?:\/\//.test(p.url) && (p.explore || []).some((e) => WEBSITE_PHOTO_KINDS.includes(e)));
+  const todo = places.filter((p) => !p.image && !p.no_site_image && p.url && /^https?:\/\//.test(p.url) && (p.explore || []).some((e) => WEBSITE_PHOTO_KINDS.includes(e)));
   let n = 0, failed = 0, logos = 0;
   const misses = [];
   for (const p of todo) {

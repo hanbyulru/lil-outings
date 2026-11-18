@@ -3,5 +3,9 @@
   "osm-node-14019328709": {
     "_why": "Oregon Korean War Memorial Interpretive Center: OSM's wilsonvilleparksandrec.com link is dead (owner, Nov 2026)",
     "url": "https://www.wilsonvilleoregon.gov/Facilities/Facility/Details/Oregon-Korean-War-Memorial-Interpretive--4"
+  },
+  "osm-node-13389810724": {
+    "_why": "Crazy Jumpers: OSM's link is the mall's store directory, so its picture would be the mall's logo",
+    "no_site_image": true
   }
 }
