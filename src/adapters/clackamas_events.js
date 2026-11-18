@@ -6,7 +6,7 @@ import { withOffset } from '../lib/time.js';
  * Clackamas County events list, library department (Oak Lodge and Gladstone libraries; verified Nov 2026):
  *   https://www.clackamas.us/events?dept=146
  * One page covers roughly two months. Each <div class="views-row"> holds the title link (/event/YYYY-MM-DD/slug),
- * the start and end as <time datetime="...Z"> in true UTC (the first two time elements), and the address line
+ * the start and end as <time datetime="...Z"> (the first two time elements; see the note in the parser on wall time vs UTC), and the address line
  * ("Gladstone Library, 525 Portland Avenue Gladstone, OR 97027"). The page repeats rows in several widgets: dedupe by URL.
  * config: { url, site, venues: [{ match: 'Gladstone', name, address, lat, lon }] }
  */
@@ -27,7 +27,14 @@ export function parseClackamasEvents(html, source) {
     if (!a) continue;
     const url = source.config.site + a[1];
     if (seen.has(url)) continue;
-    const times = [...row.matchAll(/<time datetime="(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ)"/g)].map((m) => m[1]);
+    // Each <time> also shows its time as text ("10/19/2026 - 10:30"). Nov 2026: the county started writing Portland wall time
+    // with a "Z" (10:30 am shown, datetime "...T10:30:00Z"); before, the datetime was true UTC. When the shown time matches the
+    // datetime's digits, take it as wall time; otherwise convert from UTC.
+    const times = [...row.matchAll(/<time datetime="(\d{4}-\d\d-\d\dT(\d\d:\d\d):\d\dZ)"[^>]*>([^<]*)/g)].map((m) => {
+      const shown = m[3].match(/(\d{1,2}):(\d\d)/);
+      const wall = shown && `${shown[1].padStart(2, '0')}:${shown[2]}` === m[2];
+      return wall ? withOffset(m[1].slice(0, 19)) : utcToPortland(m[1]);
+    });
     if (!times.length) continue;
     seen.add(url);
     const addr = text(row.match(/field-ccts-map-link[\s\S]*?<a [^>]*>([\s\S]*?)<\/a>/)?.[1]);
@@ -38,8 +45,8 @@ export function parseClackamasEvents(html, source) {
       source_event_id: url,
       title,
       description: '',
-      start: utcToPortland(times[0]),
-      end: times[1] ? utcToPortland(times[1]) : null,
+      start: times[0],
+      end: times[1] || null,
       all_day: false,
       url,
       venue_name: v?.name || addr.split(',')[0] || null,

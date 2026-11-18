@@ -61,6 +61,16 @@ test('Clackamas County events: UTC times to Portland, branch venue, deduped rows
   assert.deepEqual(adult[0].raw_audience, ['Adults']);
 });
 
+test('Clackamas County events: wall time written with a Z (Nov 2026) is not shifted', () => {
+  const src = { id: 'cc', config: { site: 'https://www.clackamas.us', venues: [{ match: 'Oak Lodge', name: 'Oak Lodge Library' }] } };
+  const row = `<div class="views-row"><a href="/event/2026-11-23/drop-in-playgroup-oak-lodge-library" hreflang="en">Drop-In Playgroup – Oak Lodge Library</a>
+    <time datetime="2026-11-23T10:30:00Z">11/23/2026 - 10:30</time><time datetime="2026-11-23T12:00:00Z">11/23/2026 - 12:00</time>
+    <div class="views-field views-field-field-ccts-map-link"><a href="#">Oak Lodge Library, 3783 SE Concord Rd., Oak Lodge OR 97267</a></div></div>`;
+  const [e] = parseClackamasEvents(row, src);
+  assert.equal(e.start, '2026-11-23T10:30:00-08:00');
+  assert.equal(e.end, '2026-11-23T12:00:00-08:00');
+});
+
 test('BiblioCommons: audience/type ids become names; pages are walked; far branches skipped', async () => {
   const page = (n, pages, ids) => JSON.stringify({ events: { pagination: { page: n, pages } }, entities: {
     events: Object.fromEntries(ids.map((id) => [id, { id, definition: { id, title: `Storytime ${id}`, start: '2026-11-18T10:30', branchLocationId: id === 'c' ? 'FAR' : 'V', audienceIds: ['a1'], typeIds: ['t1'] } }])),
