@@ -456,9 +456,10 @@
   ],
   "cost": "paid",
   "setting": "indoor",
-  "note": "New bookstore with an imaginative play garden for kids (day pass or membership).",
+  "note": "New bookstore with an imaginative play garden for kids (day pass or membership); serves food and drinks.",
   "explore": [
-   "indoor_play"
+   "indoor_play",
+   "eateries"
   ]
  },
  {
@@ -1350,6 +1351,27 @@
   "cost": "varies",
   "setting": "indoor",
   "note": "Bakery and cafe with a playroom away from the dining room; PB&J on the menu.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "id": "seed-artur",
+  "name": "Artur Cafe",
+  "kind": "cafe",
+  "lat": 45.38445,
+  "lon": -122.75952,
+  "address": "18749 SW Martinazzi Ave, Tualatin, OR 97062",
+  "url": "https://www.arturcafe.com",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [
+   "play"
+  ],
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Cozy cafe with a kids' play area; coffee and breakfast burritos.",
   "explore": [
    "eateries"
   ]
