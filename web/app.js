@@ -41,9 +41,9 @@ const AGE_GROUPS = [
 const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
-const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['gymnastics', 'Gymnastics']].map(([id, label]) => ({ id, label }));
+const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['gymnastics', 'Gymnastics'], ['eateries', 'Eateries']].map(([id, label]) => ({ id, label }));
 // "More to explore" icons: [mosaic tile shape, color] per config/vocab.json explore id.
-const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'] };
+const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'], eateries: ['c', '#F2B705'] };
 const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 

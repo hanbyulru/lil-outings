@@ -435,7 +435,8 @@
   "cost": "paid",
   "setting": "indoor",
   "explore": [
-   "indoor_play"
+   "indoor_play",
+   "eateries"
   ],
   "note": "Play cafe for little ones."
  },
@@ -1249,6 +1250,108 @@
   "note": "Gymnastics classes in Gresham.",
   "explore": [
    "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-hopworks",
+  "name": "Hopworks Urban Brewery",
+  "kind": "restaurant",
+  "lat": 45.49685,
+  "lon": -122.63485,
+  "address": "2944 SE Powell Blvd, Portland, OR 97202",
+  "url": "https://www.hopworksbeer.com/powell-blvd",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [
+   "play"
+  ],
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Brewpub with several kids' play areas: train tables, chalkboards, books and toys. Kids' menu.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "id": "seed-mothers",
+  "name": "Mother's Bistro & Bar",
+  "kind": "restaurant",
+  "lat": 45.52195,
+  "lon": -122.67377,
+  "address": "121 SW 3rd Ave, Portland, OR 97204",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [
+   "play"
+  ],
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Downtown comfort-food restaurant with a family room and kids' play area full of toys and books.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "id": "seed-zed",
+  "name": "The Zed (Zoiglhaus)",
+  "kind": "food hall",
+  "lat": 45.48094,
+  "lon": -122.56827,
+  "address": "5716 SE 92nd Ave, Portland, OR 97266",
+  "url": "https://zoiglhaus.com",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [
+   "play"
+  ],
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Food hall with Zoiglhaus Brewing and other spots; play area with play kitchens, a train table and tents.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "id": "seed-papaccinos",
+  "name": "Papaccino's",
+  "kind": "cafe",
+  "lat": 45.47935,
+  "lon": -122.61708,
+  "address": "4411 SE Woodstock Blvd, Portland, OR 97206",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [
+   "play"
+  ],
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Coffee shop with an enclosed play space.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "id": "seed-posies",
+  "name": "Posie's Bakery & Cafe",
+  "kind": "cafe",
+  "lat": 45.58258,
+  "lon": -122.68659,
+  "address": "8208 N Denver Ave, Portland, OR 97217",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [
+   "play"
+  ],
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Bakery and cafe with a playroom away from the dining room; PB&J on the menu.",
+  "explore": [
+   "eateries"
   ]
  }
 ]

@@ -111,6 +111,11 @@
       "id": "gymnastics",
       "label": "Gymnastics",
       "hint": "Open gym and movement classes for little ones"
+    },
+    {
+      "id": "eateries",
+      "label": "Eateries",
+      "hint": "Cafes and restaurants with dedicated play spaces"
     }
   ],
   "interest_labels": {

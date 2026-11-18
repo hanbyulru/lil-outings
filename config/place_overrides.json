@@ -7,5 +7,13 @@
   "osm-node-13389810724": {
     "_why": "Crazy Jumpers: OSM's link is the mall's store directory, so its picture would be the mall's logo",
     "no_site_image": true
+  },
+  "osm-way-55691263": {
+    "_why": "510 Museum & Art Space: removed from the lists (owner, Nov 2026)",
+    "explore": []
+  },
+  "osm-way-137061368": {
+    "_why": "Classic Aircraft Aviation Museum: OSM has no website (owner, Nov 2026)",
+    "url": "https://www.classicaircraft.org/"
   }
 }
