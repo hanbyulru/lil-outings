@@ -397,6 +397,9 @@ function showView(v) {
 addEventListener('hashchange', () => { const v = viewFromHash(); if (v !== document.body.dataset.view) { showView(v); scrollTo(0, 0); } });
 showView(viewFromHash());
 
+// Headline font loaded? Then tighten its (very wide) word spaces; see .pm in styles.css.
+document.fonts?.load("1em 'Palette Mosaic'").then((f) => { if (f.length) document.documentElement.classList.add('pm'); }).catch(() => {});
+
 initMap().then((ok) => { MAP = ok; if (DATA) renderToday(); });
 load().then((d) => {
   DATA = d; GEO = d.geo;
