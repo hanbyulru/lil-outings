@@ -27,6 +27,7 @@ if (!/^(localhost|127\.|0\.0\.0\.0|\[::1\]|$)/.test(location.hostname)) {
   <header class="top">
     <div class="brand"><a class="logo" href="#events">Lil' Outings</a><span class="citypill">Portland, OR metro</span><!-- the "come to your city?" dialog is off for now (owner, Nov 2026); to turn it back on, make this <button class="citypill" type="button" data-cityask aria-haspopup="dialog"> --></div>
     <nav class="main viewtoggle" role="tablist" aria-label="Events or places"><a href="#events" role="tab" data-view="events" aria-selected="true" aria-controls="today">Events</a><a href="#places" role="tab" data-view="places" aria-selected="false" aria-controls="more">Places</a></nav>
+    <div class="headright"><button class="subbtn" type="button" data-subscribe aria-haspopup="dialog"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 6l7 5 7-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Get updates</span></button></div>
   </header>
   <section class="hero today" id="today">
     <h1 id="headline">Something good to do with a small person today in Portland</h1>
@@ -48,6 +49,18 @@ if (!/^(localhost|127\.|0\.0\.0\.0|\[::1\]|$)/.test(location.hostname)) {
   </div>
   <div class="step" data-step="done" hidden>
     <h2>We'll keep you posted!</h2>
+  </div>
+</dialog>
+<dialog id="subscribe" class="cityask subscribe" aria-labelledby="sub-title">
+  <button class="x" type="button" data-subclose aria-label="Close">×</button>
+  <div class="step" data-step="form">
+    <h2 id="sub-title">Stay in the loop</h2>
+    <p>Get an email when we add new activities and places, and a heads-up when our Holidays guide goes live. No spam; unsubscribe anytime.</p>
+    <form data-form="subscribe"><label class="sr" for="sub-email">Email</label><input id="sub-email" name="email" type="email" placeholder="Email" autocomplete="email" required maxlength="120"><button class="btn-ink" type="submit">Subscribe</button></form>
+  </div>
+  <div class="step" data-step="done" hidden>
+    <h2>You're on the list!</h2>
+    <p>Check your inbox for a confirmation email to finish signing up.</p>
   </div>
 </dialog>
 <footer><div class="wrap" id="foot"></div></footer>

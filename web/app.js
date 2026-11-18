@@ -444,7 +444,7 @@ function renderMore() {
   let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation gymnastics classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
-  if (cur.soon && !items.length) body = `<div class="soon">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 64)}<p>Coming soon</p></div>`;
+  if (cur.soon && !items.length) body = `<div class="soon">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 64)}<p>Coming soon</p><button class="btn-ink subcta" type="button" data-subscribe="holidays">Tell me when it’s live</button></div>`;
   else if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${S.loc ? ` in ${esc(locPhrase(S.loc))}` : ''} yet.</h3>${S.loc ? '<div class="empty-actions"><button class="btn-ink" data-locany>See anywhere in Portland</button></div>' : ''}</div>`;
   $('#results-inner').innerHTML = `<div class="placesgrid">
     <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 34)}</span><span class="nm">${esc(x.label)}</span><span class="n">${x.soon ? 'Soon' : count(x.id)}</span><span class="arr" aria-hidden="true">→</span></button>`; }).join('')}</div>
@@ -487,6 +487,43 @@ async function sendSignup(fields) {
   const res = await fetch(SIGNUP_ENDPOINT, { method: 'POST', body, headers: { accept: 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
+/**
+ * "Get updates" (owner, Nov 2026): newsletter sign-up for new activities, new places and the Holidays guide.
+ * Emails go straight from the visitor's browser to the email service; this site never stores them.
+ * SUBSCRIBE: { provider: 'buttondown', id: '<username>' } or { provider: 'kit', id: '<form id>' }. Until a provider is set,
+ * every "Get updates" button stays hidden (body.cansub), so nothing is ever collected into thin air.
+ */
+const SUBSCRIBE = { provider: '', id: '' };
+const SUBSCRIBE_URL = {
+  buttondown: (id) => [`https://buttondown.com/api/emails/embed-subscribe/${encodeURIComponent(id)}`, 'email'],
+  kit: (id) => [`https://app.kit.com/forms/${encodeURIComponent(id)}/subscriptions`, 'email_address']
+};
+document.body.classList.toggle('cansub', !!(SUBSCRIBE_URL[SUBSCRIBE.provider] && SUBSCRIBE.id));
+async function sendSubscribe(email) {
+  const [url, field] = SUBSCRIBE_URL[SUBSCRIBE.provider](SUBSCRIBE.id);
+  const body = new FormData(); body.append(field, email);
+  // The services don't send CORS headers for embedded forms, so the response can't be read: a network error is the only failure we see.
+  await fetch(url, { method: 'POST', body, mode: 'no-cors' });
+}
+const subDlg = () => $('#subscribe');
+function subStep(name) { for (const el of subDlg().querySelectorAll('.step')) el.hidden = el.dataset.step !== name; subDlg().querySelector(`[data-step="${name}"] input`)?.focus(); }
+document.addEventListener('submit', async (ev) => {
+  const form = ev.target.closest('#subscribe form');
+  if (!form) return;
+  ev.preventDefault();
+  const btn = form.querySelector('button'); btn.disabled = true;
+  form.parentNode.querySelector('.err')?.remove();
+  try { await sendSubscribe(form.email.value.trim()); track('subscribe', { from: subDlg().dataset.from || 'header' }); subStep('done'); }
+  catch { form.insertAdjacentHTML('afterend', '<p class="err">Sorry, that didn’t go through. Please try again.</p>'); }
+  finally { btn.disabled = false; }
+});
+document.addEventListener('click', (ev) => {
+  const open = ev.target.closest('[data-subscribe]');
+  if (open) { const d = subDlg(); d.dataset.from = open.dataset.subscribe || 'header'; d.querySelector('form').reset(); d.querySelector('.err')?.remove(); d.showModal(); subStep('form'); track('open_subscribe', { from: d.dataset.from }); return; }
+  if (ev.target.closest('[data-subclose]')) { subDlg().close(); return; }
+  if (ev.target === subDlg()) { const r = subDlg().getBoundingClientRect(); if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) subDlg().close(); }
+});
+
 const cityDlg = () => $('#cityask');
 function cityStep(name) { for (const el of cityDlg().querySelectorAll('.step')) el.hidden = el.dataset.step !== name; cityDlg().querySelector(`[data-step="${name}"] input`)?.focus(); }
 let askedCity = '';
