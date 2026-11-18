@@ -513,13 +513,13 @@ document.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const btn = form.querySelector('button'); btn.disabled = true;
   form.parentNode.querySelector('.err')?.remove();
-  try { await sendSubscribe(form.email.value.trim()); track('subscribe', { from: subDlg().dataset.from || 'header' }); subStep('done'); }
+  try { await sendSubscribe(form.email.value.trim()); track('subscribe', { from: subDlg().dataset.from || 'header' }); subDlg().classList.add('joined'); subStep('done'); }
   catch { form.insertAdjacentHTML('afterend', '<p class="err">Sorry, that didn’t go through. Please try again.</p>'); }
   finally { btn.disabled = false; }
 });
 document.addEventListener('click', (ev) => {
   const open = ev.target.closest('[data-subscribe]');
-  if (open) { const d = subDlg(); d.dataset.from = open.dataset.subscribe || 'header'; d.querySelector('form').reset(); d.querySelector('.err')?.remove(); d.showModal(); subStep('form'); track('open_subscribe', { from: d.dataset.from }); return; }
+  if (open) { const d = subDlg(); d.dataset.from = open.dataset.subscribe || 'header'; d.querySelector('form').reset(); d.querySelector('.err')?.remove(); d.classList.remove('joined'); d.showModal(); subStep('form'); track('open_subscribe', { from: d.dataset.from }); return; }
   if (ev.target.closest('[data-subclose]')) { subDlg().close(); return; }
   if (ev.target === subDlg()) { const r = subDlg().getBoundingClientRect(); if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) subDlg().close(); }
 });

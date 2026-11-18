@@ -36,6 +36,30 @@ body.cansub [data-subscribe]{display:inline-flex}
 .subbtn{align-items:center;gap:8px;border:1.5px solid var(--ink);background:transparent;border-radius:999px;padding:8px 16px;font-weight:600;font-size:15px;color:var(--ink);white-space:nowrap;transition:background .15s,color .15s}
 .subbtn:hover,.subbtn:focus-visible{background:var(--ink);color:#fff;outline:none}
 .soon .subcta{margin-top:4px}
+/* Sign-up box personality (owner, Nov 2026): mosaic tiles peeking over the top edge (they hop when the box opens and
+   dance on success), the title in the headline font, and the email field + Subscribe as one pill. */
+.subscribe{overflow:visible;padding-top:40px}
+.subscribe h2{font-family:'Palette Mosaic','Instrument Sans',sans-serif;font-weight:400;font-size:30px;letter-spacing:-1px;line-height:1.15}
+.pm .subscribe h2{word-spacing:-.4em}
+.subscribe p.fine{margin-top:6px;font-size:14px}
+.subtiles{position:absolute;top:-17px;left:28px;display:flex;gap:6px}
+.subtiles i{display:block;width:30px;height:30px;background:var(--c);border:3px solid #fff;box-sizing:content-box;animation:tilehop .5s cubic-bezier(.3,1.6,.5,1) backwards}
+.subtiles i.a{border-radius:50% 50% 50% 4px}
+.subtiles i.b{border-radius:50%}
+.subtiles i.c{border-radius:4px 50% 4px 4px}
+.subtiles i.d{border-radius:50% 4px 50% 50%}
+.subtiles i:nth-child(1){transform:rotate(-8deg)}.subtiles i:nth-child(2){animation-delay:.05s;transform:translateY(3px)}.subtiles i:nth-child(3){animation-delay:.1s;transform:rotate(6deg)}
+.subtiles i:nth-child(4){animation-delay:.15s;transform:translateY(-2px)}.subtiles i:nth-child(5){animation-delay:.2s;transform:rotate(-5deg) translateY(2px)}.subtiles i:nth-child(6){animation-delay:.25s;transform:rotate(9deg)}
+@keyframes tilehop{from{opacity:0;translate:0 14px}to{opacity:1;translate:0 0}}
+.subscribe.joined .subtiles i{animation:tiledance .9s ease-in-out infinite alternate}
+.subscribe.joined .subtiles i:nth-child(even){animation-delay:.3s}
+@keyframes tiledance{from{translate:0 0}to{translate:0 -8px}}
+@media (prefers-reduced-motion:reduce){.subtiles i,.subscribe.joined .subtiles i{animation:none}}
+.pillform{gap:0!important;padding:5px;border:1.5px solid var(--hair2);border-radius:999px;background:var(--paper);transition:border-color .15s}
+.pillform:focus-within{border-color:var(--ink)}
+.cityask .pillform input{border:0;border-radius:999px;background:transparent;padding:10px 14px}
+.pillform input:focus{outline:none}
+.pillform .btn-ink{flex:none;padding:10px 20px}
 nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500;font-size:16px}
 .link:hover{text-decoration:underline;text-underline-offset:5px}
 nav.main.viewtoggle{gap:0;padding:0;justify-self:center} /* beats nav.main{gap:28px} */
