@@ -157,6 +157,14 @@ const utc = (d) => { const [y, m, dd] = d.split('-').map(Number); return new Dat
 const fmtDay = (d, o) => utc(d).toLocaleDateString('en-US', { timeZone: 'UTC', ...o });
 const dayLabel = (d) => { const t = NOW().date; const base = fmtDay(d, { weekday: 'long', month: 'short', day: 'numeric' }); return d === t ? `Today · ${base}` : base; };
 /** "Tue, Nov 17" or "Sat, Nov 21 – Sun, Nov 22" for a when value. */
+/** Thanksgiving: the fourth Thursday of November, as YYYY-MM-DD. */
+function thanksgiving(year) {
+  const firstDow = new Date(Date.UTC(year, 10, 1)).getUTCDay();
+  return `${year}-11-${String(1 + ((4 - firstDow + 7) % 7) + 21).padStart(2, '0')}`;
+}
+const rangeHas = (when, day) => { const [a, b] = whenRange(when, NOW().date); return a <= day && day <= b; };
+// A little autumn leaf tile for the Thanksgiving week option (the site's mosaic tile shape, in fall colors).
+const LEAF = '<svg class="leafic" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M3 12A9 9 0 0 1 12 3h9v9a9 9 0 0 1-9 9H3z" fill="#E8772E"/><path d="M12 3h9v9z" fill="#C8452F"/><path d="M3 21l9-9" stroke="#FBF8F3" stroke-width="1.6" stroke-linecap="round"/><circle cx="17" cy="16" r="2.2" fill="#F2B705"/></svg>';
 function rangeLabel(when) {
   const [a, b] = whenRange(when, NOW().date);
   const one = (d) => fmtDay(d, { weekday: 'short', month: 'short', day: 'numeric' });
@@ -319,15 +327,17 @@ function renderProgram(p) {
  *  "This week" becomes "Next week" (Mon-Fri) and "This weekend" becomes "Next weekend" (Sat-Sun); the full Next week option is hidden. */
 function whenOptions() {
   const d = NOW().date;
-  if (isFriday(d) || isSaturday(d)) return WHEN.filter((w) => w[0] !== 'week'); // Fri: today ends the week; Sat: it's over
-  if (isSunday(d)) return WHEN.filter((w) => w[0] !== 'nextweek').map((w) => (w[0] === 'week' ? ['week', 'next week', 'Next week'] : w[0] === 'weekend' ? ['weekend', 'next weekend', 'Next weekend'] : w));
-  return WHEN;
+  let opts = WHEN;
+  if (isFriday(d) || isSaturday(d)) opts = WHEN.filter((w) => w[0] !== 'week'); // Fri: today ends the week; Sat: it's over
+  else if (isSunday(d)) opts = WHEN.filter((w) => w[0] !== 'nextweek').map((w) => (w[0] === 'week' ? ['week', 'next week', 'Next week'] : w[0] === 'weekend' ? ['weekend', 'next weekend', 'Next weekend'] : w));
+  // The week with Thanksgiving in it is "Thanksgiving week", with autumn colors (owner, Nov 2026).
+  return opts.map((w) => (/week$/.test(w[0]) && rangeHas(w[0], thanksgiving(+d.slice(0, 4))) ? [w[0], 'Thanksgiving week', 'Thanksgiving week', 'autumn'] : w));
 }
 function renderHeadline() {
   const whens = whenOptions();
   if (!whens.some((w) => w[0] === S.when)) S.when = 'today';
   const cur = whens.find((w) => w[0] === S.when);
-  const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${whens.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
+  const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${whens.map(([v, , label, special]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}${special ? ` ${special}` : ''}" data-when="${v}"><span>${special === 'autumn' ? LEAF : ''}${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
   let locMenu = '';
   if (S.open === 'loc') {
     const isOn = (k, v) => (k === 'region' ? S.loc?.region === v : picksOf(S.loc).some((x) => x[k] === v));
@@ -352,14 +362,14 @@ function renderHeadline() {
   const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemcheckbox" aria-checked="${onWhat(v)}" class="${onWhat(v) ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}${done}</span>` : '';
   const cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1); // each menu phrase starts with a capital (owner, Nov 2026)
   // look: null = default gray underline; 'mosaic' = chosen (the six-color strip); a color = one interest picked, underlined in its color.
-  const trigger = (kind, text, open, look) => `<button class="whenbtn${look === 'mosaic' ? ' active' : look ? ' solid' : ''}"${look && look !== 'mosaic' ? ` style="--ul:${look}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
+  const trigger = (kind, text, open, look) => `<button class="whenbtn${look === 'mosaic' ? ' active' : look === 'autumn' ? ' active autumn' : look ? ' solid' : ''}"${look && look !== 'mosaic' && look !== 'autumn' ? ` style="--ul:${look}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
   const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
   const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? '' : locMenu}</span>`;
   $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? locMenu : ''}</span>`;
   const wp = whatPhrase(), ws = pickedWhats();
   const whatLook = !ws.length ? null : ws.length > 1 ? 'mosaic' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
   const hint = S.hint && !S.open ? `<span class="menuhint" aria-hidden="true">${hintText()}</span>` : '';
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', cur[3] === 'autumn' ? 'autumn' : 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $(`${onPlaces ? '#placeshead' : '#headline'} .menu`);
   if (m && getComputedStyle(m).position === 'absolute') {

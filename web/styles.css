@@ -96,6 +96,15 @@ h1.pagehead{margin:0 0 60px}
 .whenbtn{--mosaic:repeating-linear-gradient(90deg,#F2B705 0 14px,transparent 14px 17px,#B05CD6 17px 31px,transparent 31px 34px,#3B6FE0 34px 48px,transparent 48px 51px,#2E9E6B 51px 65px,transparent 65px 68px,#F0614F 68px 82px,transparent 82px 85px,#E4559B 85px 99px,transparent 99px 102px)}
 .whenbtn.active .whentext{text-decoration-color:transparent;background-image:var(--mosaic);background-repeat:repeat-x;background-size:102px 5px;background-position:0 calc(100% - 3px);padding-bottom:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .whenbtn.active .caret{color:var(--ink)}
+/* Thanksgiving week (owner, Nov 2026): the chosen phrase's strip in fall colors, with a falling-leaf shimmer; a leaf tile in the menu */
+.whenbtn.autumn{--mosaic:repeating-linear-gradient(90deg,#E8772E 0 14px,transparent 14px 17px,#C8452F 17px 31px,transparent 31px 34px,#F2B705 34px 48px,transparent 48px 51px,#8A5A3B 51px 65px,transparent 65px 68px,#7A9A2E 68px 82px,transparent 82px 85px)}
+.whenbtn.autumn .whentext{background-size:85px 5px;animation:leafdrift 6s linear infinite}
+@keyframes leafdrift{from{background-position:0 calc(100% - 3px)}to{background-position:85px calc(100% - 3px)}}
+@media (prefers-reduced-motion:reduce){.whenbtn.autumn .whentext{animation:none}}
+.whenmenu button.autumn span{display:inline-flex;align-items:center;gap:8px;color:#A8501F}
+.whenmenu button.autumn{background:linear-gradient(90deg,#FFF1E3,#FFF8EE)}
+.whenmenu button.autumn.on{background:linear-gradient(90deg,#FFE2C4,#FFF0DC)}
+.leafic{flex:none;transform:rotate(-8deg)}
 /* One interest picked: a solid underline in its color (--ul, set inline), not the mosaic (owner, Nov 2026) */
 @media (hover:hover){
   .whenbtn:hover .whentext{text-decoration-color:transparent;background-image:var(--mosaic);background-repeat:repeat-x;background-size:102px 5px;background-position:0 calc(100% - 3px);padding-bottom:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}

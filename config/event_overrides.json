@@ -13,11 +13,12 @@
       }
     },
     {
-      "_why": "Making a cardboard dinosaur sculpture: Music & Art (owner, Nov 2026)",
+      "_why": "Making a cardboard dinosaur sculpture: Music & Art + Science (owner, Nov 2026)",
       "source": "wccls",
       "title": "^Super Saturday: Recyclesaurus$",
       "add_interests": [
-        "art"
+        "art",
+        "science"
       ]
     }
   ]

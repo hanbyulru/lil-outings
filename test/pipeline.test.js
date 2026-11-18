@@ -94,9 +94,9 @@ test('event overrides: an off-site storytime with no venue gets one (config/even
 });
 
 import { overrideInterests } from '../src/pipeline.js';
-test('event overrides: add_interests tags a listing after the classifier (Recyclesaurus = Music & Art)', () => {
+test('event overrides: add_interests tags a listing after the classifier (Recyclesaurus = Music & Art + Science)', () => {
   const cfg = JSON.parse(readFileSync('config/event_overrides.json', 'utf8'));
-  assert.deepEqual(overrideInterests({ source: { id: 'wccls' }, title: 'Super Saturday: Recyclesaurus' }, [], cfg), ['art']);
+  assert.deepEqual(overrideInterests({ source: { id: 'wccls' }, title: 'Super Saturday: Recyclesaurus' }, [], cfg), ['art', 'science']);
   assert.deepEqual(overrideInterests({ source: { id: 'mcl' }, title: 'Super Saturday: Recyclesaurus' }, [], cfg), [], 'only the named source');
   assert.deepEqual(overrideInterests({ source: { id: 'x' }, title: 't' }, [], { rules: [{ source: 'x', title: 't', add_interests: ['dinosaurs'] }] }), [], 'no new vocabulary');
 });
