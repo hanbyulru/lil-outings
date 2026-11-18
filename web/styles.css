@@ -56,6 +56,11 @@ body[data-view="places"] .results{border-top:0;padding-top:40px}
 .hero.today{display:block;padding:32px 0 64px}
 .hero.today h1{font-size:clamp(34px,4.6vw,54px);line-height:1.18}
 .whenwrap{position:relative;display:inline-block;white-space:nowrap}
+.whatwrap{display:inline;white-space:normal}
+.whatwrap .whenbtn{text-align:left}
+.whatmenu .swatch{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:10px;vertical-align:0}
+.whatmenu .swatch.all{background:conic-gradient(#F2B705 0 20%,#B05CD6 0 40%,#3B6FE0 0 60%,#2E9E6B 0 80%,#F0614F 0)}
+.whatmenu .swatch.other{background:#5B5F6B}
 .whenbtn{font:inherit;color:inherit;letter-spacing:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-decoration:none}
 .whenbtn .whentext{text-decoration:underline;text-decoration-skip-ink:none;text-decoration-color:var(--coral);text-decoration-thickness:5px;text-underline-offset:10px}
 .whenbtn:focus-visible{outline:3px solid var(--coral);outline-offset:6px;border-radius:6px}
