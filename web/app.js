@@ -169,7 +169,7 @@ function mapCard(g) {
   const f = g.items[0];
   const where = f.venue_name || f.address || 'Same location';
   const shown = g.items.slice(0, 4);
-  return `<div class="mapcard group"><div class="m">${esc(where)}${f.neighborhood ? ' · ' + esc(f.neighborhood) : ''}</div><div class="t">${g.count} ${f.title ? 'events' : 'places'} here</div>
+  return `<div class="mapcard group"><div class="t">${esc(where)}${f.neighborhood ? ' · ' + esc(f.neighborhood) : ''}</div>
     <ul>${shown.map((e) => `<li><button class="${S.sel === e.id ? 'on' : ''}" data-ev="${e.id}"><span class="n" style="background:${e._c || colorOf(e)};color:${onFill(e._c || colorOf(e))}">${e._n ?? ''}</span><span class="w">${esc(e.start_min != null ? fmtMin(e.start_min) : '')}</span><span class="tt">${esc(e.title || e.name)}</span></button></li>`).join('')}</ul>
     ${g.count > shown.length ? `<div class="m">+${g.count - shown.length} more in the list</div>` : ''}</div>`;
 }
