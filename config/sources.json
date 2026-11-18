@@ -27,7 +27,10 @@
           }
         ],
         "max_pages": 40,
-        "min_gap_ms": 4000
+        "min_gap_ms": 4000,
+        "exclude_titles": [
+          "scavenger hunt"
+        ]
       },
       "notes": "Server-rendered Drupal list, verified Nov 2026. Fetched once per kids' age filter (Teens and Adults are skipped at the source), paged until events pass the refresh horizon. Branch coordinates are read from the map on /hours-and-locations. The 1-2 and 3-5 year filters return nothing; their events are under Kids and Family."
     },
@@ -51,6 +54,9 @@
             "audiences": "5c365732664f462a009c9c73",
             "limit": "100"
           }
+        ],
+        "exclude_titles": [
+          "scavenger hunt"
         ]
       },
       "notes": "Filter ids (storytimes, kids) verified from wccls.org. The gateway endpoint is unverified."
@@ -98,6 +104,9 @@
           "Stevenson Community Library",
           "White Salmon Valley Community Library",
           "Yale Valley Community Library"
+        ],
+        "exclude_titles": [
+          "scavenger hunt"
         ]
       },
       "notes": "Moved from fvrl.librarymarket.com to BiblioCommons in 2026 (the old calendar is empty). Audiences: Babies, Toddlers, Preschoolers, Kids, Tweens, Families. Gorge/Klickitat branches are out of the metro."
@@ -125,7 +134,10 @@
           "address": "606 John Adams St, Oregon City, OR 97045",
           "lat": 45.3566,
           "lon": -122.603
-        }
+        },
+        "exclude_titles": [
+          "scavenger hunt"
+        ]
       },
       "notes": "LibCal iCal (cid 12912 = Library Events). LOCATION is a room name, so every event gets the library's address."
     },
@@ -150,7 +162,10 @@
           "address": "8200 SW Wilsonville Rd, Wilsonville, OR 97070",
           "lat": 45.3006,
           "lon": -122.7733
-        }
+        },
+        "exclude_titles": [
+          "scavenger hunt"
+        ]
       },
       "notes": "CivicPlus iCal by category: 24/29/30/31 library, 14 city community events. 23 (council) and 28 (closures) left out. Descriptions are only links."
     },
@@ -170,7 +185,10 @@
           "address": "706 4th St, Lake Oswego, OR 97034",
           "lat": 45.4198,
           "lon": -122.6683
-        }
+        },
+        "exclude_titles": [
+          "scavenger hunt"
+        ]
       },
       "notes": "Drupal 7 calendar month view (titles and start times only; no descriptions). Bookmobile ('Rover') stops are elsewhere in town."
     },
@@ -258,7 +276,10 @@
           "address": "1595 Burns St, West Linn, OR 97068",
           "lat": 45.3657,
           "lon": -122.6125
-        }
+        },
+        "exclude_titles": [
+          "scavenger hunt"
+        ]
       },
       "notes": "Drupal 7 calendar month view (titles and start times only)."
     },
@@ -288,6 +309,9 @@
             "lat": 45.4086,
             "lon": -122.6346
           }
+        ],
+        "exclude_titles": [
+          "scavenger hunt"
         ]
       },
       "notes": "Clackamas County events list, library department. Titles end in the branch name; '18+' marks adult events."
@@ -305,7 +329,8 @@
           "https://happyvalleyor.libcal.com/ical_subscribe.php?src=p&cid=16584"
         ],
         "exclude_titles": [
-          "^closed\\b"
+          "^closed\\b",
+          "scavenger hunt"
         ],
         "default_venue": {
           "name": "Happy Valley Library",
@@ -334,7 +359,10 @@
           "address": "10660 SE 21st Ave, Milwaukie, OR 97222",
           "lat": 45.44615,
           "lon": -122.64036
-        }
+        },
+        "exclude_titles": [
+          "scavenger hunt"
+        ]
       },
       "notes": "Revize calendar JSON for all city calendars; only primary_calendar_name 'Library' is used. Repeating events come as RRULE blocks, expanded in the adapter."
     },
