@@ -22,6 +22,8 @@ export function whenRange(when, today) {
   if (when === 'tomorrow') return [addDays(today, 1), addDays(today, 1)];
   // This week: today through Friday (owner, Nov 2026); on a weekend, through the coming Friday. The menu hides it on Fridays.
   if (when === 'week') return [today, addDays(today, (5 - dow(today) + 7) % 7)];
+  // Next week: the whole Monday-to-Sunday week after this one (owner, Nov 2026); on a Sunday that's tomorrow onward.
+  if (when === 'nextweek') { const mon = addDays(today, (8 - dow(today)) % 7 || 7); return [mon, addDays(mon, 6)]; }
   if (when === 'weekend') {
     const d = dow(today);
     if (d === 6) return [today, addDays(today, 1)];

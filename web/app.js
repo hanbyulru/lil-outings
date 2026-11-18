@@ -9,7 +9,7 @@ const TEXT_COLORS = { books: '#9A6B00' };
 const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Vehicles', play: 'Play' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
-const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend']];
+const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend'], ['nextweek', 'next week', 'Next week']];
 // The headline's "what" picker (owner, Nov 2026). [value, underlined phrase, words after it, menu label, interest tag or null]
 // Only the first part is the underlined menu; "to do" / "to go to" sit outside the underline. 'other' = no interest tag.
 const WHAT = [
@@ -381,7 +381,7 @@ function renderToday() {
   const events = filterEvents(DATA.events, opts, c).filter(fitsWhat).filter(fitsAge);
   const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).filter(fitsWhat).filter(fitsAge).length - events.length : 0;
   events.forEach((e, i) => { e._n = i + 1; });
-  const multiDay = S.when === 'weekend' || S.when === 'week';
+  const multiDay = S.when === 'weekend' || S.when === 'week' || S.when === 'nextweek';
   const bar = `<div class="todaybar"><span class="count">${events.length} ${events.length === 1 ? 'thing' : 'things'} to do</span><span class="muted">${esc(rangeLabel(S.when))}${over > 0 ? ` · ${over} earlier ${over === 1 ? 'one is' : 'ones are'} over` : ''}</span><button class="tog maptoggle ${S.showMap ? 'on' : ''}" data-showmap>${S.showMap ? 'Hide map' : 'Map'}</button></div>`;
   let body;
   if (!events.length) {

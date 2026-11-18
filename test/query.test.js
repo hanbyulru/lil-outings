@@ -13,6 +13,9 @@ test('when ranges: today, weekend (from a Monday, from Saturday, from Sunday), w
   assert.deepEqual(whenRange('weekend', '2026-11-21'), ['2026-11-21', '2026-11-22']);
   assert.deepEqual(whenRange('weekend', '2026-11-22'), ['2026-11-22', '2026-11-22']);
   assert.deepEqual(whenRange('week', '2026-11-16'), ['2026-11-16', '2026-11-20'], 'Monday through Friday');
+  assert.deepEqual(whenRange('nextweek', '2026-11-18'), ['2026-11-23', '2026-11-29'], 'next week from a Wednesday');
+  assert.deepEqual(whenRange('nextweek', '2026-11-22'), ['2026-11-23', '2026-11-29'], 'from a Sunday: the week starting tomorrow');
+  assert.deepEqual(whenRange('nextweek', '2026-11-23'), ['2026-11-30', '2026-12-06'], 'from a Monday: the following Monday');
   assert.deepEqual(whenRange('week', '2026-11-19'), ['2026-11-19', '2026-11-20'], 'Thursday through Friday');
   assert.deepEqual(whenRange('week', '2026-11-21'), ['2026-11-21', '2026-11-27'], 'Saturday: through the coming Friday');
 });
