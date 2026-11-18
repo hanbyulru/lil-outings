@@ -48,6 +48,8 @@ const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
 let DATA, GEO;
+let DEFAULT_WHEN = 'today'; // what the day menu opened on (tomorrow in the evening)
+const INK = '#16181D'; // headline underline once a menu is changed from its default (owner); gray until then
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
@@ -258,7 +260,7 @@ function renderHeadline() {
   const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemradio" aria-checked="${v === S.age}" class="${v === S.age ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}</span>` : '';
   const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemradio" aria-checked="${v === S.what}" class="${v === S.what ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}</span>` : '';
   const trigger = (kind, text, open, color) => `<button class="whenbtn"${color ? ` style="--ul:${color}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what', whatOf()[4] ? COLORS[whatOf()[4]] : null)}${whatMenu}</span> ${esc(whatOf()[2])} with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age')}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when')}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc')}${locMenu}</span>`;
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what', whatOf()[4] ? COLORS[whatOf()[4]] : S.what !== 'all' ? INK : null)}${whatMenu}</span> ${esc(whatOf()[2])} with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age', S.age !== 'all' ? INK : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', S.when !== DEFAULT_WHEN ? INK : null)}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${locMenu}</span>`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $('#headline .menu');
   if (m && getComputedStyle(m).position === 'absolute') {
@@ -449,5 +451,6 @@ load().then((d) => {
   S.loc = loadLoc();
   S.age = loadAge();
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
+  DEFAULT_WHEN = S.when;
   renderHeadline(); renderToday(); renderMore(); renderFoot();
 }).catch((e) => { $('#today-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });
