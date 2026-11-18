@@ -59,7 +59,7 @@ body[data-view="places"] .results{border-top:0;padding-top:40px}
 .whatwrap{display:inline;white-space:normal}
 .whatwrap .whenbtn{text-align:left}
 .whatmenu .swatch{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:10px;vertical-align:0}
-.whatmenu .swatch.all{background:conic-gradient(#F2B705 0 20%,#B05CD6 0 40%,#3B6FE0 0 60%,#2E9E6B 0 80%,#F0614F 0)}
+.whatmenu .swatch.all{background:conic-gradient(#F2B705 0 17%,#B05CD6 0 33%,#3B6FE0 0 50%,#2E9E6B 0 67%,#F0614F 0 83%,#E4559B 0)}
 .whatmenu .swatch.other{background:#5B5F6B}
 .whenbtn{font:inherit;color:inherit;letter-spacing:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-decoration:none}
 .whenbtn .whentext{text-decoration:underline;text-decoration-skip-ink:none;text-decoration-color:var(--coral);text-decoration-thickness:5px;text-underline-offset:10px}

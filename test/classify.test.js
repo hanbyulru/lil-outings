@@ -120,7 +120,7 @@ test('classifyBatchLLM: requests schema-enforced JSON limited to the vocabulary,
   assert.equal(fmt.type, 'json_schema');
   const item = fmt.schema.properties.results.items;
   assert.equal(item.additionalProperties, false);
-  assert.deepEqual(item.properties.interests.items.enum, ['books', 'art', 'nature', 'science', 'trains']);
+  assert.deepEqual(item.properties.interests.items.enum, ['books', 'art', 'nature', 'science', 'trains', 'play']);
 });
 
 test('classifyAll: listings that fell back to rules are retried with Claude on the next run', async () => {
@@ -162,12 +162,12 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
   assert.deepEqual(tags('Read to the Dogs', ['books']).sort(), ['books', 'nature']);
   assert.deepEqual(tags('Music & Movement Storytime').sort(), ['art', 'books']);
   assert.deepEqual(tags('Baby Lapsit', ['books']), ['books'], 'keeps what the classifier gave');
-  assert.deepEqual(tags('Open Gym', [], 'We build community through play.'), [], 'science only from the title');
+  assert.ok(!tags('Open Gym', [], 'We build community through play.').includes('science'), 'science only from the title');
   assert.deepEqual(tags('Story of the Lit Tree'), ['books'], '"lit" alone is not literacy');
 });
 test('interest tags: town names are not topics', () => {
   assert.deepEqual(extraInterests({ title: 'Garden Home Family Storytime' }, ['books']), ['books']);
-  assert.deepEqual(extraInterests({ title: 'Forest Grove Open Gym' }, []), []);
+  assert.deepEqual(extraInterests({ title: 'Forest Grove Info Session' }, []), []);
 });
 
 test('storytimes: songs in the description are not Music & Art; a music title still is', () => {
@@ -177,7 +177,7 @@ test('storytimes: songs in the description are not Music & Art; a music title st
   assert.deepEqual(extraInterests({ title: 'Bilingual Family Storytime | Hora de Cuentos', description: 'singing, dancing, crafts' }, []), ['books']);
   assert.deepEqual(extraInterests({ title: 'Music & Movement Storytime', description: desc }, ['books']).sort(), ['art', 'books']);
   assert.deepEqual(extraInterests({ title: 'Vietnamese-English Bilingual Storytime / Giờ kể chuyện song ngữ Việt - Anh' }, ['books', 'art']), ['books'], 'song ngữ = bilingual');
-  assert.deepEqual(extraInterests({ title: 'Toddler Dance Party', description: 'Dance and sing along.' }, ['art']), ['art'], 'not a storytime: untouched');
+  assert.deepEqual(extraInterests({ title: 'Toddler Dance Party', description: 'Dance and sing along.' }, ['art']), ['art', 'play'], 'not a storytime: Music & Art stays');
 });
 
 test('making things: laser cutting, Cricut and fiber crafts are Music & Art; 3D printing is Science', () => {
@@ -186,4 +186,15 @@ test('making things: laser cutting, Cricut and fiber crafts are Music & Art; 3D 
   assert.ok(extraInterests({ title: 'Cricut Design for Beginners' }, []).includes('art'));
   assert.ok(extraInterests({ title: 'Make Me! Knitting for Tweens' }, []).includes('art'));
   assert.ok(extraInterests({ title: 'Creative Learning: Intro to 3D Printing' }, []).includes('science'));
+  assert.deepEqual(extraInterests({ title: 'Intro to 3D Design' }, []).sort(), ['art', 'science'], '3D design is Music & Art and Science');
+});
+
+test('Play: playgrounds, yoga, games, movies; dinners and fundraisers stay Other', () => {
+  const has = (title, i = []) => extraInterests({ title }, i).includes('play');
+  for (const t of ['Indoor Playground at LORAC', 'Pop Up & Play', 'Kids Yoga', 'Family Movie Night', 'Chess Club', 'Toddler Open Gym', 'Casual Chess']) assert.ok(has(t), t);
+  assert.ok(!has('Thanksgiving Dinner Fundraiser'), 'dinner/fundraiser is Other');
+  assert.ok(!has('Thanksgiving Dinner Fundraiser', ['play']), 'even if the classifier said play');
+  assert.ok(!has('Baby Storytime'), 'a plain storytime is not Play');
+  assert.ok(!extraInterests({ title: 'Wednesday Wigglers', categories: ['storytime'] }, ['play']).includes('play'), 'a storytime without play in the title is not Play');
+  assert.ok(extraInterests({ title: 'Spanish Language Story and Play' }, []).includes('play'), 'story and play is Play');
 });

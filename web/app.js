@@ -4,9 +4,9 @@ import { initMap, showPins } from './map.js';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // Interest colors (owner, Nov 2026). TEXT_COLORS: darker shades where the fill is too light to read as text (yellow).
-const COLORS = { books: '#F2B705', art: '#B05CD6', nature: '#2E9E6B', science: '#3B6FE0', trains: '#F0614F' };
+const COLORS = { books: '#F2B705', art: '#B05CD6', nature: '#2E9E6B', science: '#3B6FE0', trains: '#F0614F', play: '#E4559B' };
 const TEXT_COLORS = { books: '#9A6B00' };
-const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Trains & Planes' };
+const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Trains & Planes', play: 'Play' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend']];
@@ -19,6 +19,7 @@ const WHAT = [
   ['science', 'Science things', 'to do', 'Science', 'science'],
   ['nature', 'Animal & nature things', 'to do', 'Animals & Nature', 'nature'],
   ['trains', 'Train & plane things', 'to do', 'Trains & Planes', 'trains'],
+  ['play', 'Playful things', 'to do', 'Play', 'play'],
   ['other', 'Other things', 'to do', 'Other', null]
 ];
 const whatOf = () => WHAT.find((w) => w[0] === S.what) || WHAT[0];

@@ -41,7 +41,8 @@
     "art",
     "nature",
     "science",
-    "trains"
+    "trains",
+    "play"
   ],
   "categories": [
     "storytime",
@@ -117,7 +118,8 @@
     "art": "Music & Art",
     "nature": "Animals & Nature",
     "science": "Science",
-    "trains": "Trains & Planes"
+    "trains": "Trains & Planes",
+    "play": "Play"
   },
   "interest_aliases": {
     "music": "art",

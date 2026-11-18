@@ -63,10 +63,12 @@ export function classifyRules(ev) {
  * any kind of building (LEGO, maker, engineering) is Science / STEM.
  */
 const TAG_RULES = [
-  ['science', /\blegos?\b|\bbuild(s|ing|ers?)?\b|\bbuild it\b|engineer|maker ?(space|time|lab)|\bmakers?\b|\bstem\b|\bsteam\b|robot|coding|\bcode\b|circuit|k'?nex|magna-?tiles|\bblocks\b|science|experiment|dino(saur)?s?\b|fossil|3d print/i],
+  ['science', /\blegos?\b|\bbuild(s|ing|ers?)?\b|\bbuild it\b|engineer|maker ?(space|time|lab)|\bmakers?\b|\bstem\b|\bsteam\b|robot|coding|\bcode\b|circuit|k'?nex|magna-?tiles|\bblocks\b|science|experiment|dino(saur)?s?\b|fossil|3d print|3d (design|model)|tinkercad/i],
   ['nature', /\b(dogs?|cats?|kitt(y|ies|ens?)|pupp(y|ies)|animals?|pets?|bunn(y|ies)|rabbits?|goats?|horses?|ponies|pony|chickens?|birds?|reptiles?|zoo|farm|tails)\b|\bnature\b|wildlife/i],
   ['books', /story ?times?|\bstor(y|ies)\b|\btales\b|\bread(ing)?\b|\bbooks?\b|literacy|book club/i],
-  ['art', /\bmusic(al)?\b|\bsing(ing|-?along)?\b|\bsongs?\b|\bdanc(e|ing)\b|\bcrafts?\b|\bart\b|\barts\b|paint|draw(ing)?\b|\bclay\b|puppet|concert|instrument|glowforge|laser[ -]?cut|cricut|sewing|knit(ting)?|crochet|embroider|stitch(ing)?|fiber arts?/i],
+  ['art', /\bmusic(al)?\b|\bsing(ing|-?along)?\b|\bsongs?\b|\bdanc(e|ing)\b|\bcrafts?\b|\bart\b|\barts\b|paint|draw(ing)?\b|\bclay\b|puppet|concert|instrument|\bdesign|glowforge|laser[ -]?cut|cricut|sewing|knit(ting)?|crochet|embroider|stitch(ing)?|fiber arts?/i],
+  // Play (owner, Nov 2026): playgrounds and open play, movement and yoga, games, family movies and parties.
+  ['play', /playground|play ?(group|date|time|space|room)|pop[- ]?up (&|and) play|\bplay\b|open gym|bounce|tumbl|yoga|dance party|\bgames?\b|chess|lego free play|movies?\b|film|cinema|dive-in|family (night|fun|day)|party|carnival/i],
   ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport/i]
 ];
 export function extraInterests(ev, interests = []) {
@@ -76,14 +78,20 @@ export function extraInterests(ev, interests = []) {
   let out = [...interests];
   for (const [tag, re] of TAG_RULES) {
     // Science and trains from the title only (descriptions mention "build community", "train your staff"...)
-    const hay = tag === 'science' || tag === 'trains' ? title : text;
+    const hay = tag === 'science' || tag === 'trains' || tag === 'play' ? title : text; // broad words: titles only
     if (!out.includes(tag) && re.test(hay)) out.push(tag);
   }
+  // Dinners and fundraisers stay untagged ("Other"), whatever the classifier said (owner, Nov 2026).
+  if (/dinner|fundrais/i.test(title)) out = out.filter((t) => t !== 'play');
   // Storytimes mention songs and rhymes as a matter of course: that alone isn't Music & Art (owner, Nov 2026).
   // Keep Music & Art only when the title itself is about music or art ("Music & Movement Storytime", "Storytime & Craft").
   if (isStorytime(ev) && !TAG_RULES.find(([t]) => t === 'art')[1].test(title.replace(/story ?times?/ig, ''))) {
     out = out.filter((t) => t !== 'art');
     if (!out.includes('books')) out.unshift('books');
+  }
+  // ...and a storytime is Play only when its title says play ("Story and Play", "Storytime & Playgroup").
+  if (isStorytime(ev) && !/\bplay/i.test(title)) {
+    out = out.filter((t) => t !== 'play');
   }
   return out;
 }
