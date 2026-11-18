@@ -164,6 +164,8 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
   assert.deepEqual(tags('Baby Lapsit', ['books']), ['books'], 'keeps what the classifier gave');
   assert.ok(!tags('Open Gym', [], 'We build community through play.').includes('science'), 'science only from the title');
   assert.deepEqual(tags('Story of the Lit Tree'), ['books'], '"lit" alone is not literacy');
+  assert.deepEqual(tags('Homeschool Hangout'), ['play'], 'owner, Nov 2026');
+  assert.deepEqual(tags('After School Snacktivities'), ['play'], 'owner, Nov 2026');
 });
 test('interest tags: town names are not topics', () => {
   assert.deepEqual(extraInterests({ title: 'Garden Home Family Storytime' }, ['books']), ['books']);
