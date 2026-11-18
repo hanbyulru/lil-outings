@@ -8,6 +8,19 @@ export const VOCAB = JSON.parse(readFileSync(join(here, '../../config/vocab.json
 // null / '' mean "not stated" (+null is 0, which would turn an unknown age into a baby-only listing)
 const clampAge = (n) => (n == null || n === '' || !Number.isFinite(+n) ? null : Math.max(0, Math.min(18, Math.round(+n))));
 
+/** Owner's merges (Nov 2026): music -> art (Music & Art), animals -> nature (Animals & Nature), dinosaurs dropped.
+ *  Applied to fresh tags, cached tags and place data, so old values never reach the site. */
+export function canonicalInterests(list) {
+  const alias = VOCAB.interest_aliases || {};
+  const out = [];
+  for (const raw of list || []) {
+    const x = String(raw).toLowerCase();
+    const y = Object.hasOwn(alias, x) ? alias[x] : x;
+    if (y && VOCAB.interests.includes(y) && !out.includes(y)) out.push(y);
+  }
+  return out;
+}
+
 /** Coerce whatever a classifier returned into our schema. Anything outside the vocab is dropped, not trusted. */
 export function normalizeTags(t) {
   const issues = [];
@@ -15,7 +28,7 @@ export function normalizeTags(t) {
   let min = clampAge(t.age_min), max = clampAge(t.age_max);
   if (kid && (min == null || max == null)) { issues.push('missing_age'); min = min ?? 0; max = max ?? 12; }
   if (min != null && max != null && min > max) { [min, max] = [max, min]; issues.push('age_swapped'); }
-  const interests = [...new Set((t.interests || []).map((x) => String(x).toLowerCase()).filter((x) => VOCAB.interests.includes(x)))];
+  const interests = canonicalInterests(t.interests);
   const categories = [...new Set((t.categories || []).map((x) => String(x).toLowerCase()).filter((x) => VOCAB.categories.includes(x)))];
   const setting = VOCAB.settings.includes(t.setting) ? t.setting : 'unknown';
   const registration = VOCAB.registration.includes(t.registration) ? t.registration : 'unknown';

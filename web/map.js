@@ -75,6 +75,7 @@ export function showPins(slot, items, selected, cardHeight = 0) {
       btn.className = 'pin';
       btn.dataset.pin = it.id;
       btn.style.background = it.color;
+      btn.style.color = it.ink || '#fff';
       btn.textContent = it.n;
       if (it.count > 1) { const b = document.createElement('b'); b.className = 'cnt'; b.textContent = `+${it.count - 1}`; btn.append(b); }
       btn.setAttribute('aria-label', it.count > 1 ? `${it.count} items here, starting with ${it.n}` : `Show item ${it.n} on the map`);

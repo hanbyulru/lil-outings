@@ -37,14 +37,11 @@
     }
   ],
   "interests": [
-    "animals",
-    "science",
-    "trains",
-    "nature",
+    "books",
     "art",
-    "music",
-    "dinosaurs",
-    "books"
+    "nature",
+    "science",
+    "trains"
   ],
   "categories": [
     "storytime",
@@ -114,5 +111,17 @@
       "label": "Gymnastics",
       "hint": "Gymnastics, tumbling and open gym for little ones"
     }
-  ]
+  ],
+  "interest_labels": {
+    "books": "Storytime",
+    "art": "Music & Art",
+    "nature": "Animals & Nature",
+    "science": "Science",
+    "trains": "Trains & Planes"
+  },
+  "interest_aliases": {
+    "music": "art",
+    "animals": "nature",
+    "dinosaurs": null
+  }
 }

@@ -3,7 +3,7 @@ import { EVENT_ADAPTERS, PLACE_ADAPTERS, PROGRAM_ADAPTERS } from './adapters/ind
 import { normalizeEvent, withinHorizon, normalizeVenueKey, guessVenue } from './normalize.js';
 import { dedupe } from './dedupe.js';
 import { classifyAll } from './classify/index.js';
-import { bandsFor, VOCAB } from './classify/validate.js';
+import { bandsFor, VOCAB, canonicalInterests } from './classify/validate.js';
 import { locate, haversineMiles, GEO } from './lib/geo.js';
 import { nearestPlace } from '../web/query.js';
 import { portlandDate } from './lib/time.js';
@@ -20,8 +20,8 @@ const PLACE_DEFAULTS = {
   nature_reserve: { age_min: 2, age_max: 12, interests: ['nature'], cost: 'free', setting: 'outdoor' },
   water_park: { age_min: 1, age_max: 12, interests: [], cost: 'varies', setting: 'both' },
   museum: { age_min: 2, age_max: 12, interests: [], cost: 'paid', setting: 'indoor' },
-  zoo: { age_min: 0, age_max: 12, interests: ['animals'], cost: 'paid', setting: 'outdoor' },
-  aquarium: { age_min: 0, age_max: 12, interests: ['animals', 'science'], cost: 'paid', setting: 'indoor' },
+  zoo: { age_min: 0, age_max: 12, interests: ['nature'], cost: 'paid', setting: 'outdoor' },
+  aquarium: { age_min: 0, age_max: 12, interests: ['nature', 'science'], cost: 'paid', setting: 'indoor' },
   theme_park: { age_min: 2, age_max: 12, interests: [], cost: 'paid', setting: 'outdoor' },
   play: { age_min: 0, age_max: 10, interests: [], cost: 'paid', setting: 'indoor' },
   gym: { age_min: 1, age_max: 12, interests: [], cost: 'paid', setting: 'indoor' }
@@ -68,7 +68,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   places = places.map((p) => (overrides[p.id] ? { ...p, ...Object.fromEntries(Object.entries(overrides[p.id]).filter(([k]) => !k.startsWith('_'))) } : p));
   if (!offline) await addPlaceImages(places, ctx.http, log); // the demo has no photo fixtures: cards show their mosaic banner
   else for (const p of places) delete p.commons;
-  places = places.map((p) => { const l = locate(p.lat, p.lon); return { ...p, age_bands: bandsFor(p.age_min, p.age_max), neighborhood: l?.neighborhood || null, district: l?.district || null }; });
+  places = places.map((p) => { const l = locate(p.lat, p.lon); return { ...p, interests: canonicalInterests(p.interests), age_bands: bandsFor(p.age_min, p.age_max), neighborhood: l?.neighborhood || null, district: l?.district || null }; });
 
   // ---- programs (evergreen classes, no dates) ----
   let programs = [];
@@ -140,7 +140,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     kept.push({
       ...e,
       age_min: t.age_min, age_max: t.age_max, age_bands: bandsFor(t.age_min, t.age_max),
-      interests: t.interests, categories: t.categories, setting: t.setting, registration: t.registration,
+      interests: canonicalInterests(t.interests), categories: t.categories, setting: t.setting, registration: t.registration,
       cost_type: t.cost_type, cost_amount: t.cost_amount,
       confidence: t.confidence, needs_review: t.needs_review, tag_source: t.tag_source
     });

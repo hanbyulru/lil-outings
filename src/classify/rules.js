@@ -23,14 +23,14 @@ export function classifyRules(ev) {
 
   let kid = !adultOnly && !teenOnly && min != null;
   const interests = [];
-  if (has(text, /dino|fossil|paleo/)) interests.push('dinosaurs');
-  if (has(text, /\b(train|locomotive|railroad|rail)\b/)) interests.push('trains');
-  if (has(text, /\b(animal|zoo|goat|reptile|bird|farm|pets?)\b/)) interests.push('animals');
-  if (has(text, /\b(science|stem|rocket|slime|experiment|chemistry|space|robot|maker)\b/)) interests.push('science');
+  if (has(text, /\b(train|locomotive|railroad|rail|trolley|airplanes?|planes?|aviation|airport)\b/)) interests.push('trains');
+  if (has(text, /\b(animal|zoo|goat|reptile|bird|farm|pets?)\b/)) interests.push('nature');
+  if (has(text, /\b(science|stem|rocket|slime|experiment|chemistry|space|robot|maker)\b|dino|fossil|paleo/)) interests.push('science'); // dinosaurs count as science (owner, Nov 2026)
   if (has(text, /\b(nature|forest|trail|garden|wildlife|hike|walk|park)\b/) && !has(title, /volunteer|stewardship/)) interests.push('nature');
   if (has(text, /\b(art|craft|paint|draw|puppet|clay)\b/)) interests.push('art');
-  if (has(text, /\b(music|song|sing|rhyme|dance|instrument)\b/)) interests.push('music');
+  if (has(text, /\b(music|song|sing|rhyme|dance|instrument)\b/)) interests.push('art');
   if (has(text, /\b(book|story|storytime|read|reading|library)\b/) && has(text, /story|book|read/)) interests.push('books');
+  interests.splice(0, interests.length, ...new Set(interests));
 
   const categories = [];
   if (has(text, /story ?time|book babies|tiny tots|toddler time|baby time|lapsit|story ?walk|story and play/)) categories.push('storytime');

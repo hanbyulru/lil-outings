@@ -3,8 +3,10 @@ import { initMap, showPins } from './map.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const COLORS = { animals: '#F0614F', science: '#3B6FE0', trains: '#F2A93B', nature: '#2E9E6B', art: '#B05CD6', music: '#E4559B', dinosaurs: '#7A9A2E', books: '#1FA5B8' };
-const LABEL = { animals: 'Animals', science: 'Science', trains: 'Trains', nature: 'Nature', art: 'Art', music: 'Music', dinosaurs: 'Dinosaurs', books: 'Books' };
+// Interest colors (owner, Nov 2026). TEXT_COLORS: darker shades where the fill is too light to read as text (yellow).
+const COLORS = { books: '#F2B705', art: '#B05CD6', nature: '#2E9E6B', science: '#3B6FE0', trains: '#F0614F' };
+const TEXT_COLORS = { books: '#9A6B00' };
+const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Trains & Planes' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend']];
@@ -85,8 +87,12 @@ function rangeLabel(when) {
   return a === b ? one(a) : `${one(a)} – ${one(b)}`;
 }
 const dot = (c) => `<span class="dot" style="background:${c}"></span>`;
-const primary = (e) => (e.interests && e.interests[0]) || null;
+// An event's color follows its first interest; a storytime with no interest tag still counts as Storytime.
+const primary = (e) => (e.interests && e.interests[0]) || ((e.categories || []).includes('storytime') ? 'books' : null);
 const colorOf = (e) => COLORS[primary(e)] || '#5B5F6B';
+const textColorOf = (e) => TEXT_COLORS[primary(e)] || colorOf(e);
+// Numbers on a colored circle: dark on the light yellow, white on the rest.
+const onFill = (c) => (c === COLORS.books ? '#16181D' : '#fff');
 
 function tile(kind, c, size = 120) {
   const shapes = {
@@ -106,7 +112,7 @@ function groupPins(items) {
     if (!m.has(k)) m.set(k, []);
     m.get(k).push(e);
   }
-  return [...m.values()].map((g, i) => ({ id: g[0].id, lat: g[0].lat, lon: g[0].lon, n: g[0]._n ?? i + 1, color: g[0]._c || colorOf(g[0]), count: g.length, items: g }));
+  return [...m.values()].map((g, i) => ({ id: g[0].id, lat: g[0].lat, lon: g[0].lon, n: g[0]._n ?? i + 1, color: g[0]._c || colorOf(g[0]), ink: onFill(g[0]._c || colorOf(g[0])), count: g.length, items: g }));
 }
 
 const pinLabel = (g) => `${g.n}${g.count > 1 ? `<b class="cnt">+${g.count - 1}</b>` : ''}`;
@@ -122,7 +128,7 @@ function mapCard(g) {
   const where = f.venue_name || f.address || 'Same location';
   const shown = g.items.slice(0, 4);
   return `<div class="mapcard group"><div class="m">${esc(where)}${f.neighborhood ? ' · ' + esc(f.neighborhood) : ''}</div><div class="t">${g.count} ${f.title ? 'events' : 'places'} here</div>
-    <ul>${shown.map((e) => `<li><button class="${S.sel === e.id ? 'on' : ''}" data-ev="${e.id}"><span class="n" style="background:${e._c || colorOf(e)}">${e._n ?? ''}</span><span class="w">${esc(e.start_min != null ? fmtMin(e.start_min) : '')}</span><span class="tt">${esc(e.title || e.name)}</span></button></li>`).join('')}</ul>
+    <ul>${shown.map((e) => `<li><button class="${S.sel === e.id ? 'on' : ''}" data-ev="${e.id}"><span class="n" style="background:${e._c || colorOf(e)};color:${onFill(e._c || colorOf(e))}">${e._n ?? ''}</span><span class="w">${esc(e.start_min != null ? fmtMin(e.start_min) : '')}</span><span class="tt">${esc(e.title || e.name)}</span></button></li>`).join('')}</ul>
     ${g.count > shown.length ? `<div class="m">+${g.count - shown.length} more in the list</div>` : ''}</div>`;
 }
 
@@ -158,8 +164,8 @@ function renderEvent(e, n) {
   const cost = e.cost_type === 'free' ? '<span class="free">Free</span>' : e.cost_amount ? `$${e.cost_amount}` : e.cost_type === 'paid' ? 'Paid' : '';
   const reg = e.registration === 'drop_in' ? 'Drop-in' : e.registration === 'required' ? 'Registration required' : '';
   return `<article class="ev ${S.sel === e.id ? 'sel' : ''}" data-ev="${e.id}"><span class="bar4" style="background:${colorOf(e)}"></span>
-    <div class="time"><div class="num" style="background:${colorOf(e)}">${n}</div><div class="big">${esc(e.start_min != null ? fmtMin(e.start_min).replace(' ', '') : 'All day')}</div>${e.end_min != null ? `<div class="small">to ${esc(fmtMin(e.end_min))}</div>` : ''}</div>
-    <div class="body"><div class="kicker" style="color:${colorOf(e)}">${esc(primary(e) ? LABEL[primary(e)] : cat)}${cat && primary(e) ? ` <span style="color:var(--muted)">· ${esc(cat)}</span>` : ''}</div>
+    <div class="time"><div class="num" style="background:${colorOf(e)};color:${onFill(colorOf(e))}">${n}</div><div class="big">${esc(e.start_min != null ? fmtMin(e.start_min).replace(' ', '') : 'All day')}</div>${e.end_min != null ? `<div class="small">to ${esc(fmtMin(e.end_min))}</div>` : ''}</div>
+    <div class="body"><div class="kicker" style="color:${textColorOf(e)}">${esc(primary(e) ? LABEL[primary(e)] : cat)}${cat && primary(e) && cat.toLowerCase() !== LABEL[primary(e)].toLowerCase() ? ` <span style="color:var(--muted)">· ${esc(cat)}</span>` : ''}</div>
     <h3>${esc(e.title)}</h3><div class="where">${esc(e.venue_name || 'Location on source page')}${e.neighborhood ? ' · ' + esc(e.neighborhood) : ''}${e.miles != null ? ` · ${e.miles.toFixed(1)} mi` : ''}</div>
     <p>${esc((e.description || '').replace(/https?:\/\/\S+/g, '').trim())}</p>
     <div class="meta"><span>${esc(age)}</span>${cost}<span>${esc(reg)}</span>${srcLine(e)}${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">Details ↗</a>` : ''}</div></div></article>`;

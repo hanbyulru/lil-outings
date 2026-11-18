@@ -16,10 +16,10 @@ test('when ranges: today, weekend (from a Monday, from Saturday, from Sunday), w
 });
 
 test('age overlap, interest, category, cost filters', () => {
-  const list = [e({ title: 'baby', age_min: 0, age_max: 1 }), e({ title: 'dino', age_min: 3, age_max: 8, interests: ['dinosaurs'] }), e({ title: 'walk', setting: 'outdoor', categories: ['outdoors'], cost_type: 'paid', cost_amount: 5 })];
+  const list = [e({ title: 'baby', age_min: 0, age_max: 1 }), e({ title: 'dino', age_min: 3, age_max: 8, interests: ['science'] }), e({ title: 'walk', setting: 'outdoor', categories: ['outdoors'], cost_type: 'paid', cost_amount: 5 })];
   const titles = (o) => filterEvents(list, o, ctx).map((x) => x.title).sort();
   assert.deepEqual(titles({ age: [3, 5] }), ['dino', 'walk']);
-  assert.deepEqual(titles({ interest: 'dinosaurs' }), ['dino']);
+  assert.deepEqual(titles({ interest: 'science' }), ['dino']);
   assert.deepEqual(titles({ category: 'outdoors' }), ['walk']);
   assert.deepEqual(titles({ free: true }), ['baby', 'dino']);
 });
