@@ -70,7 +70,7 @@
     {
       "id": "indoor_play",
       "label": "Indoor Playgrounds",
-      "hint": "Play cafes, soft play and sandboxes"
+      "hint": "Play cafes, soft play, and sandboxes"
     },
     {
       "id": "playgrounds",
@@ -80,7 +80,7 @@
     {
       "id": "art",
       "label": "Music & Art",
-      "hint": "Art museums, art studios and music classes"
+      "hint": "Art museums, art studios, and music classes"
     },
     {
       "id": "science",
@@ -105,7 +105,7 @@
     {
       "id": "trains_planes",
       "label": "Vehicles",
-      "hint": "Trains, planes, boats, fire trucks and the museums that keep them"
+      "hint": "Trains, planes, boats, fire trucks, and the museums that keep them"
     },
     {
       "id": "gymnastics",
@@ -120,7 +120,7 @@
     {
       "id": "holidays",
       "label": "Holidays",
-      "hint": "Light displays, Santa visits, tree farms and other festive outings",
+      "hint": "Light displays, Santa visits, tree farms, and other festive outings",
       "soon": true
     }
   ],

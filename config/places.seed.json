@@ -39,7 +39,7 @@
   ],
   "cost": "paid",
   "setting": "indoor",
-  "note": "Rocks, minerals and fossils in a historic ranch house in north Hillsboro.",
+  "note": "Rocks, minerals, and fossils in a historic ranch house in north Hillsboro.",
   "explore": [
    "science"
   ],
@@ -618,7 +618,7 @@
   "explore": [
    "farms"
   ],
-  "note": "Market, animal barn and U-pick; corn maze in fall."
+  "note": "Market, animal barn, and U-pick; corn maze in fall."
  },
  {
   "age_min": 0,
@@ -658,7 +658,7 @@
   ],
   "cost": "varies",
   "setting": "outdoor",
-  "note": "Family farm since 1869: u-pick pumpkins, a corn maze and a farm train in October.",
+  "note": "Family farm since 1869: u-pick pumpkins, a corn maze, and a farm train in October.",
   "explore": [
    "farms"
   ]
@@ -764,7 +764,7 @@
   ],
   "cost": "varies",
   "setting": "outdoor",
-  "note": "Berry, tree fruit and vegetable farm with free guided wagon tours.",
+  "note": "Berry, tree fruit, and vegetable farm with free guided wagon tours.",
   "explore": [
    "farms"
   ]
@@ -785,7 +785,7 @@
   ],
   "cost": "varies",
   "setting": "outdoor",
-  "note": "U-pick pumpkins, a corn maze, hayrides and a cow train on October weekends.",
+  "note": "U-pick pumpkins, a corn maze, hayrides, and a cow train on October weekends.",
   "explore": [
    "farms"
   ]
@@ -976,7 +976,7 @@
   ],
   "cost": "paid",
   "setting": "indoor",
-  "note": "Nonprofit studio with open studio, preschool classes and camps, using real art supplies.",
+  "note": "Nonprofit studio with open studio, preschool classes, and camps, using real art supplies.",
   "explore": [
    "art"
   ]
@@ -997,7 +997,7 @@
   ],
   "cost": "paid",
   "setting": "indoor",
-  "note": "Process art studio with classes, camps and parties.",
+  "note": "Process art studio with classes, camps, and parties.",
   "explore": [
    "art"
   ]
@@ -1017,7 +1017,7 @@
   ],
   "cost": "paid",
   "setting": "indoor",
-  "note": "Open studio, art classes, camps and birthday parties.",
+  "note": "Open studio, art classes, camps, and birthday parties.",
   "explore": [
    "art"
   ]
@@ -1037,7 +1037,7 @@
   ],
   "cost": "paid",
   "setting": "indoor",
-  "note": "Clay classes for kids, seasonal art camps and birthday parties.",
+  "note": "Clay classes for kids, seasonal art camps, and birthday parties.",
   "explore": [
    "art"
   ]
@@ -1120,7 +1120,7 @@
   "explore": [
    "gymnastics"
   ],
-  "note": "Parent-child and kids gymnastics, dance and sports skills classes by membership."
+  "note": "Parent-child and kids gymnastics, dance, and sports skills classes by membership."
  },
  {
   "age_min": 0,
@@ -1139,7 +1139,7 @@
   "explore": [
    "gymnastics"
   ],
-  "note": "Parent-child and kids gymnastics, dance and sports skills classes by membership."
+  "note": "Parent-child and kids gymnastics, dance, and sports skills classes by membership."
  },
  {
   "age_min": 0,
@@ -1193,7 +1193,7 @@
   "interests": [],
   "cost": "paid",
   "setting": "indoor",
-  "note": "Preschool, recreational and adaptive gymnastics.",
+  "note": "Preschool, recreational, and adaptive gymnastics.",
   "explore": [
    "gymnastics"
   ]
@@ -1270,7 +1270,7 @@
   ],
   "cost": "varies",
   "setting": "indoor",
-  "note": "Brewpub with several kids' play areas: train tables, chalkboards, books and toys. Kids' menu.",
+  "note": "Brewpub with several kids' play areas: train tables, chalkboards, books, and toys. Kids' menu.",
   "explore": [
    "eateries"
   ]
@@ -1311,7 +1311,7 @@
   ],
   "cost": "varies",
   "setting": "indoor",
-  "note": "Food hall with Zoiglhaus Brewing and other spots; play area with play kitchens, a train table and tents.",
+  "note": "Food hall with Zoiglhaus Brewing and other spots; play area with play kitchens, a train table, and tents.",
   "explore": [
    "eateries"
   ]
@@ -1435,7 +1435,7 @@
   ],
   "cost": "paid",
   "setting": "indoor",
-  "note": "Hands-on science museum floor (marble runs, circuits, microscopes, magnet tiles), a craft lab and live critters; LEGO robotics classes and no-school camps.",
+  "note": "Hands-on science museum floor (marble runs, circuits, microscopes, magnet tiles), a craft lab, and live critters; LEGO robotics classes and no-school camps.",
   "explore": [
    "science"
   ]
