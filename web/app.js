@@ -335,7 +335,50 @@ function setWhen(v) { S.when = v; S.open = null; S.sel = null; renderHeadline();
 function setLoc(loc) { S.loc = loc; S.open = null; S.sel = null; saveLoc(); renderHeadline(); renderToday(); }
 function setAge(v) { S.age = v; S.open = null; S.sel = null; saveAge(); renderHeadline(); renderToday(); }
 
+/**
+ * "Portland, OR metro" pill: ask visitors elsewhere which city they want next, then (optionally) their email.
+ * Submissions go to SIGNUP_ENDPOINT (a form service URL that accepts a POST); until it is set they are not sent anywhere.
+ */
+const SIGNUP_ENDPOINT = '';
+async function sendSignup(fields) {
+  if (!SIGNUP_ENDPOINT) { console.warn('Lil\' Outings: SIGNUP_ENDPOINT is not set; not sent', fields); return; }
+  const body = new FormData();
+  for (const [k, v] of Object.entries({ ...fields, page: location.href })) body.append(k, v);
+  const res = await fetch(SIGNUP_ENDPOINT, { method: 'POST', body, headers: { accept: 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+}
+const cityDlg = () => $('#cityask');
+function cityStep(name) { for (const el of cityDlg().querySelectorAll('.step')) el.hidden = el.dataset.step !== name; cityDlg().querySelector(`[data-step="${name}"] input`)?.focus(); }
+let askedCity = '';
+document.addEventListener('submit', async (ev) => {
+  const form = ev.target.closest('#cityask form');
+  if (!form) return;
+  ev.preventDefault();
+  const btn = form.querySelector('button'); btn.disabled = true;
+  form.parentNode.querySelector('.err')?.remove();
+  try {
+    if (form.dataset.form === 'city') {
+      askedCity = form.city.value.trim();
+      await sendSignup({ kind: 'city', city: askedCity });
+      cityDlg().querySelector('[data-cityname]').textContent = askedCity; // textContent: the visitor's words are never HTML
+      cityStep('email');
+    } else {
+      await sendSignup({ kind: 'email', city: askedCity, email: form.email.value.trim() });
+      cityStep('done');
+    }
+  } catch {
+    form.insertAdjacentHTML('afterend', '<p class="err">Sorry, that didn’t go through. Please try again.</p>');
+  } finally { btn.disabled = false; }
+});
+
 document.addEventListener('click', (ev) => {
+  if (ev.target.closest('[data-cityask]')) { const d = cityDlg(); for (const f of d.querySelectorAll('form')) f.reset(); d.querySelector('.err')?.remove(); d.showModal(); cityStep('city'); return; }
+  if (ev.target.closest('[data-cityclose]')) { cityDlg().close(); return; }
+  if (ev.target === cityDlg()) { // the dimmed backdrop counts as the dialog itself: close only when the click is outside its box
+    const r = cityDlg().getBoundingClientRect();
+    if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) cityDlg().close();
+    return;
+  }
   // Any click outside the day menu closes it.
   if (S.open && !ev.target.closest('.whenwrap')) closeMenu();
   const t = ev.target.closest('button, a[data-nav]'); if (!t) return;

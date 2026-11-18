@@ -13,7 +13,7 @@
 <div class="ribbon"><span style="background:#F0614F"></span><span style="background:#F2A93B"></span><span style="background:#2E9E6B"></span><span style="background:#3B6FE0"></span><span style="background:#B05CD6"></span></div>
 <div class="wrap">
   <header class="top">
-    <a class="logo" href="#events">Lil' Outings</a>
+    <div class="brand"><a class="logo" href="#events">Lil' Outings</a><button class="citypill" type="button" data-cityask aria-haspopup="dialog">Portland, OR metro</button></div>
     <nav class="main viewtoggle" role="tablist" aria-label="Events or places"><a href="#events" role="tab" data-view="events" aria-selected="true" aria-controls="today">Events</a><a href="#places" role="tab" data-view="places" aria-selected="false" aria-controls="more">Places</a></nav>
   </header>
   <section class="hero today" id="today">
@@ -23,6 +23,22 @@
   </section>
 </div>
 <section class="results" id="more" hidden><div class="wrap" id="results-inner"></div></section>
+<dialog id="cityask" class="cityask" aria-labelledby="cityask-title">
+  <button class="x" type="button" data-cityclose aria-label="Close">×</button>
+  <div class="step" data-step="city">
+    <h2 id="cityask-title">Would you like to see Lil' Outings come to your city?</h2>
+    <p>Drop a line!</p>
+    <form data-form="city"><label class="sr" for="ca-city">Your city</label><input id="ca-city" name="city" placeholder="Enter your city" autocomplete="address-level2" required maxlength="80"><button class="btn-ink" type="submit">Submit</button></form>
+  </div>
+  <div class="step" data-step="email" hidden>
+    <h2>Thank you!</h2>
+    <p>We would love to let you know when we launch Lil' Outings in <b data-cityname></b>. Where can we reach you?</p>
+    <form data-form="email"><label class="sr" for="ca-email">Email</label><input id="ca-email" name="email" type="email" placeholder="Email" autocomplete="email" required maxlength="120"><button class="btn-ink" type="submit">Submit</button></form>
+  </div>
+  <div class="step" data-step="done" hidden>
+    <h2>We'll keep you posted!</h2>
+  </div>
+</dialog>
 <footer><div class="wrap" id="foot"></div></footer>
 <script type="module" src="app.js"></script>
 </body>
