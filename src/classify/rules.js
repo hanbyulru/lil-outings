@@ -63,10 +63,10 @@ export function classifyRules(ev) {
  * any kind of building (LEGO, maker, engineering) is Science / STEM.
  */
 const TAG_RULES = [
-  ['science', /\blegos?\b|\bbuild(s|ing|ers?)?\b|\bbuild it\b|engineer|maker ?(space|time|lab)|\bmakers?\b|\bstem\b|\bsteam\b|robot|coding|\bcode\b|circuit|k'?nex|magna-?tiles|\bblocks\b|science|experiment|dino(saur)?s?\b|fossil/i],
+  ['science', /\blegos?\b|\bbuild(s|ing|ers?)?\b|\bbuild it\b|engineer|maker ?(space|time|lab)|\bmakers?\b|\bstem\b|\bsteam\b|robot|coding|\bcode\b|circuit|k'?nex|magna-?tiles|\bblocks\b|science|experiment|dino(saur)?s?\b|fossil|3d print/i],
   ['nature', /\b(dogs?|cats?|kitt(y|ies|ens?)|pupp(y|ies)|animals?|pets?|bunn(y|ies)|rabbits?|goats?|horses?|ponies|pony|chickens?|birds?|reptiles?|zoo|farm|tails)\b|\bnature\b|wildlife/i],
   ['books', /story ?times?|\bstor(y|ies)\b|\btales\b|\bread(ing)?\b|\bbooks?\b|literacy|book club/i],
-  ['art', /\bmusic(al)?\b|\bsing(ing|-?along)?\b|\bsongs?\b|\bdanc(e|ing)\b|\bcrafts?\b|\bart\b|\barts\b|paint|draw(ing)?\b|\bclay\b|puppet|concert|instrument/i],
+  ['art', /\bmusic(al)?\b|\bsing(ing|-?along)?\b|\bsongs?\b|\bdanc(e|ing)\b|\bcrafts?\b|\bart\b|\barts\b|paint|draw(ing)?\b|\bclay\b|puppet|concert|instrument|glowforge|laser[ -]?cut|cricut|sewing|knit(ting)?|crochet|embroider|stitch(ing)?|fiber arts?/i],
   ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport/i]
 ];
 export function extraInterests(ev, interests = []) {

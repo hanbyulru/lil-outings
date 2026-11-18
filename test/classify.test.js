@@ -179,3 +179,11 @@ test('storytimes: songs in the description are not Music & Art; a music title st
   assert.deepEqual(extraInterests({ title: 'Vietnamese-English Bilingual Storytime / Giờ kể chuyện song ngữ Việt - Anh' }, ['books', 'art']), ['books'], 'song ngữ = bilingual');
   assert.deepEqual(extraInterests({ title: 'Toddler Dance Party', description: 'Dance and sing along.' }, ['art']), ['art'], 'not a storytime: untouched');
 });
+
+test('making things: laser cutting, Cricut and fiber crafts are Music & Art; 3D printing is Science', () => {
+  assert.ok(extraInterests({ title: 'Creative Learning: Glowforge Laser Cutter' }, []).includes('art'));
+  assert.ok(extraInterests({ title: 'Introducción al corte con láser con el Glowforge' }, ['science']).includes('art'));
+  assert.ok(extraInterests({ title: 'Cricut Design for Beginners' }, []).includes('art'));
+  assert.ok(extraInterests({ title: 'Make Me! Knitting for Tweens' }, []).includes('art'));
+  assert.ok(extraInterests({ title: 'Creative Learning: Intro to 3D Printing' }, []).includes('science'));
+});
