@@ -21,6 +21,7 @@ Kids' events, classes and places for the Portland, OR metro. Zero npm deps, Node
 - City Parks & Rec calendars added: Lake Oswego, West Linn, Milwaukie, Wilsonville, Sherwood, Happy Valley, THPRD, Tualatin, NCPRD, Gresham, Vancouver (README table). Not yet: Tigard and Hillsboro (403 to bots), Beaverton (new client-rendered CivicPlus site; THPRD covers Beaverton's parks).
 - Geocoding (Nov 2026): sources with `config.geocode` get street addresses placed by Nominatim (`src/geocode.js`; cached six months, at most 60 new lookups a run), else the adapter's town-level `geo_fallback`. The offline demo uses the fallback only.
 - Next jobs: Tigard/Hillsboro/Beaverton calendars; ActiveNet dated-session adapter for PP&R; review UI for `review.json`.
+- Analytics (Nov 2026): Google Analytics 4 `G-VY8N6BJX9H`, tag in `web/index.html` (skipped on localhost); custom events via `track()` in `web/app.js`, listed in README > Analytics. Footer says the site uses Google Analytics.
 - Map: real basemap done (MapLibre + self-hosted Protomaps tiles, `web/map.js`); same-spot items share one pin with a list card.
 - Hosting: GitHub Pages via `.github/workflows/deploy.yml` (daily refresh + deploy), custom domain liloutings.com (set in repo Settings > Pages; DNS at the registrar; no CNAME file needed with Actions deploys). All asset paths are relative, so the site works at a domain root or under /lil-outings/. The site is static (`npm run build:site` -> `_site/`); `src/server.js` is for local dev.
 

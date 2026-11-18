@@ -7,6 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Palette+Mosaic&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<script>
+// Google Analytics 4 (owner, Nov 2026). Not loaded on local previews (localhost), so testing never counts as visits.
+if (!/^(localhost|127\.|0\.0\.0\.0|\[::1\]|$)/.test(location.hostname)) {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { dataLayer.push(arguments); };
+  gtag('js', new Date());
+  gtag('config', 'G-VY8N6BJX9H');
+  var ga = document.createElement('script'); ga.async = true; ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-VY8N6BJX9H'; document.head.appendChild(ga);
+}
+</script>
 </head>
 <body>
 <div id="demo" class="demo" hidden></div>

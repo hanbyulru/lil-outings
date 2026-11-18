@@ -82,6 +82,23 @@ Run `npm run refresh` daily (cron, or a scheduled GitHub Action that commits `da
 
 One-time setup: in the repo, Settings > Pages > Source: **GitHub Actions**. Optional: add an `ANTHROPIC_API_KEY` repository secret for Claude tagging. Pages is free for public repositories; a private repo needs a paid GitHub plan.
 
+## Analytics
+Google Analytics 4, Measurement ID `G-VY8N6BJX9H` (tag in `web/index.html`; not loaded on localhost). Besides page views, `track()` in `web/app.js` sends:
+
+| Event | Parameters | When |
+|---|---|---|
+| `choose_interest` | `interest` (books, art, nature, science, trains, play, other, all) | headline "what" menu |
+| `choose_age` | `age` | headline "who" menu |
+| `choose_day` | `day` (today, tomorrow, week, weekend) | headline "when" menu |
+| `choose_area` | `area` (region, district or town id; `anywhere`) | location menu |
+| `switch_tab` | `tab` (events, places) | Events/Places toggle |
+| `choose_place_kind` | `kind` | Places list |
+| `tap_map_pin` | | map pins |
+| `open_event_details` | `event_title` | an event's Details link |
+| `open_place_site` | `place_name`, `kind` | a place's website link |
+
+To report on a parameter, register it in GA: Admin > Custom definitions > Create custom dimension (event scope).
+
 ## Map
 
 MapLibre GL (vendored in `web/vendor/`, see its README) draws a self-hosted Protomaps extract of the metro, `web/map/portland.pmtiles` (~70 MB, built by `npm run build:map`). The browser reads it in byte ranges, so the server supports HTTP Range requests; a static host must too (most do). No API key or third-party tile service. The Protomaps "light" style is re-tinted to the site palette in `web/map.js`, with its own POI icons turned off. Map data is © OpenStreetMap contributors (ODbL); the credit shows on the map. The single-file snapshot, or any page where the map can't load, falls back to the illustrative SVG map.

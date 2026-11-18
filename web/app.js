@@ -387,13 +387,16 @@ function renderMore() {
 function renderFoot() {
   const m = DATA.meta;
   const when = new Date(m.generated_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Los_Angeles' });
-  $('#foot').innerHTML = `Data last refreshed ${esc(when)} (Pacific). Sources: ${m.sources.map((s) => `${esc(s.name)} <em>(${esc(s.status)}${s.ok ? '' : ', failed'})</em>`).join(', ')}. Always confirm details on the source page before you go.`;
+  $('#foot').innerHTML = `Data last refreshed ${esc(when)} (Pacific). Sources: ${m.sources.map((s) => `${esc(s.name)} <em>(${esc(s.status)}${s.ok ? '' : ', failed'})</em>`).join(', ')}. Always confirm details on the source page before you go. We use Google Analytics to learn which parts of the site are useful.`;
   if (String(m.mode).startsWith('demo')) { const d = $('#demo'); d.hidden = false; d.textContent = 'Demo data: sample listings generated in the real feeds’ formats, not live Portland events. Run the refresh with network access for real data.'; }
 }
 
-function setWhen(v) { S.when = v; S.open = null; S.sel = null; renderHeadline(); renderToday(); }
-function setLoc(loc) { S.loc = loc; S.open = null; S.sel = null; S.showN = 24; saveLoc(); renderHeadline(); renderToday(); renderMore(); }
-function setAge(v) { S.age = v; S.open = null; S.sel = null; saveAge(); renderHeadline(); renderToday(); }
+/** Google Analytics event (no-op on local previews, where the tag isn't loaded). Names: see README > Analytics. */
+const track = (name, params = {}) => { try { window.gtag?.('event', name, params); } catch {} };
+
+function setWhen(v) { track('choose_day', { day: v }); S.when = v; S.open = null; S.sel = null; renderHeadline(); renderToday(); }
+function setLoc(loc) { track('choose_area', { area: loc ? loc.region || loc.district || loc.place : 'anywhere' }); S.loc = loc; S.open = null; S.sel = null; S.showN = 24; saveLoc(); renderHeadline(); renderToday(); renderMore(); }
+function setAge(v) { track('choose_age', { age: v }); S.age = v; S.open = null; S.sel = null; saveAge(); renderHeadline(); renderToday(); }
 
 /**
  * "Portland, OR metro" pill: ask visitors elsewhere which city they want next, then (optionally) their email.
@@ -459,24 +462,25 @@ document.addEventListener('click', (ev) => {
     btn?.closest('.regrow')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); // phones: the opened row may be below the fold
     return;
   }
-  if (d.what) { S.what = d.what; S.open = null; S.sel = null; renderHeadline(); renderToday(); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (d.what) { track('choose_interest', { interest: d.what }); S.what = d.what; S.open = null; S.sel = null; renderHeadline(); renderToday(); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.agegroup) { setAge(d.agegroup); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.locany !== undefined) return setLoc(null);
   if (d.locregion) return setLoc({ region: d.locregion });
   if (d.locsetdistrict) return setLoc({ district: d.locsetdistrict }); // "See all of <district>" on an empty day
-  if (d.locdistrict) return togglePick({ district: d.locdistrict });
-  if (d.locplace) return togglePick({ place: d.locplace });
+  if (d.locdistrict) { track('choose_area', { area: d.locdistrict }); return togglePick({ district: d.locdistrict }); }
+  if (d.locplace) { track('choose_area', { area: d.locplace }); return togglePick({ place: d.locplace }); }
   if (d.locdone !== undefined) { closeMenu(); return; }
   if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.showmap !== undefined) { S.showMap = !S.showMap; return renderToday(); }
   if (d.explore) {
+    track('choose_place_kind', { kind: d.explore });
     S.explore = d.explore; S.showN = 24; renderMore();
     // Phones: the list of kinds is tall, so bring the cards into view.
     if (matchMedia('(max-width:700px)').matches) $('#explore-results').scrollIntoView({ behavior: 'smooth' });
     return;
   }
   if (d.showmore !== undefined) { S.showN += 24; return renderMore(); }
-  if (d.pin) { S.sel = d.pin; renderToday(); return scrollToCard(d.pin); }
+  if (d.pin) { track('tap_map_pin'); S.sel = d.pin; renderToday(); return scrollToCard(d.pin); }
 });
 document.addEventListener('click', (ev) => {
   const m = ev.target.closest('[data-more]');
@@ -520,7 +524,15 @@ function showView(v) {
   if (DATA) { S.open = null; renderHeadline(); }
   if (v === 'events' && DATA) renderToday(); // the map needs a visible container to size itself
 }
-addEventListener('hashchange', () => { const v = viewFromHash(); if (v !== document.body.dataset.view) { showView(v); scrollTo(0, 0); } });
+addEventListener('hashchange', () => { const v = viewFromHash(); if (v !== document.body.dataset.view) { track('switch_tab', { tab: v }); showView(v); scrollTo(0, 0); } });
+// Links out: an event's Details page, a place's own website.
+document.addEventListener('click', (ev) => {
+  const a = ev.target.closest('a[target="_blank"]'); if (!a) return;
+  const card = a.closest('.ev, .place'); if (!card) return;
+  const name = card.querySelector('h3')?.textContent.replace(/\s*↗\s*$/, '').trim().slice(0, 100);
+  if (card.classList.contains('ev')) track('open_event_details', { event_title: name });
+  else if (!a.closest('.credit')) track('open_place_site', { place_name: name, kind: S.explore });
+});
 showView(viewFromHash());
 
 // Headline font loaded? Then tighten its (very wide) word spaces; see .pm in styles.css.
