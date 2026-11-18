@@ -90,7 +90,8 @@ function loadAges() {
 }
 function saveAges() { try { localStorage.setItem(AGE_KEY, JSON.stringify(S.ages)); } catch { /* not critical */ } }
 const pickedAges = () => S.ages.map((v) => AGE_GROUPS.find((a) => a[0] === v)).filter(Boolean);
-const agePhrase = () => (S.ages.length ? joinList(pickedAges().map((g) => g[1])) : AGE_GROUPS[0][1]);
+// Several groups: each starts with a capital ("Toddler + Preschooler", owner Nov 2026).
+const agePhrase = (caps = true) => (S.ages.length ? joinList(pickedAges().map((g) => (caps ? g[1].charAt(0).toUpperCase() + g[1].slice(1) : g[1]))) : AGE_GROUPS[0][1]);
 /** Does an event fit the picked age groups? Any overlap with any picked group; listings without ages always fit. */
 function fitsAge(e) {
   if (!S.ages.length || e.age_min == null || e.age_max == null) return true;
@@ -380,7 +381,7 @@ function renderToday() {
   if (!events.length) {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
     const phrase = WHEN.find((w) => w[0] === S.when)[1];
-    const where = (S.whats.length ? ` under ${joinList(pickedWhats().map((w) => w[3]))}` : '') + (S.ages.length ? ` for a ${agePhrase()}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
+    const where = (S.whats.length ? ` under ${joinList(pickedWhats().map((w) => w[3]))}` : '') + (S.ages.length ? ` for a ${agePhrase(false)}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
     const msg = S.when === 'today' && over > 0 && !S.loc && !S.whats.length ? 'That’s everything for today.' : `No events listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
     const wider = w ? `<button class="btn-ink" ${w.district ? `data-locsetdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : '';
