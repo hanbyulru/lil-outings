@@ -344,7 +344,7 @@ function renderToday() {
     const allWhat = S.what !== 'all' ? `<button class="${w || S.loc || S.age !== 'all' ? 'textbtn' : 'btn-ink'}" data-what="all">See all happenings</button>` : '';
     // The next day is a dark button only when nothing else is offered; otherwise a text link (shown once).
     const nextBtn = wider || allAges || allWhat ? next.replace('btn-ink', 'textbtn') : next;
-    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${nextBtn}<a class="textbtn" href="#places">Explore places instead</a></div></div>`;
+    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${nextBtn}<a class="textbtn" href="#places" data-gokind="${INTEREST_KIND[S.what] || ''}">Explore places instead</a></div></div>`;
   } else {
     let list;
     if (multiDay) {
@@ -394,6 +394,14 @@ function renderFoot() {
 
 /** Google Analytics event (no-op on local previews, where the tag isn't loaded). Names: see README > Analytics. */
 const track = (name, params = {}) => { try { window.gtag?.('event', name, params); } catch {} };
+
+// "Explore places instead" on an empty day opens the Places kind that matches the chosen interest (owner, Nov 2026).
+// Storytime has no matching kind, so it (and All / Other) opens the Places tab as it was.
+const INTEREST_KIND = { art: 'art', science: 'science', nature: 'nature', trains: 'trains_planes', play: 'indoor_play' };
+document.addEventListener('click', (ev) => {
+  const a = ev.target.closest('a[data-gokind]'); if (!a || !a.dataset.gokind) return;
+  S.explore = a.dataset.gokind; S.showN = 24; renderMore(); // the link's #places hash then switches the tab
+});
 
 function setWhen(v) { track('choose_day', { day: v }); S.when = v; S.open = null; S.sel = null; renderHeadline(); renderToday(); }
 function setLoc(loc) { track('choose_area', { area: loc ? loc.region || loc.district || loc.place : 'anywhere' }); S.loc = loc; S.open = null; S.sel = null; S.showN = 24; saveLoc(); renderHeadline(); renderToday(); renderMore(); }
