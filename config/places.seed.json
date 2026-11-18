@@ -440,6 +440,27 @@
   "note": "Play cafe for little ones."
  },
  {
+  "id": "seed-thirstycaterpillar",
+  "name": "Thirsty Caterpillar",
+  "kind": "play",
+  "lat": 45.41592,
+  "lon": -122.71956,
+  "address": "4200 Mercantile Dr, Suite 720, Lake Oswego, OR 97035",
+  "hours_text": "Check site for current hours",
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [
+   "books",
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "New bookstore with an imaginative play garden for kids (day pass or membership).",
+  "explore": [
+   "indoor_play"
+  ]
+ },
+ {
   "age_min": 0,
   "age_max": 12,
   "interests": [
@@ -936,6 +957,148 @@
    "art"
   ],
   "note": "Weekly family music classes for babies to age 5, in semester sessions."
+ },
+ {
+  "id": "seed-pdxchildart",
+  "name": "Portland Child Art Studio",
+  "kind": "studio",
+  "lat": 45.53448,
+  "lon": -122.68547,
+  "address": "1610 NW 14th Ave, Portland, OR 97209",
+  "url": "https://portlandchildart.org",
+  "hours_text": "Check site for classes and open studio",
+  "age_min": 2,
+  "age_max": 12,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Nonprofit studio with open studio, preschool classes and camps, using real art supplies.",
+  "explore": [
+   "art"
+  ]
+ },
+ {
+  "id": "seed-whimsywees",
+  "name": "Whimsy Wees",
+  "kind": "studio",
+  "lat": 45.55382,
+  "lon": -122.83532,
+  "address": "4768 NW Bethany Blvd, Portland, OR 97229",
+  "url": "https://whimsywees.squarespace.com",
+  "hours_text": "Check site for classes and open studio",
+  "age_min": 1,
+  "age_max": 8,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Process art studio with classes, camps and parties.",
+  "explore": [
+   "art"
+  ]
+ },
+ {
+  "id": "seed-smartypants",
+  "name": "Smartypants PDX",
+  "kind": "studio",
+  "lat": 45.56323,
+  "lon": -122.67987,
+  "address": "5512 N Montana Ave, Portland, OR 97217",
+  "hours_text": "Check site for classes and open studio",
+  "age_min": 1,
+  "age_max": 10,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Open studio, art classes, camps and birthday parties.",
+  "explore": [
+   "art"
+  ]
+ },
+ {
+  "id": "seed-owlbee",
+  "name": "Owl & Bee Clay Company",
+  "kind": "studio",
+  "lat": 45.54046,
+  "lon": -122.60459,
+  "address": "3506 NE 57th Ave, Portland, OR 97213",
+  "hours_text": "Check site for classes and open studio",
+  "age_min": 4,
+  "age_max": 12,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Clay classes for kids, seasonal art camps and birthday parties.",
+  "explore": [
+   "art"
+  ]
+ },
+ {
+  "id": "seed-oneriver",
+  "name": "One River School of Art + Design",
+  "kind": "studio",
+  "lat": 45.41438,
+  "lon": -122.74289,
+  "address": "15010 SW Bangy Rd, Lake Oswego, OR 97035",
+  "hours_text": "Check site for classes and open studio",
+  "age_min": 4,
+  "age_max": 12,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Art and design classes for kids by monthly membership.",
+  "explore": [
+   "art"
+  ]
+ },
+ {
+  "id": "seed-dripdrop",
+  "name": "Drip Drop Art Studio",
+  "kind": "studio",
+  "lat": 45.62735,
+  "lon": -122.6757,
+  "address": "420 W 8th St, Vancouver, WA 98660",
+  "hours_text": "Check site for classes and open studio",
+  "age_min": 2,
+  "age_max": 10,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Classes for ages 2 to 10, from parent-and-child to drop-off: Art Play, Storytime Art, Family Paint Night.",
+  "explore": [
+   "art"
+  ]
+ },
+ {
+  "id": "seed-ceramicafe",
+  "name": "Ceramicafe (Beaverton)",
+  "kind": "studio",
+  "lat": 45.49607,
+  "lon": -122.81123,
+  "address": "3205 SW Cedar Hills Blvd, Beaverton, OR",
+  "hours_text": "Check site for classes and open studio",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Paint-your-own pottery studio.",
+  "explore": [
+   "art"
+  ]
  },
  {
   "age_min": 0,
