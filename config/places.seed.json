@@ -832,6 +832,69 @@
   ]
  },
  {
+  "id": "seed-triskelee",
+  "name": "Triskelee Farm",
+  "kind": "farm",
+  "lat": 45.30371,
+  "lon": -122.68994,
+  "address": "29700 SW Mountain Rd, West Linn, OR 97068",
+  "url": "https://triskeleefarm.com/",
+  "hours_text": "Tours, events, and parties by booking; check site",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "Animal farm with baby-animal and beehive tours, horse rides (ages 3+), Spring on the Farm and Fall Fest, and a farm preschool.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-frogpond",
+  "name": "Frog Pond Farm",
+  "kind": "farm",
+  "lat": 45.31753,
+  "lon": -122.74239,
+  "address": "2983 SW Advance Rd, Wilsonville, OR 97070",
+  "url": "https://www.thefrogpondfarm.com/",
+  "hours_text": "Pumpkin patch daily mid-September to Halloween; check site",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "Fall pumpkin patch with llamas, a llama-themed corn maze, and a giant bounce park. Tickets on site only.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-yesteryear",
+  "name": "Yesteryear Farms",
+  "kind": "farm",
+  "lat": 45.3274,
+  "lon": -122.7461,
+  "address": "26801 SW Stafford Rd, Wilsonville, OR 97070",
+  "url": "https://www.yesteryearfarmswilsonville.com/",
+  "hours_text": "Seasonal; check site",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "Seasonal farm: sunflower fields, a pumpkin patch and corn maze in fall, Christmas trees, and a Saturday market.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
   "age_min": 4,
   "age_max": 12,
   "interests": [],
