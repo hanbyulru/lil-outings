@@ -83,7 +83,7 @@ test('addWebsiteImages: only businesses without a photo, credited to the site', 
     { id: 'a', url: 'https://playdatepdx.com/', explore: ['indoor_play'] },
     { id: 'b', url: 'https://parks.example/', explore: ['playgrounds'] }, // public park: Commons only
     { id: 'c', url: 'https://farm.example/', explore: ['farms'], image: 'https://upload.wikimedia.org/x.jpg', image_credit: 'Photo: X, CC0' },
-    { id: 'd', url: 'https://down.example/', explore: ['classes'] }
+    { id: 'd', url: 'https://down.example/', explore: ['gymnastics'] }
   ];
   await addWebsiteImages(places, { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'web-')), minGapMs: 0 });
   assert.deepEqual(fetched, ['https://playdatepdx.com/', 'https://down.example/']);

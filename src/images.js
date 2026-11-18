@@ -95,7 +95,7 @@ export async function addPlaceImages(places, http, log = () => {}) {
 
 // Businesses rarely have free photos. Owner's call (Nov 2026): for these kinds, use the place's own website
 // share image (og:image), credited to the site and linking back to it.
-export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'classes'];
+export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art'];
 
 const attr = (tag, name) => tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'))?.[2];
 const unent = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"').trim();

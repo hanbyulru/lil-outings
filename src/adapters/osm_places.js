@@ -1,6 +1,6 @@
 import { politeFetch } from '../lib/http.js';
 
-/** OpenStreetMap places via Overpass. Evergreen venues: playgrounds, indoor play, museums, zoos, aquariums, water parks. */
+/** OpenStreetMap places via Overpass. Evergreen venues: playgrounds, indoor play, museums, zoos, aquariums, water parks, gymnastics gyms. */
 export function overpassQuery(bbox) {
   const [s, w, n, e] = bbox;
   const box = `${s},${w},${n},${e}`;
@@ -11,11 +11,13 @@ export function overpassQuery(bbox) {
     nwr["leisure"="indoor_play"]["name"](${box});
     nwr["tourism"~"^(museum|zoo|aquarium|theme_park)$"]["name"](${box});
     nwr["leisure"="water_park"]["name"](${box});
+    nwr["sport"~"gymnastics"]["name"](${box});
   );out center tags;`;
 }
 
 /** Which "More to explore" pills an OSM feature belongs to (config/vocab.json explore ids). */
 export function exploreFor(t) {
+  if (/(^|;)\s*gymnastics\b/.test(t.sport || '') && t.leisure !== 'playground') return ['gymnastics']; // gyms (not school gyms or pitches)
   if (t.leisure === 'playground' && /^(private|no)$/.test(t.access || '')) return []; // HOA/apartment playgrounds aren't public
   const indoor = t.indoor === 'yes' || t.location === 'indoor' || (t.building && t.building !== 'no');
   if (t.leisure === 'indoor_play' || (t.leisure === 'playground' && (indoor || t.access === 'customers' || t.fee === 'yes'))) return ['indoor_play']; // play cafes, PlayPlaces
@@ -42,7 +44,7 @@ export function parseOverpass(json, source) {
   return (json.elements || []).filter((el) => el.tags?.name).map((el) => {
     const lat = el.lat ?? el.center?.lat, lon = el.lon ?? el.center?.lon;
     const t = el.tags;
-    const kind = t.leisure === 'playground' ? 'playground' : t.leisure === 'indoor_play' ? 'play' : t.tourism || t.leisure;
+    const kind = t.leisure === 'playground' ? 'playground' : t.leisure === 'indoor_play' ? 'play' : /gymnastics/.test(t.sport || '') ? 'gym' : t.tourism || t.leisure;
     return {
       source_id: source.id,
       source_place_id: `${el.type}/${el.id}`,

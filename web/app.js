@@ -20,9 +20,9 @@ const AGE_GROUPS = [
 const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
-const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['classes', 'Recurring Classes & Memberships']].map(([id, label]) => ({ id, label }));
+const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['gymnastics', 'Gymnastics']].map(([id, label]) => ({ id, label }));
 // "More to explore" icons: [mosaic tile shape, color] per config/vocab.json explore id.
-const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], classes: ['d', '#1FA5B8'] };
+const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'] };
 const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
@@ -196,7 +196,7 @@ function renderPlace(p, catId) {
 }
 
 function renderProgram(p) {
-  return `<article class="place">${banner(p, 'classes')}<div class="kind">${dot(lookOf('classes')[1])}${esc(p.age_label)} · ages ${p.age_min}–${p.age_max}</div><h3>${esc(p.name)}</h3>${p.description ? `<p>${esc(p.description)}</p>` : ''}<p style="font-size:14px">${esc(p.location_text || '')}${p.region ? ` · ${esc(p.region)}` : ''}</p><p style="font-size:14px">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-weight:600;text-decoration:underline">Check availability ↗</a>` : ''} <span class="src">via ${esc(p.source?.name || '')}</span></p></article>`;
+  return `<article class="place">${banner(p, 'gymnastics')}<div class="kind">${dot(lookOf('gymnastics')[1])}${esc(p.age_label)} · ages ${p.age_min}–${p.age_max}</div><h3>${esc(p.name)}</h3>${p.description ? `<p>${esc(p.description)}</p>` : ''}<p style="font-size:14px">${esc(p.location_text || '')}${p.region ? ` · ${esc(p.region)}` : ''}</p><p style="font-size:14px">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-weight:600;text-decoration:underline">Check availability ↗</a>` : ''} <span class="src">via ${esc(p.source?.name || '')}</span></p></article>`;
 }
 
 /** "Something good to do with a small person [today ▾] in [SW ▾]": both underlined phrases are menus. */
@@ -270,15 +270,16 @@ function renderMore() {
   const c = ctx();
   const pills = DATA.meta.vocab?.explore || EXPLORE_FALLBACK;
   const placesFor = (id) => filterPlaces(DATA.places, { explore: id }, c);
-  const programs = filterPrograms(DATA.programs || [], {}, c);
-  const count = (id) => placesFor(id).length + (id === 'classes' ? programs.length : 0);
+  // Under Gymnastics: the PP&R class series that are gymnastics or tumbling.
+  const programs = filterPrograms(DATA.programs || [], {}, c).filter((p) => /gymnast|tumbl|vault|acrobat/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
+  const count = (id) => placesFor(id).length + (id === 'gymnastics' ? programs.length : 0);
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
   const items = placesFor(cur.id);
   const shown = items.slice(0, S.showN);
   let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
-  if (cur.id === 'classes' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation class series</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
-  if (!items.length && !(cur.id === 'classes' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)} yet.</h3></div>`;
+  if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation gymnastics classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
+  if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)} yet.</h3></div>`;
   $('#results-inner').innerHTML = `<h2>More to explore</h2>
     <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 40)}</span><span class="nm">${esc(x.label)}<small>${esc(x.hint || '')}</small></span><span class="n">${count(x.id)}</span><span class="arr" aria-hidden="true">${on ? '↓' : '→'}</span></button>`; }).join('')}</div>
     <div id="explore-results"><h3 class="explore-title"><span class="ic">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 28)}</span>${esc(cur.label)}</h3>${body}</div>`;

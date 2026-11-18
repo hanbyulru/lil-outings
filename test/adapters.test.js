@@ -108,6 +108,8 @@ test('OSM features map to "More to explore" pills', () => {
   assert.deepEqual(exploreFor({ tourism: 'museum', name: 'Vintage Tek' }), ['science']);
   assert.deepEqual(exploreFor({ leisure: 'playground', name: "McDonald's PlayPlace", access: 'customers' }), ['indoor_play'], 'not a public playground');
   assert.deepEqual(exploreFor({ leisure: 'playground', access: 'private' }), [], 'HOA playground left out');
+  assert.deepEqual(exploreFor({ leisure: 'sports_centre', sport: 'gymnastics' }), ['gymnastics']);
+  assert.deepEqual(exploreFor({ leisure: 'sports_centre', sport: 'cheerleading;gymnastics' }), ['gymnastics']);
   assert.deepEqual(exploreFor({ leisure: 'nature_reserve' }), [], 'not every reserve is stroller friendly');
 });
 

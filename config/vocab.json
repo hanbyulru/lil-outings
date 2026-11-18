@@ -81,8 +81,8 @@
     },
     {
       "id": "art",
-      "label": "Art",
-      "hint": "Art museums and art studios"
+      "label": "Music & Art",
+      "hint": "Art museums, art studios and music classes"
     },
     {
       "id": "science",
@@ -110,9 +110,9 @@
       "hint": "Train rides, rail and aviation museums"
     },
     {
-      "id": "classes",
-      "label": "Recurring Classes & Memberships",
-      "hint": "Music, gymnastics and movement class series"
+      "id": "gymnastics",
+      "label": "Gymnastics",
+      "hint": "Gymnastics, tumbling and open gym for little ones"
     }
   ]
 }

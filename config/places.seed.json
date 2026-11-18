@@ -620,6 +620,188 @@
   "note": "U-pick berries and farm animals."
  },
  {
+  "id": "seed-leefarms",
+  "name": "Lee Farms",
+  "kind": "farm",
+  "lat": 45.3617,
+  "lon": -122.74471,
+  "address": "21975 SW 65th Ave, Tualatin, OR 97062",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "Family farm since 1869: u-pick pumpkins, a corn maze and a farm train in October.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-plumper",
+  "name": "Plumper Pumpkin Patch & Tree Farm",
+  "kind": "farm",
+  "lat": 45.60749,
+  "lon": -122.8707,
+  "address": "11435 NW Old Cornelius Pass Rd, Portland, OR 97231",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "animals",
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "U-pick pumpkins and farm animals in fall, u-cut Christmas trees in winter.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-smithberry",
+  "name": "Smith Berry Barn",
+  "kind": "farm",
+  "lat": 45.39941,
+  "lon": -122.92959,
+  "address": "24500 SW Scholls Ferry Rd, Hillsboro, OR 97123",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "U-pick berries and a farm market.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-sauviefarms",
+  "name": "Sauvie Island Farms",
+  "kind": "farm",
+  "lat": 45.66538,
+  "lon": -122.84148,
+  "address": "19818 NW Sauvie Island Rd, Portland, OR 97231",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "U-pick berries and produce on Sauvie Island.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-roloff",
+  "name": "Roloff Farms",
+  "kind": "farm",
+  "lat": 45.59896,
+  "lon": -122.92399,
+  "address": "23985 NW Grossen Dr, Hillsboro, OR 97124",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "animals",
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "Fall pumpkin season with farm animals in Helvetia.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-bizi",
+  "name": "Bi-Zi Farms",
+  "kind": "farm",
+  "lat": 45.70833,
+  "lon": -122.57547,
+  "address": "9504 NE 119th St, Vancouver, WA 98662",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "Berry, tree fruit and vegetable farm with free guided wagon tours.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-firpoint",
+  "name": "Fir Point Farms",
+  "kind": "farm",
+  "lat": 45.25994,
+  "lon": -122.75889,
+  "address": "14601 NE Arndt Rd, Aurora, OR 97002",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "U-pick pumpkins, a corn maze, hayrides and a cow train on October weekends.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-hoffman",
+  "name": "Hoffman Farms Store",
+  "kind": "farm",
+  "lat": 45.41896,
+  "lon": -122.90695,
+  "address": "22242 SW Scholls Ferry Rd, Beaverton, OR",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "Farm store; check what's in season before you go.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
+  "id": "seed-zenger",
+  "name": "Zenger Farm",
+  "kind": "farm",
+  "lat": 45.47805,
+  "lon": -122.5407,
+  "address": "11741 SE Foster Rd, Portland, OR",
+  "hours_text": "Seasonal; check before you go",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "nature"
+  ],
+  "cost": "varies",
+  "setting": "outdoor",
+  "note": "Urban working farm in outer SE Portland.",
+  "explore": [
+   "farms"
+  ]
+ },
+ {
   "age_min": 4,
   "age_max": 12,
   "interests": [],
@@ -744,7 +926,7 @@
   "cost": "paid",
   "setting": "indoor",
   "explore": [
-   "classes"
+   "art"
   ],
   "note": "Weekly family music classes for babies to age 5, in semester sessions."
  },
@@ -755,7 +937,7 @@
   "hours_text": "Check site for current hours",
   "id": "seed-littlegym-lo",
   "name": "The Little Gym of Lake Oswego",
-  "kind": "class",
+  "kind": "gym",
   "lat": 45.39679,
   "lon": -122.73697,
   "address": "5820 Jean Rd, Lake Oswego, OR",
@@ -763,7 +945,7 @@
   "cost": "paid",
   "setting": "indoor",
   "explore": [
-   "classes"
+   "gymnastics"
   ],
   "note": "Parent-child and kids gymnastics, dance and sports skills classes by membership."
  },
@@ -774,7 +956,7 @@
   "hours_text": "Check site for current hours",
   "id": "seed-littlegym-van",
   "name": "The Little Gym of Vancouver",
-  "kind": "class",
+  "kind": "gym",
   "lat": 45.59946,
   "lon": -122.50477,
   "address": "3000 SE 164th Ave, Vancouver, WA",
@@ -782,7 +964,7 @@
   "cost": "paid",
   "setting": "indoor",
   "explore": [
-   "classes"
+   "gymnastics"
   ],
   "note": "Parent-child and kids gymnastics, dance and sports skills classes by membership."
  },
@@ -793,7 +975,7 @@
   "hours_text": "Check site for current hours",
   "id": "seed-metrogym",
   "name": "Metro Gymnastics",
-  "kind": "class",
+  "kind": "gym",
   "lat": 45.38959,
   "lon": -122.75389,
   "address": "18084 SW Lower Boones Ferry Rd, Tualatin, OR 97224",
@@ -801,8 +983,100 @@
   "cost": "paid",
   "setting": "indoor",
   "explore": [
-   "classes"
+   "gymnastics"
   ],
   "note": "Recreational gymnastics classes for little ones and up."
+ },
+ {
+  "id": "seed-omega",
+  "name": "OMEGA Gymnastics",
+  "kind": "gym",
+  "lat": 45.4788,
+  "lon": -122.7778,
+  "address": "9700 SW Harvest Ct, Suite 180, Beaverton, OR 97005",
+  "url": "https://www.omega-gymnastics.com",
+  "hours_text": "Class schedule on their site",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Preschool gymnastics (Tiny Titans, 18 months to 5 years) and school's-out camps.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-oga",
+  "name": "Oregon Gymnastics Academy",
+  "kind": "gym",
+  "lat": 45.52981,
+  "lon": -122.84538,
+  "address": "16305 NW Bethany Ct, Beaverton, OR",
+  "hours_text": "Class schedule on their site",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Preschool, recreational and adaptive gymnastics.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-childrensgym",
+  "name": "The Children's Gym",
+  "kind": "gym",
+  "lat": 45.52478,
+  "lon": -122.64915,
+  "address": "1625 NE Sandy Blvd, Portland, OR",
+  "hours_text": "Class schedule on their site",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Classes from 12 months, including parent-and-child classes.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-playgroundgym",
+  "name": "The Playground Gym",
+  "kind": "gym",
+  "lat": 45.52676,
+  "lon": -122.66102,
+  "address": "505 NE Grand Ave, Portland, OR",
+  "url": "https://theplaygroundgym.com",
+  "hours_text": "Class schedule on their site",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Classes from age one, including parent-and-child classes. A second gym is at 5215 N Lombard St.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-gymstars",
+  "name": "Gymstars",
+  "kind": "gym",
+  "lat": 45.51064,
+  "lon": -122.45491,
+  "address": "2016 NW Birdsdale Ave, Gresham, OR 97030",
+  "hours_text": "Class schedule on their site",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Gymnastics classes in Gresham.",
+  "explore": [
+   "gymnastics"
+  ]
  }
 ]

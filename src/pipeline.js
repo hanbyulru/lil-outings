@@ -23,7 +23,8 @@ const PLACE_DEFAULTS = {
   zoo: { age_min: 0, age_max: 12, interests: ['animals'], cost: 'paid', setting: 'outdoor' },
   aquarium: { age_min: 0, age_max: 12, interests: ['animals', 'science'], cost: 'paid', setting: 'indoor' },
   theme_park: { age_min: 2, age_max: 12, interests: [], cost: 'paid', setting: 'outdoor' },
-  play: { age_min: 0, age_max: 10, interests: [], cost: 'paid', setting: 'indoor' }
+  play: { age_min: 0, age_max: 10, interests: [], cost: 'paid', setting: 'indoor' },
+  gym: { age_min: 1, age_max: 12, interests: [], cost: 'paid', setting: 'indoor' }
 };
 
 /** Is OSM feature f a place we already have? Same Wikidata item, same name, or (within ~150 m) one name inside the
