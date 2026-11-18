@@ -461,7 +461,7 @@ document.addEventListener('click', (ev) => {
     return;
   }
   if (d.showmore !== undefined) { S.showN += 24; return renderMore(); }
-  if (d.pin) { S.sel = d.pin; return renderToday(); }
+  if (d.pin) { S.sel = d.pin; renderToday(); return scrollToCard(d.pin); }
 });
 document.addEventListener('click', (ev) => {
   const m = ev.target.closest('[data-more]');
@@ -470,7 +470,20 @@ document.addEventListener('click', (ev) => {
   open ? S.expanded.add(id) : S.expanded.delete(id);
   p.classList.toggle('open', open); m.textContent = open ? 'less' : 'more'; m.setAttribute('aria-expanded', String(open));
 });
-document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-ev]'); if (c && !ev.target.closest('a, [data-more]')) { S.sel = c.dataset.ev; const y = scrollY; renderToday(); scrollTo(0, y); } });
+document.addEventListener('click', (ev) => {
+  const c = ev.target.closest('[data-ev]');
+  if (!c || ev.target.closest('a, [data-more]')) return;
+  const fromMap = !!c.closest('.map'); // a row in the map's card: bring its event into view in the list
+  S.sel = c.dataset.ev; const y = scrollY; renderToday(); scrollTo(0, y);
+  if (fromMap) scrollToCard(c.dataset.ev);
+});
+/** Picked on the map: scroll the list to that event's card (owner, Nov 2026). */
+function scrollToCard(id) {
+  // Wait two frames: the "more" buttons appear one frame after a render and change every card's height.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelector(`#today-inner .list .ev[data-ev="${CSS.escape(id)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }));
+}
 document.addEventListener('keydown', (ev) => {
   if (!S.open) return;
   if (ev.key === 'Escape') { const k = S.open; closeMenu(); $(`[data-menu="${k}"]`)?.focus(); return; }

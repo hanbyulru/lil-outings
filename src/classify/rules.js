@@ -91,6 +91,8 @@ export function extraInterests(ev, interests = []) {
     out = out.filter((t) => t !== 'art');
   }
   if (isStorytime(ev) && !out.includes('books')) out.unshift('books');
+  // Reading to animals (Tales to Tails, Read to the Dogs): Animals & Nature leads, so the card is always green (owner, Nov 2026).
+  if (out.includes('nature') && /\b(tails|dogs?|cats?|pets?|pupp(y|ies)|kitt(y|ies|ens?)|animals?|bunn(y|ies))\b/i.test(title)) out = ['nature', ...out.filter((t) => t !== 'nature')];
   // ...and a storytime is Play only when its title says play ("Story and Play", "Storytime & Playgroup").
   if (isStorytime(ev) && !/\bplay/i.test(title)) {
     out = out.filter((t) => t !== 'play');

@@ -211,3 +211,10 @@ test('age floors: chess is never for babies or toddlers', () => {
   assert.deepEqual(ageFloor({ title: 'Chess Club for Tweens and Teens' }, 9, 12), [9, 12], 'an older stated range stays');
   assert.deepEqual(ageFloor({ title: 'Baby Storytime' }, 0, 1), [0, 1]);
 });
+
+test('reading to animals: Animals & Nature always comes first', () => {
+  assert.deepEqual(extraInterests({ title: 'Tales to Tails!', categories: ['storytime'] }, ['books', 'nature']), ['nature', 'books']);
+  assert.deepEqual(extraInterests({ title: 'Tales to Tails', categories: ['class'] }, ['nature', 'books']), ['nature', 'books']);
+  assert.deepEqual(extraInterests({ title: 'Read to the Dogs' }, ['books']), ['nature', 'books']);
+  assert.deepEqual(extraInterests({ title: 'Family Storytime' }, ['books']), ['books'], 'others untouched');
+});
