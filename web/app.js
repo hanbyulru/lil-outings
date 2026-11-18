@@ -88,7 +88,7 @@ function rangeLabel(when) {
 }
 const dot = (c) => `<span class="dot" style="background:${c}"></span>`;
 // An event's color follows its first interest; a storytime with no interest tag still counts as Storytime.
-const primary = (e) => (e.interests && e.interests[0]) || ((e.categories || []).includes('storytime') ? 'books' : null);
+const primary = (e) => tagsOf(e)[0] || null;
 const colorOf = (e) => COLORS[primary(e)] || '#5B5F6B';
 const textColorOf = (e) => TEXT_COLORS[primary(e)] || colorOf(e);
 // Numbers on a colored circle: dark on the light yellow, white on the rest.
@@ -158,15 +158,25 @@ function syncMap() {
 
 function srcLine(e) { const also = (e.also_listed_on || []).length ? ` + ${e.also_listed_on.length} more` : ''; return `<span class="src">via ${esc(e.source?.name || '')}${also}</span>`; }
 
+/** Interest tags (an event can have several). Categories are tags too, but hidden on cards for now (owner, Nov 2026). */
+function tagsOf(e) {
+  const t = [...(e.interests || [])];
+  if (!t.includes('books') && (e.categories || []).includes('storytime')) t.unshift('books');
+  return t.filter((k) => LABEL[k]);
+}
+function tagChips(e) {
+  const t = tagsOf(e);
+  return t.length ? `<div class="tags">${t.map((k) => `<span class="tag" style="--c:${COLORS[k]};--t:${TEXT_COLORS[k] || COLORS[k]}">${esc(LABEL[k])}</span>`).join('')}</div>` : '';
+}
+
 function renderEvent(e, n) {
-  const cat = e.categories?.[0] ? e.categories[0].replace('_', ' + ') : '';
   const age = e.age_min != null ? (e.age_max >= 12 ? `Ages ${e.age_min}+` : `Ages ${e.age_min}–${e.age_max}`) : '';
   const cost = e.cost_type === 'free' ? '<span class="free">Free</span>' : e.cost_amount ? `$${e.cost_amount}` : e.cost_type === 'paid' ? 'Paid' : '';
   const reg = e.registration === 'drop_in' ? 'Drop-in' : e.registration === 'required' ? 'Registration required' : '';
   return `<article class="ev ${S.sel === e.id ? 'sel' : ''}" data-ev="${e.id}"><span class="bar4" style="background:${colorOf(e)}"></span>
     <div class="time"><div class="num" style="background:${colorOf(e)};color:${onFill(colorOf(e))}">${n}</div><div class="big">${esc(e.start_min != null ? fmtMin(e.start_min).replace(' ', '') : 'All day')}</div>${e.end_min != null ? `<div class="small">to ${esc(fmtMin(e.end_min))}</div>` : ''}</div>
-    <div class="body"><div class="kicker" style="color:${textColorOf(e)}">${esc(primary(e) ? LABEL[primary(e)] : cat)}${cat && primary(e) && cat.toLowerCase() !== LABEL[primary(e)].toLowerCase() ? ` <span style="color:var(--muted)">· ${esc(cat)}</span>` : ''}</div>
-    <h3>${esc(e.title)}</h3><div class="where">${esc(e.venue_name || 'Location on source page')}${e.neighborhood ? ' · ' + esc(e.neighborhood) : ''}${e.miles != null ? ` · ${e.miles.toFixed(1)} mi` : ''}</div>
+    <div class="body">${tagChips(e)}
+    <h3>${esc(e.title)}</h3><div class="where">${e.venue_name ? `<b>${esc(e.venue_name)}</b>` : 'Location on source page'}${e.neighborhood ? ' · ' + esc(e.neighborhood) : ''}${e.miles != null ? ` · ${e.miles.toFixed(1)} mi` : ''}</div>
     <p>${esc((e.description || '').replace(/https?:\/\/\S+/g, '').trim())}</p>
     <div class="meta"><span>${esc(age)}</span>${cost}<span>${esc(reg)}</span>${srcLine(e)}${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">Details ↗</a>` : ''}</div></div></article>`;
 }

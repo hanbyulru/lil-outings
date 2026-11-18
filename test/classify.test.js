@@ -151,3 +151,21 @@ test('an age the model left blank defaults to 0-12, not 0-0', () => {
   assert.ok(t.issues.includes('missing_age'));
   assert.deepEqual([nt({ kid_relevant: true, age_min: 0, age_max: 1 }).age_max], [1]);
 });
+
+import { extraInterests } from '../src/classify/rules.js';
+test('interest tags: building is Science, reading to dogs is Storytime + Animals & Nature (never removes)', () => {
+  const tags = (title, interests = [], description = '') => extraInterests({ title, description }, interests);
+  assert.deepEqual(tags('Lego Club'), ['science']);
+  assert.deepEqual(tags('Kids & Tweens Build It'), ['science']);
+  assert.deepEqual(tags('Family Maker Time', ['art']), ['art', 'science']);
+  assert.deepEqual(tags('Tales to Tails', ['books']).sort(), ['books', 'nature']);
+  assert.deepEqual(tags('Read to the Dogs', ['books']).sort(), ['books', 'nature']);
+  assert.deepEqual(tags('Music & Movement Storytime').sort(), ['art', 'books']);
+  assert.deepEqual(tags('Baby Lapsit', ['books']), ['books'], 'keeps what the classifier gave');
+  assert.deepEqual(tags('Open Gym', [], 'We build community through play.'), [], 'science only from the title');
+  assert.deepEqual(tags('Story of the Lit Tree'), ['books'], '"lit" alone is not literacy');
+});
+test('interest tags: town names are not topics', () => {
+  assert.deepEqual(extraInterests({ title: 'Garden Home Family Storytime' }, ['books']), ['books']);
+  assert.deepEqual(extraInterests({ title: 'Forest Grove Baby Time' }, []), []);
+});

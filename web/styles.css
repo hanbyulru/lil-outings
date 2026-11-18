@@ -114,6 +114,9 @@ body[data-view="places"] .results{border-top:0;padding-top:40px}
 .ev .kicker{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .ev h3{font-size:22px;line-height:1.2;margin-top:4px}
 .ev .where{margin-top:2px;color:var(--muted);font-size:15px}
+.ev .where b{color:var(--ink);font-weight:600}
+.ev .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.ev .tag{display:inline-block;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 16%,#fff);color:var(--t);font-size:12px;font-weight:700;letter-spacing:.02em;line-height:1.5}
 .ev p{margin:8px 0 0;font-size:15px;max-width:540px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ev .meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:14px;align-items:center}
 .ev .meta .free{color:#1B7A4B;font-weight:700}

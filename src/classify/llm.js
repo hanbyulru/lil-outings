@@ -6,7 +6,7 @@ export const SYSTEM_PROMPT = `You tag event listings for a parents' site in the 
 For each listing decide whether it is relevant to children/families, then tag it using ONLY the allowed values.
 
 Allowed values:
-- interests: ${VOCAB.interests.join(', ')}   (books = storytime and reading; art includes music, singing and dance; nature includes animals, zoos and farms; trains includes planes; space/rockets/robots/dinosaurs => science; empty array if none clearly applies)
+- interests: ${VOCAB.interests.join(', ')}   (tags: give EVERY one that applies, often 2-3. books = storytime and reading; art includes music, singing, dance and crafts; nature includes animals (pets, dogs, cats, zoos, farms) and the outdoors; trains includes planes; science includes STEM, building, LEGO, engineering, makerspaces, coding, robots, space and dinosaurs. Place names are not topics (Garden Home, Forest Grove, Oak Grove). Examples: reading to therapy dogs => books + nature; LEGO club => science; music & movement storytime => books + art. Empty array if none clearly applies)
 - categories: ${VOCAB.categories.join(', ')}
 - setting: ${VOCAB.settings.join(', ')}
 - registration: ${VOCAB.registration.join(', ')}

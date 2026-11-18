@@ -3,6 +3,7 @@ import { EVENT_ADAPTERS, PLACE_ADAPTERS, PROGRAM_ADAPTERS } from './adapters/ind
 import { normalizeEvent, withinHorizon, normalizeVenueKey, guessVenue } from './normalize.js';
 import { dedupe } from './dedupe.js';
 import { classifyAll } from './classify/index.js';
+import { extraInterests } from './classify/rules.js';
 import { bandsFor, VOCAB, canonicalInterests } from './classify/validate.js';
 import { locate, haversineMiles, GEO } from './lib/geo.js';
 import { nearestPlace } from '../web/query.js';
@@ -140,7 +141,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     kept.push({
       ...e,
       age_min: t.age_min, age_max: t.age_max, age_bands: bandsFor(t.age_min, t.age_max),
-      interests: canonicalInterests(t.interests), categories: t.categories, setting: t.setting, registration: t.registration,
+      interests: extraInterests(e, canonicalInterests(t.interests)), categories: t.categories, setting: t.setting, registration: t.registration,
       cost_type: t.cost_type, cost_amount: t.cost_amount,
       confidence: t.confidence, needs_review: t.needs_review, tag_source: t.tag_source
     });

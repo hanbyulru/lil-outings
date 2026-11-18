@@ -56,3 +56,27 @@ export function classifyRules(ev) {
     confidence: kid ? (min === 0 && max === 12 ? (has(text, /all ages|family|whole family/) ? 0.65 : 0.5) : 0.7) : 0.8
   });
 }
+
+/**
+ * Interest tags that a title/description makes plain, added on top of whatever the classifier said (never removes).
+ * Owner, Nov 2026: interests are tags and an event can have several (Tales to Tails = Storytime + Animals & Nature);
+ * any kind of building (LEGO, maker, engineering) is Science / STEM.
+ */
+const TAG_RULES = [
+  ['science', /\blegos?\b|\bbuild(s|ing|ers?)?\b|\bbuild it\b|engineer|maker ?(space|time|lab)|\bmakers?\b|\bstem\b|\bsteam\b|robot|coding|\bcode\b|circuit|k'?nex|magna-?tiles|\bblocks\b|science|experiment|dino(saur)?s?\b|fossil/i],
+  ['nature', /\b(dogs?|cats?|kitt(y|ies|ens?)|pupp(y|ies)|animals?|pets?|bunn(y|ies)|rabbits?|goats?|horses?|ponies|pony|chickens?|birds?|reptiles?|zoo|farm|tails)\b|\bnature\b|wildlife/i],
+  ['books', /story ?times?|\bstor(y|ies)\b|\btales\b|\bread(ing)?\b|\bbooks?\b|literacy|book club/i],
+  ['art', /\bmusic(al)?\b|\bsing(ing|-?along)?\b|\bsongs?\b|\bdanc(e|ing)\b|\bcrafts?\b|\bart\b|\barts\b|paint|draw(ing)?\b|\bclay\b|puppet|concert|instrument/i],
+  ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport/i]
+];
+export function extraInterests(ev, interests = []) {
+  const title = String(ev.title || '');
+  const text = `${title} ${String(ev.description || '').slice(0, 300)}`;
+  const out = [...interests];
+  for (const [tag, re] of TAG_RULES) {
+    // Science and trains from the title only (descriptions mention "build community", "train your staff"...)
+    const hay = tag === 'science' || tag === 'trains' ? title : text;
+    if (!out.includes(tag) && re.test(hay)) out.push(tag);
+  }
+  return out;
+}
