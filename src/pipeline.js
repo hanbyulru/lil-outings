@@ -38,6 +38,12 @@ export function samePlace(p, f) {
   return a.split(' ')[0] === b.split(' ')[0] || (Math.min(a.length, b.length) >= 8 && (a.includes(b) || b.includes(a)));
 }
 
+/** Apply config/event_overrides.json rules ({ source, title regex, set }) to raw listings, in place. */
+export function applyEventOverrides(items, cfg) {
+  const rules = (cfg?.rules || []).map((r) => ({ ...r, re: new RegExp(r.title, 'i') }));
+  for (const e of items) for (const r of rules) if (e.source_id === r.source && r.re.test(e.title || '')) Object.assign(e, r.set);
+}
+
 export async function refresh({ offline = false, now = new Date(), useLLM = true, outDir = 'data/public', horizonDays = 60, log = console.log, llmOptions = {}, cacheDir = 'data/cache' } = {}) {
   const sources = readJson('config/sources.json');
   const today = portlandDate(now);
@@ -110,6 +116,9 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
       log(`  ${src.name}: FAILED (${err.message})`);
     }
   }
+
+  // Hand corrections (config/event_overrides.json): e.g. an off-site program the feed lists with no venue.
+  applyEventOverrides(raw.map((x) => x.r), readJson('config/event_overrides.json'));
 
   // Feeds with a street address but no coordinates (config.geocode): look them up, else a town-level pin.
   if (!off) await geocodeEvents(raw, ctx.http, { log });

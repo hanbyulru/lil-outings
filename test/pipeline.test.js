@@ -82,3 +82,13 @@ test('Lake Oswego splits by Oswego Lake: Downtown LO, North of the Lake, South o
   assert.equal(locate(45.3960, -122.6830).neighborhood, 'South of the Lake'); // Lakeridge High School
   assert.equal(locate(45.4060, -122.6740).neighborhood, 'South of the Lake'); // just south of the lake's east end
 });
+
+import { applyEventOverrides } from '../src/pipeline.js';
+test('event overrides: an off-site storytime with no venue gets one (config/event_overrides.json)', () => {
+  const cfg = JSON.parse(readFileSync('config/event_overrides.json', 'utf8'));
+  const items = [{ source_id: 'wccls', title: 'Storytime On Location', venue_name: null, lat: null }, { source_id: 'mcl', title: 'Storytime On Location', venue_name: null }];
+  applyEventOverrides(items, cfg);
+  assert.equal(items[0].venue_name, 'Sherwood School District Office');
+  assert.ok(Math.abs(items[0].lat - 45.361) < 0.01);
+  assert.equal(items[1].venue_name, null, 'only the named source');
+});

@@ -1,0 +1,11 @@
+{
+  "_about": "Hand corrections for event listings, applied before geocoding and normalizing (src/pipeline.js). Each rule matches by source id and a title regex (case-insensitive) and sets the listed fields. Use when a feed leaves out the venue (e.g. an off-site program).",
+  "rules": [
+    {
+      "_why": "WCCLS lists this off-site storytime with no venue; the description says Sherwood School District Office, small gym (owner, Nov 2026)",
+      "source": "wccls",
+      "title": "^Storytime On Location$",
+      "set": { "venue_name": "Sherwood School District Office", "address": "21920 SW Sherwood Blvd, Sherwood, OR 97140", "lat": 45.36134, "lon": -122.84301 }
+    }
+  ]
+}
