@@ -493,7 +493,7 @@ async function sendSignup(fields) {
  * SUBSCRIBE: { provider: 'buttondown', id: '<username>' } or { provider: 'kit', id: '<form id>' }. Until a provider is set,
  * every "Get updates" button stays hidden (body.cansub), so nothing is ever collected into thin air.
  */
-const SUBSCRIBE = { provider: '', id: '' };
+const SUBSCRIBE = { provider: 'kit', id: '10210670' }; // Kit form "Lil' Outings updates" (owner, Nov 2026)
 const SUBSCRIBE_URL = {
   buttondown: (id) => [`https://buttondown.com/api/emails/embed-subscribe/${encodeURIComponent(id)}`, 'email'],
   kit: (id) => [`https://app.kit.com/forms/${encodeURIComponent(id)}/subscriptions`, 'email_address']
