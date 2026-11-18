@@ -297,7 +297,7 @@ function renderHeadline() {
   const trigger = (kind, text, open, color) => `<button class="whenbtn"${color ? ` style="--ul:${color}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
   const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
   const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? '' : locMenu}</span>`;
-  $('#placeshead').innerHTML = `Places to explore in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? locMenu : ''}</span>`;
+  $('#placeshead').innerHTML = `Somewhere good to go in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? locMenu : ''}</span>`;
   $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what', whatOf()[4] ? COLORS[whatOf()[4]] : S.what !== 'all' ? INK : null)}${whatMenu}</span> ${esc(whatOf()[2])} with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age', S.age !== 'all' ? INK : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', S.when !== DEFAULT_WHEN ? INK : null)}${whenMenu}</span> in ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $(`${onPlaces ? '#placeshead' : '#headline'} .menu`);
@@ -346,7 +346,7 @@ function renderToday() {
 
 /** Below the fold: "More to explore" pills over the places directory (and PP&R class series under Classes).
  *  Independent of the headline's age / day / place choices (owner's call, Nov 2026). */
-/** The Places tab: "Places to explore in [Portland▾]" (the same location menu as Events), kinds of places listed on the
+/** The Places tab: "Somewhere good to go in [Portland▾]" (the same location menu as Events), kinds of places listed on the
  *  left, the chosen kind's cards on the right (owner, Nov 2026). Public Playgrounds is left off the list for now. */
 const HIDDEN_KINDS = ['playgrounds'];
 function renderMore() {
