@@ -29,7 +29,7 @@ header.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;ga
 .cityask .err{margin-top:10px;color:#B3261E;font-size:14px}
 nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500;font-size:16px}
 .link:hover{text-decoration:underline;text-underline-offset:5px}
-.viewtoggle{gap:0;padding:0;justify-self:center}
+.viewtoggle{gap:0;padding:2px 0;justify-self:center} /* desktop: 2px above and below (owner); phones override */
 .viewtoggle a+a{margin-left:-16px} /* 16px less space between the two (owner) */
 .viewtoggle a{padding:8px 22px;border-radius:999px;font-weight:600;font-size:16px;line-height:1.2;transition:background .15s,color .15s}
 .viewtoggle a[aria-selected="true"]{background:var(--ink);color:#fff}

@@ -47,7 +47,38 @@ export function nearestPlace(lat, lon, geo, maxMiles = PLACE_RADIUS_MILES) {
     const d = haversineMiles({ lat: +lat, lon: +lon }, p);
     if (!best || d < best.miles) best = { place: p.name, district: p.district, miles: d };
   }
-  return best && best.miles <= maxMiles ? best : null;
+  if (!best || best.miles > maxMiles) return null;
+  const split = geo.districts.find((d) => d.id === best.district)?.split;
+  if (split) best.place = splitPlace(+lat, +lon, split);
+  return best;
+}
+
+/**
+ * Districts split by a landmark instead of by nearest center (Lake Oswego, owner Nov 2026: Downtown LO / North of the Lake /
+ * South of the Lake). split: { downtown: { place, lat, lon, miles }, north, south, lake: [[lon, lat], ...] outline }.
+ * North or south: look straight up and down from the point; the lake edge you meet first decides (a point between two arms
+ * of the lake goes with the nearer one). Past either end of the lake, compare with the lake's latitude at that end.
+ */
+export function splitPlace(lat, lon, split) {
+  const dt = split.downtown;
+  if (dt && haversineMiles({ lat, lon }, dt) <= dt.miles) return dt.place;
+  const ring = split.lake;
+  const ys = [];
+  for (let i = 0; i < ring.length - 1; i++) {
+    const [x1, y1] = ring[i], [x2, y2] = ring[i + 1];
+    if ((x1 <= lon && lon < x2) || (x2 <= lon && lon < x1)) ys.push(y1 + ((lon - x1) / (x2 - x1)) * (y2 - y1));
+  }
+  if (!ys.length) {
+    const xs = ring.map((p) => p[0]);
+    const atWest = lon < Math.min(...xs);
+    const end = [...ring].sort((p, q) => (atWest ? p[0] - q[0] : q[0] - p[0])).slice(0, 4);
+    const endLat = end.reduce((t, p) => t + p[1], 0) / end.length;
+    return lat >= endLat ? split.north : split.south;
+  }
+  const below = ys.filter((y) => y < lat), above = ys.filter((y) => y >= lat);
+  if (!above.length) return split.north;
+  if (!below.length) return split.south;
+  return lat - Math.max(...below) <= Math.min(...above) - lat ? split.north : split.south;
 }
 
 /** Regions a district belongs to (Tigard is in two). */
@@ -83,7 +114,7 @@ export function resolveLoc(loc, geo) {
   }
   if (loc.place) {
     const p = allPlaces(geo).find((x) => x.name === loc.place);
-    return p ? { kind: 'place', place: p.name, district: p.district, districts: [p.district], point: { lat: p.lat, lon: p.lon }, label: p.name } : null;
+    return p ? { kind: 'place', place: p.name, district: p.district, districts: [p.district], point: { lat: p.lat, lon: p.lon }, label: p.name, split: !!geo.districts.find((d) => d.id === p.district)?.split } : null;
   }
   return null;
 }
@@ -110,7 +141,11 @@ function locMatch(item, r, radiusMiles, geo) {
     return { ok: hits.some((h) => h.ok), miles: ms.length ? Math.min(...ms) : null };
   }
   if (r.kind === 'region' || r.kind === 'district') return { ok: r.districts.includes(districtOf(item, geo)), miles };
-  if (r.kind === 'place') return { ok: item.neighborhood === r.place || (miles != null && miles <= 1.5), miles };
+  if (r.kind === 'place') {
+    // A split district's parts (Lake Oswego) have hard edges: no 1.5-mile spill into the other side of the lake.
+    if (r.split) return { ok: item.neighborhood ? item.neighborhood === r.place : item.lat != null && nearestPlace(item.lat, item.lon, geo)?.place === r.place, miles };
+    return { ok: item.neighborhood === r.place || (miles != null && miles <= 1.5), miles };
+  }
   if (r.kind === 'zip') return r.unknown ? { ok: true, miles: null } : { ok: miles != null && miles <= radiusMiles, miles };
   return { ok: true, miles };
 }

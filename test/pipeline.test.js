@@ -49,7 +49,7 @@ test('dedupe keeps different venues/times apart', () => {
 test('geo: neighborhood + area from coordinates, ZIP lookup', () => {
   assert.equal(locate(45.5360, -122.6240).district, 'inner-ne'); // Hollywood
   assert.equal(locate(45.5880, -122.7540).district, 'north-portland'); // St. Johns
-  assert.equal(locate(45.4207, -122.6706).neighborhood, 'Downtown Lake Oswego');
+  assert.equal(locate(45.4207, -122.6706).neighborhood, 'Downtown LO');
   assert.equal(locate(45.3843, -122.7585).district, 'tualatin-sherwood'); // Tualatin library
   assert.equal(locate(45.6290, -122.6730).district, 'vancouver-central');
   assert.equal(locate(45.30, -122.97), null, 'Newberg: outside every district');
@@ -74,4 +74,11 @@ test('samePlace: a curated place and its OSM twin are one place', () => {
   assert.ok(samePlace(omsi, { name: 'Oregon Museum of Science and Industry', lat: 45.50835, lon: -122.66597, wikidata: 'Q174617' }));
   assert.ok(samePlace({ ...omsi, wikidata: undefined }, { name: 'Oregon Museum of Science and Industry', lat: 45.50835, lon: -122.66597 }), 'name inside name, same spot');
   assert.ok(!samePlace(omsi, { name: 'USS Blueback', lat: 45.5079, lon: -122.6670, wikidata: 'Q2468659' }), 'a neighbour is not a duplicate');
+});
+
+test('Lake Oswego splits by Oswego Lake: Downtown LO, North of the Lake, South of the Lake (owner, Nov 2026)', () => {
+  assert.equal(locate(45.4202, -122.6688).neighborhood, 'Downtown LO'); // library on 4th St
+  assert.equal(locate(45.4240, -122.6910).neighborhood, 'North of the Lake'); // Lake Oswego High School
+  assert.equal(locate(45.3960, -122.6830).neighborhood, 'South of the Lake'); // Lakeridge High School
+  assert.equal(locate(45.4060, -122.6740).neighborhood, 'South of the Lake'); // just south of the lake's east end
 });
