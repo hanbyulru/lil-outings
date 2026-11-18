@@ -1276,6 +1276,27 @@
   ]
  },
  {
+  "id": "seed-tumblebears",
+  "name": "Tumblebears Gym",
+  "kind": "gym",
+  "lat": 45.36769,
+  "lon": -122.83255,
+  "address": "14997 SW Tualatin-Sherwood Rd, Suites 104 & 105, Sherwood, OR 97140",
+  "url": "https://www.tumblebearsgym.com/",
+  "hours_text": "Check site for class times",
+  "age_min": 1,
+  "age_max": 10,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Children's gymnastics classes.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
   "id": "seed-hopworks",
   "name": "Hopworks Urban Brewery",
   "kind": "restaurant",
