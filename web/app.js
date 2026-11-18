@@ -86,7 +86,7 @@ function togglePick(pick) {
   const next = cur.some((x) => samePick(x, pick)) ? cur.filter((x) => !samePick(x, pick)) : [...cur, pick];
   S.loc = next.length === 0 ? (S.locOpen ? { region: S.locOpen } : null) : next.length === 1 ? next[0] : { picks: next };
   const scroll = $('.locmenu')?.scrollTop ?? 0; // phones: the menu is a scrolling sheet; keep its place between taps
-  S.sel = null; saveLoc(); renderHeadline(); renderToday();
+  S.sel = null; S.showN = 24; saveLoc(); renderHeadline(); renderToday(); renderMore();
   if ($('.locmenu')) $('.locmenu').scrollTop = scroll;
   $(`.locmenu [data-loc${pick.district ? 'district' : 'place'}="${CSS.escape(pick.district || pick.place)}"]`)?.focus({ preventScroll: true });
 }
@@ -295,9 +295,12 @@ function renderHeadline() {
   const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemradio" aria-checked="${v === S.age}" class="${v === S.age ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}</span>` : '';
   const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemradio" aria-checked="${v === S.what}" class="${v === S.what ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}</span>` : '';
   const trigger = (kind, text, open, color) => `<button class="whenbtn"${color ? ` style="--ul:${color}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what', whatOf()[4] ? COLORS[whatOf()[4]] : S.what !== 'all' ? INK : null)}${whatMenu}</span> ${esc(whatOf()[2])} with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age', S.age !== 'all' ? INK : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', S.when !== DEFAULT_WHEN ? INK : null)}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${locMenu}</span>`;
+  const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
+  const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? '' : locMenu}</span>`;
+  $('#placeshead').innerHTML = `Places to explore in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? locMenu : ''}</span>`;
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what', whatOf()[4] ? COLORS[whatOf()[4]] : S.what !== 'all' ? INK : null)}${whatMenu}</span> ${esc(whatOf()[2])} with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age', S.age !== 'all' ? INK : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', S.when !== DEFAULT_WHEN ? INK : null)}${whenMenu}</span> in ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
-  const m = $('#headline .menu');
+  const m = $(`${onPlaces ? '#placeshead' : '#headline'} .menu`);
   if (m && getComputedStyle(m).position === 'absolute') {
     const r = m.getBoundingClientRect(), vw = document.documentElement.clientWidth;
     let shift = Math.min(0, vw - 16 - r.right); // pull left if it runs off the right edge
@@ -343,12 +346,15 @@ function renderToday() {
 
 /** Below the fold: "More to explore" pills over the places directory (and PP&R class series under Classes).
  *  Independent of the headline's age / day / place choices (owner's call, Nov 2026). */
+/** The Places tab: "Places to explore in [Portland▾]" (the same location menu as Events), kinds of places listed on the
+ *  left, the chosen kind's cards on the right (owner, Nov 2026). Public Playgrounds is left off the list for now. */
+const HIDDEN_KINDS = ['playgrounds'];
 function renderMore() {
   const c = ctx();
-  const pills = DATA.meta.vocab?.explore || EXPLORE_FALLBACK;
-  const placesFor = (id) => filterPlaces(DATA.places, { explore: id }, c);
+  const pills = (DATA.meta.vocab?.explore || EXPLORE_FALLBACK).filter((x) => !HIDDEN_KINDS.includes(x.id));
+  const placesFor = (id) => filterPlaces(DATA.places, { explore: id, loc: S.loc }, c);
   // Under Gymnastics: the PP&R class series that are gymnastics or tumbling.
-  const programs = filterPrograms(DATA.programs || [], {}, c).filter((p) => /gymnast|tumbl|vault|acrobat/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
+  const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c).filter((p) => /gymnast|tumbl|vault|acrobat/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
   const count = (id) => placesFor(id).length + (id === 'gymnastics' ? programs.length : 0);
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
   const items = placesFor(cur.id);
@@ -356,10 +362,11 @@ function renderMore() {
   let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation gymnastics classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
-  if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)} yet.</h3></div>`;
-  $('#results-inner').innerHTML = `<h2>Places to explore</h2>
-    <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 40)}</span><span class="nm">${esc(x.label)}<small>${esc(x.hint || '')}</small></span><span class="n">${count(x.id)}</span><span class="arr" aria-hidden="true">${on ? '↓' : '→'}</span></button>`; }).join('')}</div>
-    <div id="explore-results"><h3 class="explore-title"><span class="ic">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 28)}</span>${esc(cur.label)}</h3>${body}</div>`;
+  if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${S.loc ? ` in ${esc(locPhrase(S.loc))}` : ''} yet.</h3>${S.loc ? '<div class="empty-actions"><button class="btn-ink" data-locany>See anywhere in Portland</button></div>' : ''}</div>`;
+  $('#results-inner').innerHTML = `<div class="placesgrid">
+    <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 40)}</span><span class="nm">${esc(x.label)}<small>${esc(x.hint || '')}</small></span><span class="n">${count(x.id)}</span><span class="arr" aria-hidden="true">→</span></button>`; }).join('')}</div>
+    <div id="explore-results"><h3 class="explore-title"><span class="ic">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 28)}</span>${esc(cur.label)}</h3>${body}</div>
+  </div>`;
 }
 
 function renderFoot() {
@@ -370,7 +377,7 @@ function renderFoot() {
 }
 
 function setWhen(v) { S.when = v; S.open = null; S.sel = null; renderHeadline(); renderToday(); }
-function setLoc(loc) { S.loc = loc; S.open = null; S.sel = null; saveLoc(); renderHeadline(); renderToday(); }
+function setLoc(loc) { S.loc = loc; S.open = null; S.sel = null; S.showN = 24; saveLoc(); renderHeadline(); renderToday(); renderMore(); }
 function setAge(v) { S.age = v; S.open = null; S.sel = null; saveAge(); renderHeadline(); renderToday(); }
 
 /**
@@ -482,6 +489,7 @@ function showView(v) {
   $('#today').hidden = v !== 'events';
   $('#more').hidden = v !== 'places';
   for (const a of document.querySelectorAll('.viewtoggle [data-view]')) a.setAttribute('aria-selected', String(a.dataset.view === v));
+  if (DATA) { S.open = null; renderHeadline(); }
   if (v === 'events' && DATA) renderToday(); // the map needs a visible container to size itself
 }
 addEventListener('hashchange', () => { const v = viewFromHash(); if (v !== document.body.dataset.view) { showView(v); scrollTo(0, 0); } });
