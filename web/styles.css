@@ -6,6 +6,8 @@ h1,h2{font-family:'Palette Mosaic','Instrument Sans',Georgia,serif;font-weight:4
 /* Palette Mosaic's space is a full 1em: halve the gaps between words (owner), letters untouched. Only once the font has
    loaded (html.pm, set in app.js): a fallback font's narrow space would make words touch. */
 .pm h1,.pm h2{word-spacing:-.4em}
+/* The words between the menu phrases ("to do with a", "in") are gray, so the phrases read as the parts to tap (owner, Nov 2026). */
+.filler{color:#8A8E98}
 h3{font-family:'Instrument Sans',system-ui,sans-serif;font-weight:600;margin:0;letter-spacing:-.01em}
 button{font-family:inherit;cursor:pointer;color:inherit}
 a{color:var(--ink);text-decoration:none}
