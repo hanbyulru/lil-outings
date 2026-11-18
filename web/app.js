@@ -41,9 +41,9 @@ const AGE_GROUPS = [
 const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
-const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Vehicles'], ['gymnastics', 'Gymnastics'], ['eateries', 'Eateries']].map(([id, label]) => ({ id, label }));
+const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Vehicles'], ['gymnastics', 'Gymnastics'], ['eateries', 'Eateries'], ['holidays', 'Holidays', true]].map(([id, label, soon]) => ({ id, label, soon }));
 // "More to explore" icons: [mosaic tile shape, color] per config/vocab.json explore id.
-const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'], eateries: ['c', '#F2B705'] };
+const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'], eateries: ['c', '#F2B705'], holidays: ['sparkle', '#C8323C'] };
 const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];
 const LOC_KEY = 'lilOutings.loc'; // remembered per browser: daily visitors usually look near home
 
@@ -143,6 +143,9 @@ function tile(kind, c, size = 120) {
     c: `<path d="M10 10h50a50 50 0 0 1 50 50v50H10z"/>`,
     d: `<path d="M60 10a50 50 0 0 1 50 50 50 50 0 0 1-50 50H10V60A50 50 0 0 1 60 10z"/>`
   };
+  // Holidays (owner, Nov 2026): a round tile with a white four-point star and gold sparkles that twinkle (CSS, .tw).
+  const star = (x, y, r) => `M${x} ${y - r}Q${x + r * .18} ${y - r * .18} ${x + r} ${y}Q${x + r * .18} ${y + r * .18} ${x} ${y + r}Q${x - r * .18} ${y + r * .18} ${x - r} ${y}Q${x - r * .18} ${y - r * .18} ${x} ${y - r}z`;
+  if (kind === 'sparkle') return `<svg class="sparkly" viewBox="0 0 120 120" width="${size}" height="${size}" fill="${c}"><circle cx="60" cy="60" r="46"/><path d="${star(60, 60, 26)}" fill="#fff"/><path class="tw" d="${star(101, 19, 15)}" fill="#F2B705"/><path class="tw t2" d="${star(20, 102, 11)}" fill="#F2B705"/><path class="tw t3" d="${star(104, 96, 8)}" fill="#F2B705"/></svg>`;
   return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" fill="${c}">${shapes[kind]}<circle cx="60" cy="60" r="14" fill="#fff" opacity=".9"/></svg>`;
 }
 
@@ -325,12 +328,14 @@ function renderToday() {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
     const phrase = WHEN.find((w) => w[0] === S.when)[1];
     const where = (S.what !== 'all' ? ` under ${whatOf()[3]}` : '') + (S.age !== 'all' ? ` for a ${ageGroup()[1]}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
-    const msg = S.when === 'today' && over > 0 && !S.loc && S.what === 'all' ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
+    const msg = S.when === 'today' && over > 0 && !S.loc && S.what === 'all' ? 'That’s everything for today.' : `No events listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
-    const wider = w ? `<button class="btn-ink" ${w.district ? `data-locsetdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
+    const wider = w ? `<button class="btn-ink" ${w.district ? `data-locsetdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : '';
     const allAges = S.age !== 'all' ? `<button class="${w || S.loc ? 'textbtn' : 'btn-ink'}" data-agegroup="all">See all ages</button>` : '';
     const allWhat = S.what !== 'all' ? `<button class="${w || S.loc || S.age !== 'all' ? 'textbtn' : 'btn-ink'}" data-what="all">See all happenings</button>` : '';
-    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${S.loc || S.age !== 'all' || S.what !== 'all' ? next.replace('btn-ink', 'textbtn') : ''}</div></div>`;
+    // The next day is a dark button only when nothing else is offered; otherwise a text link (shown once).
+    const nextBtn = wider || allAges || allWhat ? next.replace('btn-ink', 'textbtn') : next;
+    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${nextBtn}<a class="textbtn" href="#places">Explore places instead</a></div></div>`;
   } else {
     let list;
     if (multiDay) {
@@ -362,9 +367,10 @@ function renderMore() {
   let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation gymnastics classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
-  if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${S.loc ? ` in ${esc(locPhrase(S.loc))}` : ''} yet.</h3>${S.loc ? '<div class="empty-actions"><button class="btn-ink" data-locany>See anywhere in Portland</button></div>' : ''}</div>`;
+  if (cur.soon && !items.length) body = `<div class="soon">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 64)}<p>Coming soon</p></div>`;
+  else if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${S.loc ? ` in ${esc(locPhrase(S.loc))}` : ''} yet.</h3>${S.loc ? '<div class="empty-actions"><button class="btn-ink" data-locany>See anywhere in Portland</button></div>' : ''}</div>`;
   $('#results-inner').innerHTML = `<div class="placesgrid">
-    <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 34)}</span><span class="nm">${esc(x.label)}</span><span class="n">${count(x.id)}</span><span class="arr" aria-hidden="true">→</span></button>`; }).join('')}</div>
+    <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 34)}</span><span class="nm">${esc(x.label)}</span><span class="n">${x.soon ? 'Soon' : count(x.id)}</span><span class="arr" aria-hidden="true">→</span></button>`; }).join('')}</div>
     <div id="explore-results"><h3 class="explore-title"><span class="ic">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 28)}</span>${esc(cur.label)}</h3>${cur.hint ? `<p class="explore-hint">${esc(cur.hint)}</p>` : ''}${body}</div>
   </div>`;
 }

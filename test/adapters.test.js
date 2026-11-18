@@ -123,7 +123,7 @@ test('curated places: valid explore ids, real coordinates, and every pill but no
     assert.ok(Number.isFinite(p.lat) && Number.isFinite(p.lon), p.name);
     assert.ok(!/verify/i.test(p.address || ''), `${p.name} still has a placeholder address`);
   }
-  for (const id of ids) assert.ok(seed.some((p) => (p.explore || []).includes(id)) || id === 'playgrounds' || id === 'science' || id === 'art', `curated coverage for ${id}`);
+  for (const id of ids) if (!vocab.explore.find((x) => x.id === id).soon) assert.ok(seed.some((p) => (p.explore || []).includes(id)) || id === 'playgrounds' || id === 'science' || id === 'art', `curated coverage for ${id}`);
 });
 
 import { parseOverpass as po } from '../src/adapters/osm_places.js';

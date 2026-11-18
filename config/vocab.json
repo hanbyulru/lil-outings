@@ -116,6 +116,12 @@
       "id": "eateries",
       "label": "Eateries",
       "hint": "Cafes and restaurants with dedicated play spaces"
+    },
+    {
+      "id": "holidays",
+      "label": "Holidays",
+      "hint": "Light displays, Santa visits, tree farms and other festive outings",
+      "soon": true
     }
   ],
   "interest_labels": {
