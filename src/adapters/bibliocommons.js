@@ -32,7 +32,8 @@ export function parseBiblioCommons(json, source) {
       description: htmlToText(d.description || ''),
       start, end,
       all_day: false,
-      url: d.id ? `${source.config.site}/events/${ev.id || d.id}` : null,
+      // The id is on the outer event object (Nov 2026: definition has none); pages live at <site>/v2/events/<id>.
+      url: ev.id || d.id ? `${source.config.site}/events/${ev.id || d.id}` : null,
       venue_name: loc.name || d.branchLocationName || null,
       address: addressOf(loc.address),
       // Verified Nov 2026: branch coordinates live in mapLocation.centrePoint {lat, lng}; latitude/longitude are absent.

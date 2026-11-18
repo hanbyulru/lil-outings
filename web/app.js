@@ -53,7 +53,7 @@ const INK = '#16181D'; // headline underline once a menu is changed from its def
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { what: 'all', when: 'today', age: 'all', open: null /* 'what' | 'age' | 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, explore: 'indoor_play', showN: 24, sel: null, showMap: false };
+const S = { expanded: new Set() /* event ids whose description is opened */, what: 'all', when: 'today', age: 'all', open: null /* 'what' | 'age' | 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, explore: 'indoor_play', showN: 24, sel: null, showMap: false };
 
 function loadLoc() {
   try {
@@ -190,15 +190,26 @@ function tagChips(e) {
   return t.length ? `<div class="tags">${t.map((k) => `<span class="tag" style="--c:${COLORS[k]};--t:${TEXT_COLORS[k] || COLORS[k]}">${esc(LABEL[k])}</span>`).join('')}</div>` : '';
 }
 
+/** Show "more" under descriptions that are cut off (two lines), and "less" under opened ones. */
+function showMoreButtons() {
+  for (const p of document.querySelectorAll('#today-inner .ev p.desc')) {
+    const btn = p.nextElementSibling;
+    if (btn?.dataset.more) btn.hidden = !(p.classList.contains('open') || p.scrollHeight > p.clientHeight + 2);
+  }
+}
+addEventListener('resize', () => requestAnimationFrame(showMoreButtons));
+
 function renderEvent(e, n) {
   const age = e.age_min != null ? (e.age_max >= 12 ? `Ages ${e.age_min}+` : `Ages ${e.age_min}–${e.age_max}`) : '';
   const cost = e.cost_type === 'free' ? '<span class="free">Free</span>' : e.cost_amount ? `$${e.cost_amount}` : e.cost_type === 'paid' ? 'Paid' : '';
   const reg = e.registration === 'drop_in' ? 'Drop-in' : e.registration === 'required' ? 'Registration required' : '';
-  return `<article class="ev ${S.sel === e.id ? 'sel' : ''}" data-ev="${e.id}"><span class="bar4" style="background:${colorOf(e)}"></span>
-    <div class="time"><div class="num" style="background:${colorOf(e)};color:${onFill(colorOf(e))}">${n}</div><div class="big">${esc(e.start_min != null ? fmtMin(e.start_min).replace(' ', '') : 'All day')}</div>${e.end_min != null ? `<div class="small">to ${esc(fmtMin(e.end_min))}</div>` : ''}</div>
+  const desc = esc((e.description || '').replace(/https?:\/\/\S+/g, '').trim());
+  const open = S.expanded.has(e.id);
+  return `<article class="ev ${S.sel === e.id ? 'sel' : ''}" data-ev="${e.id}"><div class="num" style="background:${colorOf(e)};color:${onFill(colorOf(e))}">${n}</div><span class="bar4" style="background:${colorOf(e)}"></span>
+    <div class="time"><div class="big">${esc(e.start_min != null ? fmtMin(e.start_min).replace(' ', '') : 'All day')}</div>${e.end_min != null ? `<div class="small">to ${esc(fmtMin(e.end_min))}</div>` : ''}</div>
     <div class="body">${tagChips(e)}
     <h3>${esc(e.title)}</h3><div class="where">${e.venue_name ? `<b>${esc(e.venue_name)}</b>` : 'Location on source page'}${e.neighborhood ? ' · ' + esc(e.neighborhood) : ''}${e.miles != null ? ` · ${e.miles.toFixed(1)} mi` : ''}</div>
-    <p>${esc((e.description || '').replace(/https?:\/\/\S+/g, '').trim())}</p>
+    ${desc ? `<p class="desc ${open ? 'open' : ''}">${desc}</p><button class="more" type="button" data-more="${e.id}" aria-expanded="${open}" hidden>${open ? 'less' : 'more'}</button>` : ''}
     <div class="meta"><span>${esc(age)}</span>${cost}<span>${esc(reg)}</span>${srcLine(e)}${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">Details ↗</a>` : ''}</div></div></article>`;
 }
 
@@ -302,6 +313,7 @@ function renderToday() {
     body = `<div class="split today-split ${S.showMap ? 'showmap' : ''}"><div class="list">${list}</div><aside class="map">${mapHtml(events)}</aside></div>`;
   }
   $('#today-inner').innerHTML = bar + body;
+  requestAnimationFrame(showMoreButtons);
   syncMap();
 }
 
@@ -418,7 +430,14 @@ document.addEventListener('click', (ev) => {
   if (d.showmore !== undefined) { S.showN += 24; return renderMore(); }
   if (d.pin) { S.sel = d.pin; return renderToday(); }
 });
-document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-ev]'); if (c && !ev.target.closest('a')) { S.sel = c.dataset.ev; const y = scrollY; renderToday(); scrollTo(0, y); } });
+document.addEventListener('click', (ev) => {
+  const m = ev.target.closest('[data-more]');
+  if (!m) return;
+  const id = m.dataset.more, p = m.previousElementSibling, open = !S.expanded.has(id);
+  open ? S.expanded.add(id) : S.expanded.delete(id);
+  p.classList.toggle('open', open); m.textContent = open ? 'less' : 'more'; m.setAttribute('aria-expanded', String(open));
+});
+document.addEventListener('click', (ev) => { const c = ev.target.closest('[data-ev]'); if (c && !ev.target.closest('a, [data-more]')) { S.sel = c.dataset.ev; const y = scrollY; renderToday(); scrollTo(0, y); } });
 document.addEventListener('keydown', (ev) => {
   if (!S.open) return;
   if (ev.key === 'Escape') { const k = S.open; closeMenu(); $(`[data-menu="${k}"]`)?.focus(); return; }

@@ -45,6 +45,7 @@ test('BiblioCommons parser is defensive about missing fields', () => {
   const ev = parseBiblioCommons({ entities: { events: { e1: { id: 'e1', definition: { title: 'Toddler Time', start: '2026-12-03T10:00:00', branchLocationId: 'b1' } } }, locations: { b1: { name: 'Tigard', latitude: 45.4, longitude: -122.7 } } } }, src);
   assert.equal(ev[0].venue_name, 'Tigard');
   assert.equal(ev[0].start, '2026-12-03T10:00:00-08:00');
+  assert.match(ev[0].url, /\/events\/e1$/, 'live data: the id is on the outer event, not definition');
   assert.deepEqual(parseBiblioCommons({}, src), []);
 });
 

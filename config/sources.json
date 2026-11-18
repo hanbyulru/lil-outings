@@ -43,7 +43,7 @@
       "status": "experimental",
       "homepage": "https://wccls.bibliocommons.com/events/",
       "config": {
-        "site": "https://wccls.bibliocommons.com",
+        "site": "https://wccls.bibliocommons.com/v2",
         "api": "https://gateway.bibliocommons.com/v2/libraries/wccls/events/search",
         "queries": [
           {
