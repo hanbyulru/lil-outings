@@ -31,11 +31,11 @@ function fitsWhat(e) {
 // The headline's age picker. [value, phrase after "a", menu label, menu hint, age range (years) or null for everyone].
 // Upper bounds stop just short of the next group so a "babies 0-1" listing isn't also a toddler listing.
 const AGE_GROUPS = [
-  ['all', 'small person', 'Small Person (All)', 'Every age, 0–12', null],
+  ['all', 'small person', 'All', 'Every age, 0–12', null],
   ['baby', 'baby', 'Baby', '0–12 months', [0, 0.99]],
-  ['toddler', 'toddler', 'Toddler', '1–3 years', [1, 2.99]],
-  ['preschool', 'preschooler', 'Preschooler', '3–5 years', [3, 4.99]],
-  ['school', 'school-age kid', 'School-Age Kid', '5–12 years', [5, 12]]
+  ['toddler', 'toddler', 'Toddler', '1–2 years', [1, 2.99]],
+  ['preschool', 'preschooler', 'Preschooler', '3–5 years', [3, 5.99]],
+  ['school', 'school-age kid', 'School age', '6–12 years', [6, 12]]
 ];
 const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.

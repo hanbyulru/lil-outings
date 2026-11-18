@@ -89,6 +89,6 @@ test('headline age groups: babies, toddlers, preschoolers, school-age kids; unta
   const t = (age) => filterEvents(list, { age }, ctx).map((x) => x.title).sort();
   assert.deepEqual(t([0, 0.99]), ['babies', 'family', 'untagged']);
   assert.deepEqual(t([1, 2.99]), ['babies', 'family', 'toddlers', 'untagged']);
-  assert.deepEqual(t([3, 4.99]), ['family', 'toddlers', 'untagged']);
-  assert.deepEqual(t([5, 12]), ['family', 'school', 'untagged']);
+  assert.deepEqual(t([3, 5.99]), ['family', 'toddlers', 'untagged']);
+  assert.deepEqual(t([6, 12]), ['family', 'school', 'untagged']);
 });
