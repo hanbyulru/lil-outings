@@ -85,9 +85,13 @@ h1.pagehead{margin:0 0 60px}
 .whenbtn{font:inherit;color:inherit;letter-spacing:inherit;word-spacing:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-decoration:none}
 .whenbtn{--ul:#A9ABB2} /* underline + caret: gray by default; the "what" phrase takes its interest's color (app.js) */
 .whenbtn .whentext{text-decoration:underline;text-decoration-skip-ink:none;text-decoration-color:var(--ul);text-decoration-thickness:5px;text-underline-offset:10px}
-/* Hover (devices with a pointer): the underline turns into the colorful mosaic strip, in the six interest colors (owner, Nov 2026). */
+/* The colorful mosaic strip (six interest colors) replaces the gray underline on a phrase that's been chosen (.active; the day
+   always counts as chosen) and, on devices with a pointer, on hover (owner, Nov 2026). */
+.whenbtn{--mosaic:repeating-linear-gradient(90deg,#F2B705 0 14px,transparent 14px 17px,#B05CD6 17px 31px,transparent 31px 34px,#3B6FE0 34px 48px,transparent 48px 51px,#2E9E6B 51px 65px,transparent 65px 68px,#F0614F 68px 82px,transparent 82px 85px,#E4559B 85px 99px,transparent 99px 102px)}
+.whenbtn.active .whentext{text-decoration-color:transparent;background-image:var(--mosaic);background-repeat:repeat-x;background-size:102px 5px;background-position:0 calc(100% - 3px);padding-bottom:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.whenbtn.active .caret{color:var(--ink)}
 @media (hover:hover){
-  .whenbtn:hover .whentext{text-decoration-color:transparent;background-image:repeating-linear-gradient(90deg,#F2B705 0 14px,transparent 14px 17px,#B05CD6 17px 31px,transparent 31px 34px,#3B6FE0 34px 48px,transparent 48px 51px,#2E9E6B 51px 65px,transparent 65px 68px,#F0614F 68px 82px,transparent 82px 85px,#E4559B 85px 99px,transparent 99px 102px);background-repeat:repeat-x;background-size:102px 5px;background-position:0 calc(100% - 3px);padding-bottom:var(--mos-pad,6px);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .whenbtn:hover .whentext{text-decoration-color:transparent;background-image:var(--mosaic);background-repeat:repeat-x;background-size:102px 5px;background-position:0 calc(100% - 3px);padding-bottom:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
   .whenbtn:hover .caret{color:var(--ink)}
 }
 .whenbtn:focus-visible{outline:3px solid var(--ul);outline-offset:6px;border-radius:6px}
