@@ -198,3 +198,9 @@ test('Play: playgrounds, yoga, games, movies; dinners and fundraisers stay Other
   assert.ok(!extraInterests({ title: 'Wednesday Wigglers', categories: ['storytime'] }, ['play']).includes('play'), 'a storytime without play in the title is not Play');
   assert.ok(extraInterests({ title: 'Spanish Language Story and Play' }, []).includes('play'), 'story and play is Play');
 });
+
+test('play programs: music or "designed" in the description is not Music & Art', () => {
+  assert.deepEqual(extraInterests({ title: 'Indoor Playground', description: 'A fun, flexible playtime designed for young children.' }, []), ['play']);
+  assert.deepEqual(extraInterests({ title: 'Babies & Ones Playgroup', description: 'We provide toys, music, and fun.' }, ['art']), ['play']);
+  assert.deepEqual(extraInterests({ title: 'Music & Dance Playtime' }, []).sort(), ['art', 'play']);
+});

@@ -78,17 +78,19 @@ export function extraInterests(ev, interests = []) {
   let out = [...interests];
   for (const [tag, re] of TAG_RULES) {
     // Science and trains from the title only (descriptions mention "build community", "train your staff"...)
-    const hay = tag === 'science' || tag === 'trains' || tag === 'play' ? title : text; // broad words: titles only
+    // Only Storytime and Animals & Nature read the description; the rest go by the title (descriptions say "build community",
+    // "designed for", "toys, music and fun"...).
+    const hay = tag === 'books' || tag === 'nature' ? text : title;
     if (!out.includes(tag) && re.test(hay)) out.push(tag);
   }
   // Dinners and fundraisers stay untagged ("Other"), whatever the classifier said (owner, Nov 2026).
   if (/dinner|fundrais/i.test(title)) out = out.filter((t) => t !== 'play');
-  // Storytimes mention songs and rhymes as a matter of course: that alone isn't Music & Art (owner, Nov 2026).
-  // Keep Music & Art only when the title itself is about music or art ("Music & Movement Storytime", "Storytime & Craft").
-  if (isStorytime(ev) && !TAG_RULES.find(([t]) => t === 'art')[1].test(title.replace(/story ?times?/ig, ''))) {
+  // Storytimes and play programs mention songs and music as a matter of course: that alone isn't Music & Art (owner, Nov 2026).
+  // Keep Music & Art only when the title itself is about music or art ("Music & Movement Storytime", "Music & Dance Playtime").
+  if ((isStorytime(ev) || PLAYPROGRAM.test(title)) && !TAG_RULES.find(([t]) => t === 'art')[1].test(title.replace(/story ?times?/ig, ''))) {
     out = out.filter((t) => t !== 'art');
-    if (!out.includes('books')) out.unshift('books');
   }
+  if (isStorytime(ev) && !out.includes('books')) out.unshift('books');
   // ...and a storytime is Play only when its title says play ("Story and Play", "Storytime & Playgroup").
   if (isStorytime(ev) && !/\bplay/i.test(title)) {
     out = out.filter((t) => t !== 'play');
@@ -96,5 +98,6 @@ export function extraInterests(ev, interests = []) {
   return out;
 }
 
+const PLAYPROGRAM = /playground|play ?group|play ?time|stay (&|and) play|open gym|pop[- ]?up (&|and) play/i;
 const STORYTIME = /story ?times?|lapsit|baby time|toddler time|book babies|babies and books|tiny tots|\bstory and (play|song|rhyme)s?\b|\bhora de cuentos\b|cuentos/i;
 export const isStorytime = (ev) => (ev.categories || []).includes('storytime') || STORYTIME.test(String(ev.title || ''));
