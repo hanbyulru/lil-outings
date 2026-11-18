@@ -499,6 +499,8 @@ document.addEventListener('click', (ev) => {
 });
 /** Picked on the map: scroll the list to that event's card (owner, Nov 2026). */
 function scrollToCard(id) {
+  // Phones: the map sits above the list, so jumping down to the card would pull the map away mid-use (owner, Nov 2026).
+  if (matchMedia('(max-width:700px)').matches) return;
   // Wait two frames: the "more" buttons appear one frame after a render and change every card's height.
   requestAnimationFrame(() => requestAnimationFrame(() => {
     document.querySelector(`#today-inner .list .ev[data-ev="${CSS.escape(id)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
