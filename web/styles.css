@@ -29,8 +29,8 @@ button.citypill:hover{border-color:var(--ink);color:var(--ink)}
 .cityask .err{margin-top:10px;color:#B3261E;font-size:14px}
 nav.main{display:flex;flex-wrap:wrap;gap:28px;align-items:center;font-weight:500;font-size:16px}
 .link:hover{text-decoration:underline;text-underline-offset:5px}
-.viewtoggle{gap:0;padding:0;justify-self:center}
-.viewtoggle a+a{margin-left:-16px} /* 16px less space between the two (owner) */
+nav.main.viewtoggle{gap:0;padding:0;justify-self:center} /* beats nav.main{gap:28px} */
+/* the two pills sit edge to edge (owner, Nov 2026) */
 .viewtoggle a{padding:10px 22px;border-radius:999px;font-weight:600;font-size:16px;line-height:1.2;transition:background .15s,color .15s}
 .viewtoggle a[aria-selected="true"]{background:var(--ink);color:#fff}
 .viewtoggle a[aria-selected="false"]:hover{background:rgba(22,24,29,.06)}
