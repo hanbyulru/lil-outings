@@ -396,8 +396,8 @@ function renderFoot() {
 const track = (name, params = {}) => { try { window.gtag?.('event', name, params); } catch {} };
 
 // "Explore places instead" on an empty day opens the Places kind that matches the chosen interest (owner, Nov 2026).
-// Storytime has no matching kind, so it (and All / Other) opens the Places tab as it was.
-const INTEREST_KIND = { art: 'art', science: 'science', nature: 'nature', trains: 'trains_planes', play: 'indoor_play' };
+// Storytime has no kind of its own: Indoor Playgrounds (owner). All / Other open the Places tab as it was.
+const INTEREST_KIND = { books: 'indoor_play', art: 'art', science: 'science', nature: 'nature', trains: 'trains_planes', play: 'indoor_play' };
 document.addEventListener('click', (ev) => {
   const a = ev.target.closest('a[data-gokind]'); if (!a || !a.dataset.gokind) return;
   S.explore = a.dataset.gokind; S.showN = 24; renderMore(); // the link's #places hash then switches the tab
