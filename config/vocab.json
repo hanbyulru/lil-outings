@@ -104,8 +104,8 @@
     },
     {
       "id": "trains_planes",
-      "label": "Trains & Planes",
-      "hint": "Train rides, rail and aviation museums"
+      "label": "Vehicles",
+      "hint": "Trains, planes, boats, fire trucks and the museums that keep them"
     },
     {
       "id": "gymnastics",
@@ -123,7 +123,7 @@
     "art": "Music & Art",
     "nature": "Animals & Nature",
     "science": "Science",
-    "trains": "Trains & Planes",
+    "trains": "Vehicles",
     "play": "Play"
   },
   "interest_aliases": {

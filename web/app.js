@@ -6,7 +6,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 // Interest colors (owner, Nov 2026). TEXT_COLORS: darker shades where the fill is too light to read as text (yellow).
 const COLORS = { books: '#F2B705', art: '#B05CD6', nature: '#2E9E6B', science: '#3B6FE0', trains: '#F0614F', play: '#E4559B' };
 const TEXT_COLORS = { books: '#9A6B00' };
-const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Trains & Planes', play: 'Play' };
+const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Vehicles', play: 'Play' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend']];
@@ -18,7 +18,7 @@ const WHAT = [
   ['art', 'Music & art things', 'to do', 'Music & Art', 'art'],
   ['science', 'Science things', 'to do', 'Science', 'science'],
   ['nature', 'Animal & nature things', 'to do', 'Animals & Nature', 'nature'],
-  ['trains', 'Train & plane things', 'to do', 'Trains & Planes', 'trains'],
+  ['trains', 'Vehicle things', 'to do', 'Vehicles', 'trains'],
   ['play', 'Playful things', 'to do', 'Play', 'play'],
   ['other', 'Other things', 'to do', 'Other', null]
 ];
@@ -41,7 +41,7 @@ const AGE_GROUPS = [
 const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
-const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Trains & Planes'], ['gymnastics', 'Gymnastics'], ['eateries', 'Eateries']].map(([id, label]) => ({ id, label }));
+const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Vehicles'], ['gymnastics', 'Gymnastics'], ['eateries', 'Eateries']].map(([id, label]) => ({ id, label }));
 // "More to explore" icons: [mosaic tile shape, color] per config/vocab.json explore id.
 const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'], eateries: ['c', '#F2B705'] };
 const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];

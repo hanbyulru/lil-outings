@@ -1376,5 +1376,130 @@
   "explore": [
    "eateries"
   ]
+ },
+ {
+  "id": "seed-tram",
+  "name": "Portland Aerial Tram",
+  "kind": "tram",
+  "lat": 45.49929,
+  "lon": -122.67103,
+  "address": "3303 S Bond Ave, Portland, OR 97239 (lower terminal)",
+  "url": "https://www.gobytram.com",
+  "hours_text": "Monday to Saturday; closed major holidays",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "trains"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "A four-minute cable-car ride up to OHSU on Marquam Hill with views of the city and the mountains. Kids 6 and under ride free.",
+  "explore": [
+   "trains_planes"
+  ]
+ },
+ {
+  "id": "seed-canbyferry",
+  "name": "Canby Ferry",
+  "kind": "ferry",
+  "lat": 45.29901,
+  "lon": -122.69277,
+  "address": "Ferry Rd, Canby, OR 97013 (south landing)",
+  "hours_text": "No set schedule: call the county's Canby Ferry info line (503-650-3030)",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "trains"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "A small car ferry across the Willamette River. Cash or check only.",
+  "explore": [
+   "trains_planes"
+  ]
+ },
+ {
+  "id": "seed-experimentpdx",
+  "name": "Experiment PDX",
+  "kind": "science studio",
+  "lat": 45.51954,
+  "lon": -122.651,
+  "address": "1421 SE Stark St, Portland, OR 97214",
+  "url": "https://experimentpdx.com",
+  "hours_text": "Afternoons Wednesday to Sunday; check site",
+  "age_min": 3,
+  "age_max": 11,
+  "interests": [
+   "science",
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Hands-on science museum floor (marble runs, circuits, microscopes, magnet tiles), a craft lab and live critters; LEGO robotics classes and no-school camps.",
+  "explore": [
+   "science"
+  ]
+ },
+ {
+  "id": "seed-canvascode",
+  "name": "Canvas & Code",
+  "kind": "STEAM studio",
+  "lat": 45.4869,
+  "lon": -122.77974,
+  "address": "9955 SW Beaverton Hillsdale Hwy #117, Beaverton, OR 97005",
+  "hours_text": "Check for classes and open sessions",
+  "age_min": 1,
+  "age_max": 10,
+  "interests": [
+   "science",
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "STEAM art studio: art projects mixed with early STEM, including Toddler Mini Makers for ages 18 months to 4.",
+  "explore": [
+   "science",
+   "art"
+  ]
+ },
+ {
+  "id": "seed-codeninjas-bethany",
+  "name": "Code Ninjas Bethany",
+  "kind": "STEM center",
+  "lat": 45.52506,
+  "lon": -122.81316,
+  "address": "725 NW Dale Ave, Suite 101, Portland, OR 97229",
+  "hours_text": "Check for classes and camps",
+  "age_min": 5,
+  "age_max": 12,
+  "interests": [
+   "science"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Kids' coding center: coding and robotics classes and camps.",
+  "explore": [
+   "science"
+  ]
+ },
+ {
+  "id": "seed-codeninjas-bridgeport",
+  "name": "Code Ninjas Bridgeport",
+  "kind": "STEM center",
+  "lat": 45.39069,
+  "lon": -122.75279,
+  "address": "18081 SW Lower Boones Ferry Rd, Suite 1, Tigard, OR 97224",
+  "hours_text": "Check for classes and camps",
+  "age_min": 5,
+  "age_max": 12,
+  "interests": [
+   "science"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Kids' coding center: coding and robotics classes and camps.",
+  "explore": [
+   "science"
+  ]
  }
 ]

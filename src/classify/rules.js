@@ -23,7 +23,7 @@ export function classifyRules(ev) {
 
   let kid = !adultOnly && !teenOnly && min != null;
   const interests = [];
-  if (has(text, /\b(train|locomotive|railroad|rail|trolley|airplanes?|planes?|aviation|airport)\b/)) interests.push('trains');
+  if (has(text, /\b(train|locomotive|railroad|rail|trolley|airplanes?|planes?|aviation|airport|trucks?|fire engines?|tractors?|boats?|vehicles?)\b/)) interests.push('trains');
   if (has(text, /\b(animal|zoo|goat|reptile|bird|farm|pets?)\b/)) interests.push('nature');
   if (has(text, /\b(science|stem|rocket|slime|experiment|chemistry|space|robot|maker)\b|dino|fossil|paleo/)) interests.push('science'); // dinosaurs count as science (owner, Nov 2026)
   if (has(text, /\b(nature|forest|trail|garden|wildlife|hike|walk|park)\b/) && !has(title, /volunteer|stewardship/)) interests.push('nature');
@@ -59,7 +59,7 @@ export function classifyRules(ev) {
 
 /**
  * Interest tags that a title/description makes plain, added on top of whatever the classifier said (never removes).
- * Owner, Nov 2026: interests are tags and an event can have several (Tales to Tails = Storytime + Animals & Nature);
+ * Owner, Nov 2026: interests are tags and an event can have several (Tales to Tails = Storytime + Animals & Nature; StoryWalk = Animals & Nature first, then Storytime);
  * any kind of building (LEGO, maker, engineering) is Science / STEM.
  */
 const TAG_RULES = [
@@ -69,7 +69,8 @@ const TAG_RULES = [
   ['art', /\bmusic(al)?\b|\bsing(ing|-?along)?\b|\bsongs?\b|\bdanc(e|ing)\b|\bcrafts?\b|\bart\b|\barts\b|paint|draw(ing)?\b|\bclay\b|puppet|concert|instrument|\bdesign|glowforge|laser[ -]?cut|cricut|sewing|knit(ting)?|crochet|embroider|stitch(ing)?|fiber arts?/i],
   // Play (owner, Nov 2026): playgrounds and open play, movement and yoga, games, family movies and parties.
   ['play', /playground|play ?(group|date|time|space|room)|pop[- ]?up (&|and) play|\bplay\b|open gym|bounce|tumbl|yoga|dance party|\bgames?\b|chess|lego free play|movies?\b|film|cinema|dive-in|family (night|fun|day)|party|carnival|hangout|snacktivit/i],
-  ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport/i]
+  // Vehicles (owner, Nov 2026; the tag id stays 'trains'): trains, planes, cars, trucks, buses, boats, construction machines.
+  ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport|\bvehicles?\b|\btrucks?\b|fire ?engines?|\bcars?\b|\bbus(es)?\b|\bboats?\b|tractors?|diggers?|excavators?|construction (equipment|machines?|vehicles?)|helicopters?|rockets?|motorcycles?|race ?cars?|\bwheels\b/i]
 ];
 export function extraInterests(ev, interests = []) {
   // "song ngữ" is Vietnamese for bilingual, not a song
@@ -93,6 +94,8 @@ export function extraInterests(ev, interests = []) {
   if (isStorytime(ev) && !out.includes('books')) out.unshift('books');
   // Reading to animals (Tales to Tails, Read to the Dogs): Animals & Nature leads, so the card is always green (owner, Nov 2026).
   if (out.includes('nature') && /\b(tails|dogs?|cats?|pets?|pupp(y|ies)|kitt(y|ies|ens?)|animals?|bunn(y|ies))\b/i.test(title)) out = ['nature', ...out.filter((t) => t !== 'nature')];
+  // StoryWalk (a picture book posted page by page along a park trail): Animals & Nature first, then Storytime (owner, Nov 2026).
+  if (/story ?walk/i.test(title)) out = ['nature', 'books', ...out.filter((t) => t !== 'nature' && t !== 'books')];
   // ...and a storytime is Play only when its title says play ("Story and Play", "Storytime & Playgroup").
   if (isStorytime(ev) && !/\bplay/i.test(title)) {
     out = out.filter((t) => t !== 'play');

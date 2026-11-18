@@ -34,5 +34,26 @@
     "_why": "Monkey King Play Palace is paid, $15 (owner, Nov 2026)",
     "cost": "paid",
     "price": "$15"
+  },
+  "osm-way-117450405": {
+    "_why": "Oregon Maritime Museum (sternwheeler Portland): Vehicles + History (owner asked for vehicle places, Nov 2026)",
+    "explore": [
+      "trains_planes",
+      "history"
+    ]
+  },
+  "osm-node-13521068040": {
+    "_why": "Depot Rail Museum: a rail museum, so Vehicles too (Nov 2026)",
+    "explore": [
+      "trains_planes",
+      "history"
+    ]
+  },
+  "osm-way-899792680": {
+    "_why": "Portland Fire & Rescue Historic Museum: historic fire engines, so Vehicles too (Nov 2026)",
+    "explore": [
+      "trains_planes",
+      "history"
+    ]
   }
 }

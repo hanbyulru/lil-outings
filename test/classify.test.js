@@ -159,6 +159,9 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
   assert.deepEqual(tags('Kids & Tweens Build It'), ['science']);
   assert.deepEqual(tags('Family Maker Time', ['art']), ['art', 'science']);
   assert.deepEqual(tags('Tales to Tails', ['books']).sort(), ['books', 'nature']);
+  assert.deepEqual(tags('StoryWalk® at Fields Bridge Park!', ['books']), ['nature', 'books'], 'StoryWalk: nature first (owner)');
+  assert.deepEqual(tags('Touch a Truck'), ['trains'], 'Vehicles');
+  assert.ok(!tags('Cartoon Club').includes('trains'));
   assert.deepEqual(tags('Read to the Dogs', ['books']).sort(), ['books', 'nature']);
   assert.deepEqual(tags('Music & Movement Storytime').sort(), ['art', 'books']);
   assert.deepEqual(tags('Baby Lapsit', ['books']), ['books'], 'keeps what the classifier gave');
