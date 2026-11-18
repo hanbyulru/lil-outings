@@ -282,7 +282,7 @@ function renderMore() {
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation gymnastics classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
   if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)} yet.</h3></div>`;
-  $('#results-inner').innerHTML = `<h2>More to explore</h2>
+  $('#results-inner').innerHTML = `<h2>Places to explore</h2>
     <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 40)}</span><span class="nm">${esc(x.label)}<small>${esc(x.hint || '')}</small></span><span class="n">${count(x.id)}</span><span class="arr" aria-hidden="true">${on ? '↓' : '→'}</span></button>`; }).join('')}</div>
     <div id="explore-results"><h3 class="explore-title"><span class="ic">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 28)}</span>${esc(cur.label)}</h3>${body}</div>`;
 }
@@ -325,8 +325,6 @@ document.addEventListener('click', (ev) => {
   if (d.locdistrict) return setLoc({ district: d.locdistrict });
   if (d.locplace) return setLoc({ place: d.locplace });
   if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
-  if (d.nav === 'events') { ev.preventDefault(); $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
-  if (d.nav === 'places') { ev.preventDefault(); $('#more').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.showmap !== undefined) { S.showMap = !S.showMap; return renderToday(); }
   if (d.explore) {
     S.explore = d.explore; S.showN = 24; renderMore();
@@ -348,6 +346,18 @@ document.addEventListener('keydown', (ev) => {
     ev.preventDefault();
   }
 });
+
+/** Events and Places are two views, switched by the toggle in the header (#events / #places, so links and Back work). */
+function viewFromHash() { return location.hash === '#places' ? 'places' : 'events'; }
+function showView(v) {
+  document.body.dataset.view = v;
+  $('#today').hidden = v !== 'events';
+  $('#more').hidden = v !== 'places';
+  for (const a of document.querySelectorAll('.viewtoggle [data-view]')) a.setAttribute('aria-selected', String(a.dataset.view === v));
+  if (v === 'events' && DATA) renderToday(); // the map needs a visible container to size itself
+}
+addEventListener('hashchange', () => { const v = viewFromHash(); if (v !== document.body.dataset.view) { showView(v); scrollTo(0, 0); } });
+showView(viewFromHash());
 
 initMap().then((ok) => { MAP = ok; if (DATA) renderToday(); });
 load().then((d) => {

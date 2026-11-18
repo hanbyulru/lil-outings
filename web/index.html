@@ -13,8 +13,8 @@
 <div class="ribbon"><span style="background:#F0614F"></span><span style="background:#F2A93B"></span><span style="background:#2E9E6B"></span><span style="background:#3B6FE0"></span><span style="background:#B05CD6"></span></div>
 <div class="wrap">
   <header class="top">
-    <a class="logo" href="#">Lil' Outings</a>
-    <nav class="main"><a class="link" href="#today" data-nav="events">Events</a><a class="link" href="#more" data-nav="places">Places</a></nav>
+    <a class="logo" href="#events">Lil' Outings</a>
+    <nav class="main viewtoggle" role="tablist" aria-label="Events or places"><a href="#events" role="tab" data-view="events" aria-selected="true" aria-controls="today">Events</a><a href="#places" role="tab" data-view="places" aria-selected="false" aria-controls="more">Places</a></nav>
   </header>
   <section class="hero today" id="today">
     <p class="eyebrow">Portland, OR &amp; the metro area</p>
@@ -22,7 +22,7 @@
     <div id="today-inner"></div>
   </section>
 </div>
-<section class="results" id="more"><div class="wrap" id="results-inner"></div></section>
+<section class="results" id="more" hidden><div class="wrap" id="results-inner"></div></section>
 <footer><div class="wrap" id="foot"></div></footer>
 <script type="module" src="app.js"></script>
 </body>
