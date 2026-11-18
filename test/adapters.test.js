@@ -148,3 +148,12 @@ test('unnamed playgrounds are named after their park, one per park', () => {
   assert.equal(irving.wikidata, 'Q6074', "the park's photo can be the card banner");
   assert.ok(!out.some((p) => p.kind === 'park'), 'parks themselves are not listed');
 });
+
+test('place overrides: valid JSON keyed by place id, https links only', () => {
+  const o = JSON.parse(readFileSync('config/place_overrides.json', 'utf8'));
+  for (const [id, v] of Object.entries(o)) {
+    if (id.startsWith('_')) continue;
+    assert.match(id, /^(osm-(node|way|relation)-\d+|seed-[a-z0-9-]+)$/, id);
+    if (v.url) assert.match(v.url, /^https:\/\//, id);
+  }
+});

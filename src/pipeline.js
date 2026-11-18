@@ -63,6 +63,9 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
       log(`  ${src.name} places: FAILED (${err.message})`);
     }
   }
+  // Hand corrections on top of OSM (dead links etc.): config/place_overrides.json, keyed by place id.
+  const overrides = readJson('config/place_overrides.json');
+  places = places.map((p) => (overrides[p.id] ? { ...p, ...Object.fromEntries(Object.entries(overrides[p.id]).filter(([k]) => !k.startsWith('_'))) } : p));
   if (!offline) await addPlaceImages(places, ctx.http, log); // the demo has no photo fixtures: cards show their mosaic banner
   else for (const p of places) delete p.commons;
   places = places.map((p) => { const l = locate(p.lat, p.lon); return { ...p, age_bands: bandsFor(p.age_min, p.age_max), neighborhood: l?.neighborhood || null, district: l?.district || null }; });

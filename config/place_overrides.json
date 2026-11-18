@@ -1,0 +1,7 @@
+{
+  "_about": "Corrections applied on top of OpenStreetMap places, keyed by place id (osm-<type>-<id>). Use when OSM has a wrong or dead link; better still, also fix it on openstreetmap.org.",
+  "osm-node-14019328709": {
+    "_why": "Oregon Korean War Memorial Interpretive Center: OSM's wilsonvilleparksandrec.com link is dead (owner, Nov 2026)",
+    "url": "https://www.wilsonvilleoregon.gov/Facilities/Facility/Details/Oregon-Korean-War-Memorial-Interpretive--4"
+  }
+}
