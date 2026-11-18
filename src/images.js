@@ -13,6 +13,8 @@ export const WIKIMEDIA_UA = 'LilOutings/0.2 (https://hanbyulru.github.io/lil-out
 const WIDTH = 640;
 const chunk = (a, n) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
 const QID = /^Q\d+$/;
+// Wikidata 'instance of' values that make an item's photo fit a playground: park, urban park, playground, garden, city park
+const PARK_TYPES = new Set(['Q22698', 'Q22746', 'Q11875349', 'Q1107656', 'Q2945655']);
 
 /** Commons file name from an OSM image / wikimedia_commons tag, or null if it isn't a Commons file. */
 export function commonsFileFromTag(v) {
@@ -46,15 +48,20 @@ export async function addPlaceImages(places, http, log = () => {}) {
       const f = commonsFileFromTag(p.commons && !/^File:/i.test(p.commons) ? `File:${p.commons}` : p.commons) || commonsFileFromTag(p.image);
       if (f) fileOf.set(p.id, f);
     }
-    // A playground's wikidata tag usually points at its park or neighborhood, whose photo isn't the playground.
-    const usesWikidata = (p) => !fileOf.has(p.id) && QID.test(p.wikidata || '') && p.kind !== 'playground';
+    const usesWikidata = (p) => !fileOf.has(p.id) && QID.test(p.wikidata || '');
     const qids = [...new Set(places.filter(usesWikidata).map((p) => p.wikidata))];
-    const p18 = new Map();
+    const p18 = new Map(), parky = new Set();
     for (const ids of chunk(qids, 50)) {
       const j = JSON.parse(await politeFetch(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ids.join('|')}&props=claims&format=json`, h));
-      for (const id of ids) { const v = j.entities?.[id]?.claims?.P18?.[0]?.mainsnak?.datavalue?.value; if (v) p18.set(id, v); }
+      for (const id of ids) {
+        const c = j.entities?.[id]?.claims || {};
+        const v = c.P18?.[0]?.mainsnak?.datavalue?.value;
+        if (v) p18.set(id, v);
+        if ((c.P31 || []).some((s) => PARK_TYPES.has(s.mainsnak?.datavalue?.value?.id))) parky.add(id);
+      }
     }
-    for (const p of places) if (usesWikidata(p) && p18.has(p.wikidata)) fileOf.set(p.id, p18.get(p.wikidata));
+    // A playground's wikidata tag often points at its neighborhood (a townhouse photo): only take parks and playgrounds.
+    for (const p of places) if (usesWikidata(p) && p18.has(p.wikidata) && (p.kind !== 'playground' || parky.has(p.wikidata))) fileOf.set(p.id, p18.get(p.wikidata));
 
     const info = new Map(); // normalized title -> { thumb, page, credit }
     const titles = [...new Set(fileOf.values())].map((f) => `File:${f}`);

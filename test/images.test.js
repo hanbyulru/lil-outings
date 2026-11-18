@@ -30,7 +30,8 @@ test('addPlaceImages resolves hand-picked files and Wikidata P18, with credits',
   const fetchImpl = async (url, opts) => {
     seen.push({ url, ua: opts.headers['user-agent'] });
     let body;
-    if (url.includes('wikidata.org')) body = { entities: { Q7: { claims: { P18: [{ mainsnak: { datavalue: { value: 'Mount Tabor pavilion.jpg' } } }] } }, Q8: { claims: {} } } };
+    if (url.includes('wikidata.org')) body = { entities: { Q7: { claims: { P18: [{ mainsnak: { datavalue: { value: 'Mount Tabor pavilion.jpg' } } }] } }, Q8: { claims: {} },
+      Q9: { claims: { P18: [{ mainsnak: { datavalue: { value: 'Mount Tabor pavilion.jpg' } } }], P31: [{ mainsnak: { datavalue: { value: { id: 'Q22698' } } } }] } } } };
     else body = { query: { normalized: [{ from: 'File:Powell_Butte.jpg', to: 'File:Powell Butte.jpg' }], pages: {
       1: { title: 'File:Powell Butte.jpg', imageinfo: [{ mime: 'image/jpeg', thumburl: 'https://upload.wikimedia.org/t/pb.jpg', descriptionurl: 'https://commons.wikimedia.org/wiki/File:Powell_Butte.jpg', extmetadata: { Artist: { value: 'Ennetws' }, LicenseShortName: { value: 'Public domain' } } }] },
       2: { title: 'File:Mount Tabor pavilion.jpg', imageinfo: [{ mime: 'image/jpeg', thumburl: 'https://upload.wikimedia.org/t/mt.jpg', descriptionurl: 'https://commons.wikimedia.org/wiki/File:Mount_Tabor_pavilion.jpg', extmetadata: { Artist: { value: 'Finetooth' }, LicenseShortName: { value: 'CC BY-SA 3.0' } } }] } } } };
@@ -41,6 +42,7 @@ test('addPlaceImages resolves hand-picked files and Wikidata P18, with credits',
     { id: 'b', wikidata: 'Q7' },
     { id: 'c', wikidata: 'Q8' },
     { id: 'e', wikidata: 'Q7', kind: 'playground' },
+    { id: 'f', wikidata: 'Q9', kind: 'playground' },
     { id: 'd', image: 'https://example.com/business.jpg' }
   ];
   await addPlaceImages(places, { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'img-')), minGapMs: 0 });
@@ -50,7 +52,8 @@ test('addPlaceImages resolves hand-picked files and Wikidata P18, with credits',
   assert.equal(places[1].image_page, 'https://commons.wikimedia.org/wiki/File:Mount_Tabor_pavilion.jpg');
   assert.equal(places[2].image, undefined);
   assert.equal(places[3].image, undefined); // a playground's neighborhood photo isn't used
-  assert.equal(places[4].image, undefined); // never a business website photo
+  assert.equal(places[5].image, undefined); // never a business website photo
+  assert.equal(places[4].image, 'https://upload.wikimedia.org/t/mt.jpg'); // the playground's item is a park: its photo fits
   assert.ok(places.every((p) => !('commons' in p)));
   assert.ok(seen.every((s) => s.ua === WIKIMEDIA_UA));
 });
