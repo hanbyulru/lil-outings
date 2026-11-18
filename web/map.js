@@ -4,7 +4,7 @@
 // the illustrative SVG map.
 
 const BOUNDS = [[-123.05, 45.28], [-122.35, 45.70]]; // same box as the extract and the OSM places query
-const MAX_BOUNDS = [[-123.35, 45.15], [-122.05, 45.83]];
+const MAX_BOUNDS = [[-123.35, 45.0], [-122.05, 45.98]]; // taller than the tiles: the desktop map fills the window height, so it needs some room above and below the metro
 const ATTRIBUTION = '<a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> © <a href="https://openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
 
 let M = null; // { gl, map, el, markers: Map<id, {marker, btn}>, key, sel }
