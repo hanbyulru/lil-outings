@@ -93,9 +93,12 @@ export async function addPlaceImages(places, http, log = () => {}) {
   return places;
 }
 
-// Businesses rarely have free photos. Owner's call (Nov 2026): for these kinds, use the place's own website
-// share image (og:image), credited to the site and linking back to it.
-export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art'];
+// Businesses rarely have free photos. Owner's call (Nov 2026): places with no Commons photo use their own website's
+// share image (og:image), credited to the site and linking back to it. Every kind on the Places tab (Public Playgrounds is hidden).
+export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries', 'science', 'nature', 'history', 'trains_planes'];
+// A business's logo is a fair stand-in for a photo (owner: don't skip logos); a museum or park page's logo is usually the
+// city's or agency's, so other kinds take a website photo only.
+export const WEBSITE_LOGO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries'];
 
 const attr = (tag, name) => tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'))?.[2];
 const unent = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"').trim();
@@ -162,7 +165,8 @@ export async function addWebsiteImages(places, http, log = () => {}) {
     try {
       const html = await politeFetch(p.url, { ...http, ttlMs: 30 * 24 * 3600 * 1000, timeoutMs: 15000, retries: 0, headers: { ...(http.headers || {}), accept: 'text/html' } });
       const got = pickShareImage(html.slice(0, 400000), p.url);
-      if (got.image) {
+      if (got.image && got.logo && !(p.explore || []).some((e) => WEBSITE_LOGO_KINDS.includes(e))) misses.push(`${p.name}: only a logo`);
+      else if (got.image) {
         p.image = got.image; p.image_credit = got.logo ? got.site : `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website';
         if (got.logo) { p.image_logo = true; logos++; }
         n++;

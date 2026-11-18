@@ -102,3 +102,22 @@ test('addWebsiteImages: only businesses without a photo, credited to the site', 
   assert.equal(places[2].image, 'https://upload.wikimedia.org/x.jpg'); // a Commons photo wins
   assert.equal(places[3].image, undefined); // unreachable site: mosaic banner
 });
+
+test('addWebsiteImages: museums and parks take a website photo but not a logo', async () => {
+  const pages = {
+    'https://museum.example/': '<meta property="og:site_name" content="Museum"><meta property="og:image" content="https://museum.example/hall.jpg">',
+    'https://city.example/park': '<meta property="og:site_name" content="City"><meta property="og:image" content="https://city.example/city-logo.png">',
+    'https://cafe.example/': '<meta property="og:site_name" content="Cafe"><meta property="og:image" content="https://cafe.example/logo.png">'
+  };
+  const fetchImpl = async (url) => ({ ok: true, status: 200, text: async () => pages[url] });
+  const places = [
+    { id: 'm', url: 'https://museum.example/', explore: ['history'] },
+    { id: 'p', url: 'https://city.example/park', explore: ['nature'] },
+    { id: 'c', url: 'https://cafe.example/', explore: ['eateries'] }
+  ];
+  await addWebsiteImages(places, { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'web-')), minGapMs: 0 });
+  assert.equal(places[0].image, 'https://museum.example/hall.jpg');
+  assert.equal(places[1].image, undefined, "a city's logo is not the park's picture");
+  assert.equal(places[2].image, 'https://cafe.example/logo.png');
+  assert.equal(places[2].image_logo, true);
+});
