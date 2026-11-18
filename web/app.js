@@ -281,9 +281,9 @@ function renderHeadline() {
     const rows = GEO.regions.map((r) => {
       const open = S.locOpen === r.id;
       const dists = r.districts.map(districtById);
-      // Narrow step: districts and towns are toggles; pick as many as you like, then Done.
-      const tog = (cls, k, v, label) => `<button class="opt ${cls} ${isOn(k, v) ? 'on' : ''}" aria-pressed="${isOn(k, v)}" data-loc${k === 'district' ? 'district' : 'place'}="${esc(v)}"><i class="tick" aria-hidden="true"></i>${esc(label)}</button>`;
-      const detail = open ? `<span class="regdetail"><small class="pickhint">Pick as many as you like</small>${dists.map((d) => `<span class="dist">${tog('distbtn', 'district', d.id, d.name)}${d.places.map((p) => tog('town', 'place', p.name, p.name)).join('')}</span>`).join('')}<button class="btn-ink pickdone" data-locdone>Done</button></span>` : '';
+      // Narrow step: districts and towns are toggles (the original pill look; several can be on), then Done.
+      const tog = (cls, k, v, label) => `<button class="opt ${cls} ${isOn(k, v) ? 'on' : ''}" aria-pressed="${isOn(k, v)}" data-loc${k === 'district' ? 'district' : 'place'}="${esc(v)}">${esc(label)}</button>`;
+      const detail = open ? `<span class="regdetail">${dists.map((d) => `<span class="dist">${tog('distbtn', 'district', d.id, d.name)}${d.places.map((p) => tog('town', 'place', p.name, p.name)).join('')}</span>`).join('')}<button class="btn-ink pickdone" data-locdone>Done</button></span>` : '';
       return `<span class="regrow ${open ? 'open' : ''}"><button class="reg ${isOn('region', r.id) ? 'on' : ''}" data-locregion="${r.id}"><b>${esc(r.name)}</b><small>${esc(dists.map((d) => d.name).join(' · '))}</small></button><button class="regmore" data-locexpand="${r.id}" aria-expanded="${open}" aria-label="${open ? 'Close' : 'Narrow down'} ${esc(r.name)}"><span class="lbl">${open ? 'Close' : 'Narrow'} </span><span aria-hidden="true">${open ? '▴' : '▾'}</span></button>${detail}</span>`;
     }).join('');
     locMenu = `<span class="locmenu menu" role="dialog" aria-label="Choose where">
