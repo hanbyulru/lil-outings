@@ -92,3 +92,11 @@ test('event overrides: an off-site storytime with no venue gets one (config/even
   assert.ok(Math.abs(items[0].lat - 45.361) < 0.01);
   assert.equal(items[1].venue_name, null, 'only the named source');
 });
+
+import { overrideInterests } from '../src/pipeline.js';
+test('event overrides: add_interests tags a listing after the classifier (Recyclesaurus = Music & Art)', () => {
+  const cfg = JSON.parse(readFileSync('config/event_overrides.json', 'utf8'));
+  assert.deepEqual(overrideInterests({ source: { id: 'wccls' }, title: 'Super Saturday: Recyclesaurus' }, [], cfg), ['art']);
+  assert.deepEqual(overrideInterests({ source: { id: 'mcl' }, title: 'Super Saturday: Recyclesaurus' }, [], cfg), [], 'only the named source');
+  assert.deepEqual(overrideInterests({ source: { id: 'x' }, title: 't' }, [], { rules: [{ source: 'x', title: 't', add_interests: ['dinosaurs'] }] }), [], 'no new vocabulary');
+});

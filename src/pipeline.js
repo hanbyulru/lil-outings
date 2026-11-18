@@ -38,10 +38,22 @@ export function samePlace(p, f) {
   return a.split(' ')[0] === b.split(' ')[0] || (Math.min(a.length, b.length) >= 8 && (a.includes(b) || b.includes(a)));
 }
 
+/** Interest tags the owner asked for on specific listings (event_overrides rules with add_interests), after the classifier.
+ *  Only known interest ids are added (model output and hand rules can't add vocabulary). */
+export function overrideInterests(e, interests, cfg) {
+  const known = new Set(VOCAB.interests);
+  let out = [...interests];
+  for (const r of cfg?.rules || []) {
+    if (!r.add_interests || (e.source?.id || e.source_id) !== r.source || !new RegExp(r.title, 'i').test(e.title || '')) continue;
+    for (const t of r.add_interests) if (known.has(t) && !out.includes(t)) out.push(t);
+  }
+  return out;
+}
+
 /** Apply config/event_overrides.json rules ({ source, title regex, set }) to raw listings, in place. */
 export function applyEventOverrides(items, cfg) {
   const rules = (cfg?.rules || []).map((r) => ({ ...r, re: new RegExp(r.title, 'i') }));
-  for (const e of items) for (const r of rules) if (e.source_id === r.source && r.re.test(e.title || '')) Object.assign(e, r.set);
+  for (const e of items) for (const r of rules) if (r.set && e.source_id === r.source && r.re.test(e.title || '')) Object.assign(e, r.set);
 }
 
 export async function refresh({ offline = false, now = new Date(), useLLM = true, outDir = 'data/public', horizonDays = 60, log = console.log, llmOptions = {}, cacheDir = 'data/cache' } = {}) {
@@ -118,7 +130,8 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   }
 
   // Hand corrections (config/event_overrides.json): e.g. an off-site program the feed lists with no venue.
-  applyEventOverrides(raw.map((x) => x.r), readJson('config/event_overrides.json'));
+  const eventOverrides = readJson('config/event_overrides.json');
+  applyEventOverrides(raw.map((x) => x.r), eventOverrides);
 
   // Feeds with a street address but no coordinates (config.geocode): look them up, else a town-level pin.
   if (!off) await geocodeEvents(raw, ctx.http, { log });
@@ -151,7 +164,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     kept.push({
       ...e,
       age_min: ageMin, age_max: ageMax, age_bands: bandsFor(ageMin, ageMax),
-      interests: extraInterests({ ...e, categories: t.categories }, canonicalInterests(t.interests)), categories: t.categories, setting: t.setting, registration: t.registration,
+      interests: overrideInterests(e, extraInterests({ ...e, categories: t.categories }, canonicalInterests(t.interests)), eventOverrides), categories: t.categories, setting: t.setting, registration: t.registration,
       cost_type: t.cost_type, cost_amount: t.cost_amount,
       confidence: t.confidence, needs_review: t.needs_review, tag_source: t.tag_source
     });
