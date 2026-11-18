@@ -961,6 +961,27 @@
   "note": "Weekly family music classes for babies to age 5, in semester sessions."
  },
  {
+  "id": "seed-wrmusictogether",
+  "name": "Willamette River Music Together",
+  "kind": "class",
+  "lat": 45.42,
+  "lon": -122.67,
+  "address": "Lake Oswego (also West Linn, Tigard, and Wilsonville); see site for class locations",
+  "url": "https://www.willametterivermusictogether.com/",
+  "hours_text": "Check site for class times",
+  "age_min": 0,
+  "age_max": 5,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Parent-and-child music classes for babies, toddlers, and preschoolers: songs, chants, dances, and instrument jams. Running since 1999.",
+  "explore": [
+   "art"
+  ]
+ },
+ {
   "id": "seed-pdxchildart",
   "name": "Portland Child Art Studio",
   "kind": "studio",
