@@ -205,8 +205,9 @@ function renderEvent(e, n) {
   const reg = e.registration === 'drop_in' ? 'Drop-in' : e.registration === 'required' ? 'Registration required' : '';
   const desc = esc((e.description || '').replace(/https?:\/\/\S+/g, '').trim());
   const open = S.expanded.has(e.id);
-  return `<article class="ev ${S.sel === e.id ? 'sel' : ''}" data-ev="${e.id}"><div class="num" style="background:${colorOf(e)};color:${onFill(colorOf(e))}">${n}</div><span class="bar4" style="background:${colorOf(e)}"></span>
-    <div class="time"><div class="big">${esc(e.start_min != null ? fmtMin(e.start_min).replace(' ', '') : 'All day')}</div>${e.end_min != null ? `<div class="small">to ${esc(fmtMin(e.end_min))}</div>` : ''}</div>
+  return `<article class="ev ${S.sel === e.id ? 'sel' : ''}" data-ev="${e.id}">
+    <div class="time"><div class="num" style="background:${colorOf(e)};color:${onFill(colorOf(e))}">${n}</div><div class="big">${esc(e.start_min != null ? fmtMin(e.start_min).replace(' ', '') : 'All day')}</div>${e.end_min != null ? `<div class="small">to ${esc(fmtMin(e.end_min))}</div>` : ''}</div>
+    <span class="bar4" style="background:${colorOf(e)}"></span>
     <div class="body">${tagChips(e)}
     <h3>${esc(e.title)}</h3><div class="where">${e.venue_name ? `<b>${esc(e.venue_name)}</b>` : 'Location on source page'}${e.neighborhood ? ' · ' + esc(e.neighborhood) : ''}${e.miles != null ? ` · ${e.miles.toFixed(1)} mi` : ''}</div>
     ${desc ? `<p class="desc ${open ? 'open' : ''}">${desc}</p><button class="more" type="button" data-more="${e.id}" aria-expanded="${open}" hidden>${open ? 'less' : 'more'}</button>` : ''}
