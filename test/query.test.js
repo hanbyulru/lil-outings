@@ -92,3 +92,15 @@ test('headline age groups: babies, toddlers, preschoolers, school-age kids; unta
   assert.deepEqual(t([3, 5.99]), ['family', 'toddlers', 'untagged']);
   assert.deepEqual(t([6, 12]), ['family', 'school', 'untagged']);
 });
+
+test('location multi-select: an item in any picked district or town matches', () => {
+  const geo = JSON.parse(readFileSync('config/geo.json', 'utf8'));
+  const [d1, d2] = geo.districts;
+  const c = { today: '2026-11-18', geo };
+  const at = (d) => ({ id: d.id, title: d.name, date: '2026-11-18', district: d.id, lat: d.places[0].lat, lon: d.places[0].lon });
+  const list = [at(d1), at(d2), at(geo.districts[5])];
+  const titles = (loc) => filterEvents(list, { when: 'today', loc }, c).map((e) => e.title).sort();
+  assert.deepEqual(titles({ picks: [{ district: d1.id }, { district: d2.id }] }), [d1.name, d2.name].sort());
+  assert.deepEqual(titles({ picks: [{ district: d1.id }] }), [d1.name], 'one pick acts like a single district');
+  assert.deepEqual(titles({ picks: [] }).length, 3, 'no picks: anywhere');
+});

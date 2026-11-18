@@ -63,6 +63,12 @@ function districtOf(item, geo) {
  *  loc: { region: 'westside' } | { district: 'tigard' } | { place: 'Bull Mountain' } | { zip } | null */
 export function resolveLoc(loc, geo) {
   if (!loc) return null;
+  // Several districts/towns picked in the "Narrow" step (owner, Nov 2026): a match on any of them counts.
+  if (Array.isArray(loc.picks)) {
+    const parts = loc.picks.map((x) => resolveLoc(x, geo)).filter(Boolean);
+    if (parts.length <= 1) return parts[0] || null;
+    return { kind: 'multi', parts, districts: [...new Set(parts.flatMap((x) => x.districts))], label: parts.map((x) => x.label).join(', ') };
+  }
   if (loc.zip) {
     const z = geo.zips[String(loc.zip)];
     return z ? { kind: 'zip', point: { lat: z[0], lon: z[1] }, label: String(loc.zip) } : { kind: 'zip', unknown: true, label: String(loc.zip) };
@@ -98,6 +104,11 @@ function locMatch(item, r, radiusMiles, geo) {
   if (!r) return { ok: true, miles: null };
   let miles = null;
   if (r.point && item.lat != null) miles = haversineMiles(r.point, item);
+  if (r.kind === 'multi') {
+    const hits = r.parts.map((x) => locMatch(item, x, radiusMiles, geo));
+    const ms = hits.map((h) => h.miles).filter((m) => m != null);
+    return { ok: hits.some((h) => h.ok), miles: ms.length ? Math.min(...ms) : null };
+  }
   if (r.kind === 'region' || r.kind === 'district') return { ok: r.districts.includes(districtOf(item, geo)), miles };
   if (r.kind === 'place') return { ok: item.neighborhood === r.place || (miles != null && miles <= 1.5), miles };
   if (r.kind === 'zip') return r.unknown ? { ok: true, miles: null } : { ok: miles != null && miles <= radiusMiles, miles };

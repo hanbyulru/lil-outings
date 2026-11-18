@@ -61,6 +61,7 @@ function loadLoc() {
     if (v?.region && regionById(v.region)) return { region: v.region };
     if (v?.district && districtById(v.district)) return { district: v.district };
     if (v?.place && districtOfPlace(v.place)) return { place: v.place };
+    if (Array.isArray(v?.picks)) { const ok = v.picks.filter((x) => (x.district && districtById(x.district)) || (x.place && districtOfPlace(x.place))); if (ok.length) return ok.length === 1 ? ok[0] : { picks: ok }; }
   } catch { /* storage blocked: start with anywhere */ }
   return null;
 }
@@ -72,13 +73,33 @@ function saveLoc() { try { localStorage.setItem(LOC_KEY, JSON.stringify(S.loc));
 const regionById = (id) => GEO.regions.find((r) => r.id === id);
 const districtById = (id) => GEO.districts.find((d) => d.id === id);
 const districtOfPlace = (name) => GEO.districts.find((d) => d.places.some((p) => p.name === name));
-const districtOfLoc = (loc) => (loc?.district ? districtById(loc.district) : loc?.place ? districtOfPlace(loc.place) : null);
+const districtOfLoc = (loc) => (loc?.picks ? districtOfLoc(loc.picks[0]) : loc?.district ? districtById(loc.district) : loc?.place ? districtOfPlace(loc.place) : null);
 /** The region to show expanded for a choice (Tigard sits in two; the first wins). */
 const regionOfLoc = (loc) => (loc?.region ? regionById(loc.region) : GEO.regions.find((r) => r.districts.includes(districtOfLoc(loc)?.id)) || null);
+/** Districts and towns picked in the Narrow step: several can be on at once (owner, Nov 2026). */
+const picksOf = (loc) => (loc?.picks ? loc.picks : loc?.district || loc?.place ? [loc] : []);
+const samePick = (a, b) => (a.district && a.district === b.district) || (a.place && a.place === b.place);
+const pickName = (p) => (p.district ? districtById(p.district).name : p.place);
+/** Turn one district/town on or off; the menu stays open so more can be picked. None left: the region whose list is open. */
+function togglePick(pick) {
+  const cur = picksOf(S.loc);
+  const next = cur.some((x) => samePick(x, pick)) ? cur.filter((x) => !samePick(x, pick)) : [...cur, pick];
+  S.loc = next.length === 0 ? (S.locOpen ? { region: S.locOpen } : null) : next.length === 1 ? next[0] : { picks: next };
+  const scroll = $('.locmenu')?.scrollTop ?? 0; // phones: the menu is a scrolling sheet; keep its place between taps
+  S.sel = null; saveLoc(); renderHeadline(); renderToday();
+  if ($('.locmenu')) $('.locmenu').scrollTop = scroll;
+  $(`.locmenu [data-loc${pick.district ? 'district' : 'place'}="${CSS.escape(pick.district || pick.place)}"]`)?.focus({ preventScroll: true });
+}
 /** The words after "in": Portland (anywhere), a region, a district, or a town. */
-const locPhrase = (loc) => (!loc ? 'Portland' : loc.region ? regionById(loc.region).short : loc.district ? districtById(loc.district).name : loc.place);
+const locPhrase = (loc) => {
+  if (!loc) return 'Portland';
+  if (loc.region) return regionById(loc.region).short;
+  const n = picksOf(loc).map(pickName);
+  // "+" joins picks: area names already contain "&" (Beaverton & Cedar Mill)
+  return n.length <= 2 ? n.join(' + ') : n.length === 3 ? `${n[0]}, ${n[1]} + ${n[2]}` : `${n[0]}, ${n[1]} + ${n.length - 2} more`;
+};
 /** One step wider: town -> its district -> its region -> anywhere. */
-const widerLoc = (loc) => (loc?.place ? { district: districtOfLoc(loc).id } : loc?.district ? { region: regionOfLoc(loc).id } : null);
+const widerLoc = (loc) => (loc?.picks ? { region: regionOfLoc(loc).id } : loc?.place ? { district: districtOfLoc(loc).id } : loc?.district ? { region: regionOfLoc(loc).id } : null);
 
 async function load() {
   if (window.__DATA__) return window.__DATA__;
@@ -256,11 +277,13 @@ function renderHeadline() {
   const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${WHEN.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
   let locMenu = '';
   if (S.open === 'loc') {
-    const isOn = (k, v) => S.loc?.[k] === v;
+    const isOn = (k, v) => (k === 'region' ? S.loc?.region === v : picksOf(S.loc).some((x) => x[k] === v));
     const rows = GEO.regions.map((r) => {
       const open = S.locOpen === r.id;
       const dists = r.districts.map(districtById);
-      const detail = open ? `<span class="regdetail">${dists.map((d) => `<span class="dist"><button class="opt distbtn ${isOn('district', d.id) ? 'on' : ''}" data-locdistrict="${d.id}">${esc(d.name)}</button>${d.places.map((p) => `<button class="opt town ${isOn('place', p.name) ? 'on' : ''}" data-locplace="${esc(p.name)}">${esc(p.name)}</button>`).join('')}</span>`).join('')}</span>` : '';
+      // Narrow step: districts and towns are toggles; pick as many as you like, then Done.
+      const tog = (cls, k, v, label) => `<button class="opt ${cls} ${isOn(k, v) ? 'on' : ''}" aria-pressed="${isOn(k, v)}" data-loc${k === 'district' ? 'district' : 'place'}="${esc(v)}"><i class="tick" aria-hidden="true"></i>${esc(label)}</button>`;
+      const detail = open ? `<span class="regdetail"><small class="pickhint">Pick as many as you like</small>${dists.map((d) => `<span class="dist">${tog('distbtn', 'district', d.id, d.name)}${d.places.map((p) => tog('town', 'place', p.name, p.name)).join('')}</span>`).join('')}<button class="btn-ink pickdone" data-locdone>Done</button></span>` : '';
       return `<span class="regrow ${open ? 'open' : ''}"><button class="reg ${isOn('region', r.id) ? 'on' : ''}" data-locregion="${r.id}"><b>${esc(r.name)}</b><small>${esc(dists.map((d) => d.name).join(' · '))}</small></button><button class="regmore" data-locexpand="${r.id}" aria-expanded="${open}" aria-label="${open ? 'Close' : 'Narrow down'} ${esc(r.name)}"><span class="lbl">${open ? 'Close' : 'Narrow'} </span><span aria-hidden="true">${open ? '▴' : '▾'}</span></button>${detail}</span>`;
     }).join('');
     locMenu = `<span class="locmenu menu" role="dialog" aria-label="Choose where">
@@ -301,7 +324,7 @@ function renderToday() {
     const where = (S.what !== 'all' ? ` under ${whatOf()[3]}` : '') + (S.age !== 'all' ? ` for a ${ageGroup()[1]}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
     const msg = S.when === 'today' && over > 0 && !S.loc && S.what === 'all' ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
-    const wider = w ? `<button class="btn-ink" ${w.district ? `data-locdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
+    const wider = w ? `<button class="btn-ink" ${w.district ? `data-locsetdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
     const allAges = S.age !== 'all' ? `<button class="${w || S.loc ? 'textbtn' : 'btn-ink'}" data-agegroup="all">See all ages</button>` : '';
     const allWhat = S.what !== 'all' ? `<button class="${w || S.loc || S.age !== 'all' ? 'textbtn' : 'btn-ink'}" data-what="all">See all happenings</button>` : '';
     body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${S.loc || S.age !== 'all' || S.what !== 'all' ? next.replace('btn-ink', 'textbtn') : ''}</div></div>`;
@@ -418,8 +441,10 @@ document.addEventListener('click', (ev) => {
   if (d.agegroup) { setAge(d.agegroup); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.locany !== undefined) return setLoc(null);
   if (d.locregion) return setLoc({ region: d.locregion });
-  if (d.locdistrict) return setLoc({ district: d.locdistrict });
-  if (d.locplace) return setLoc({ place: d.locplace });
+  if (d.locsetdistrict) return setLoc({ district: d.locsetdistrict }); // "See all of <district>" on an empty day
+  if (d.locdistrict) return togglePick({ district: d.locdistrict });
+  if (d.locplace) return togglePick({ place: d.locplace });
+  if (d.locdone !== undefined) { closeMenu(); return; }
   if (d.when) { setWhen(d.when); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
   if (d.showmap !== undefined) { S.showMap = !S.showMap; return renderToday(); }
   if (d.explore) {
