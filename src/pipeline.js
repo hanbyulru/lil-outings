@@ -3,7 +3,7 @@ import { EVENT_ADAPTERS, PLACE_ADAPTERS, PROGRAM_ADAPTERS } from './adapters/ind
 import { normalizeEvent, withinHorizon, normalizeVenueKey, guessVenue } from './normalize.js';
 import { dedupe } from './dedupe.js';
 import { classifyAll } from './classify/index.js';
-import { extraInterests } from './classify/rules.js';
+import { extraInterests, ageFloor } from './classify/rules.js';
 import { bandsFor, VOCAB, canonicalInterests } from './classify/validate.js';
 import { locate, haversineMiles, GEO } from './lib/geo.js';
 import { nearestPlace } from '../web/query.js';
@@ -138,9 +138,10 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   for (const e of events) {
     const t = tags.get(e.id);
     if (!t.kid_relevant) { notKids++; continue; }
+    const [ageMin, ageMax] = ageFloor(e, t.age_min, t.age_max); // e.g. chess is never for babies (owner)
     kept.push({
       ...e,
-      age_min: t.age_min, age_max: t.age_max, age_bands: bandsFor(t.age_min, t.age_max),
+      age_min: ageMin, age_max: ageMax, age_bands: bandsFor(ageMin, ageMax),
       interests: extraInterests({ ...e, categories: t.categories }, canonicalInterests(t.interests)), categories: t.categories, setting: t.setting, registration: t.registration,
       cost_type: t.cost_type, cost_amount: t.cost_amount,
       confidence: t.confidence, needs_review: t.needs_review, tag_source: t.tag_source

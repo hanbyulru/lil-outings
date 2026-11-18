@@ -101,3 +101,16 @@ export function extraInterests(ev, interests = []) {
 const PLAYPROGRAM = /playground|play ?group|play ?time|stay (&|and) play|open gym|pop[- ]?up (&|and) play/i;
 const STORYTIME = /story ?times?|lapsit|baby time|toddler time|book babies|babies and books|tiny tots|\bstory and (play|song|rhyme)s?\b|\bhora de cuentos\b|cuentos/i;
 export const isStorytime = (ev) => (ev.categories || []).includes('storytime') || STORYTIME.test(String(ev.title || ''));
+
+/**
+ * Youngest sensible age for some activities, whatever the listing or classifier says (owner, Nov 2026):
+ * chess is never for babies or toddlers. Returns [min, max] with min raised to the floor (max at least min).
+ */
+const AGE_FLOORS = [[/\bchess\b|ajedrez/i, 3]];
+export function ageFloor(ev, min, max) {
+  if (min == null) return [min, max];
+  for (const [re, floor] of AGE_FLOORS) {
+    if (re.test(String(ev.title || '')) && min < floor) { min = floor; if (max != null && max < min) max = 12; }
+  }
+  return [min, max];
+}

@@ -152,7 +152,7 @@ test('an age the model left blank defaults to 0-12, not 0-0', () => {
   assert.deepEqual([nt({ kid_relevant: true, age_min: 0, age_max: 1 }).age_max], [1]);
 });
 
-import { extraInterests } from '../src/classify/rules.js';
+import { extraInterests, ageFloor } from '../src/classify/rules.js';
 test('interest tags: building is Science, reading to dogs is Storytime + Animals & Nature (never removes)', () => {
   const tags = (title, interests = [], description = '') => extraInterests({ title, description }, interests);
   assert.deepEqual(tags('Lego Club'), ['science']);
@@ -203,4 +203,11 @@ test('play programs: music or "designed" in the description is not Music & Art',
   assert.deepEqual(extraInterests({ title: 'Indoor Playground', description: 'A fun, flexible playtime designed for young children.' }, []), ['play']);
   assert.deepEqual(extraInterests({ title: 'Babies & Ones Playgroup', description: 'We provide toys, music, and fun.' }, ['art']), ['play']);
   assert.deepEqual(extraInterests({ title: 'Music & Dance Playtime' }, []).sort(), ['art', 'play']);
+});
+
+test('age floors: chess is never for babies or toddlers', () => {
+  assert.deepEqual(ageFloor({ title: 'Casual Chess' }, 0, 12), [3, 12]);
+  assert.deepEqual(ageFloor({ title: 'Chess @ the Library / Ajedrez en la biblioteca' }, 0, 2), [3, 12]);
+  assert.deepEqual(ageFloor({ title: 'Chess Club for Tweens and Teens' }, 9, 12), [9, 12], 'an older stated range stays');
+  assert.deepEqual(ageFloor({ title: 'Baby Storytime' }, 0, 1), [0, 1]);
 });
