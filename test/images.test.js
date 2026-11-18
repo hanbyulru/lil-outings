@@ -72,7 +72,7 @@ test('shareImage: og:image (either attribute order), relative URLs, logos skippe
   assert.equal(shareImage('<meta name="twitter:image" content="https://x.com/a.jpg?w=1&amp;h=2">', 'https://www.x.com/').image, 'https://x.com/a.jpg?w=1&h=2');
   assert.equal(shareImage('<meta name="twitter:image" content="https://x.com/a.jpg">', 'https://www.x.com/').site, 'x.com');
   assert.equal(shareImage('<meta property="og:image" content="https://x.com/site-logo.png">', 'https://x.com/'), null);
-  assert.equal(shareImage('<meta property="og:image" content="http://x.com/a.jpg">', 'https://x.com/'), null); // https only
+  assert.equal(shareImage('<meta property="og:image" content="http://static1.squarespace.com/static/5f/t/barn.jpg?format=1500w">', 'https://leefarmsoregon.squarespace.com').image, 'https://static1.squarespace.com/static/5f/t/barn.jpg?format=1500w', 'http share images are upgraded to https');
   assert.equal(shareImage('<title>no share image</title>', 'https://x.com/'), null);
   assert.equal(shareImage('<meta property="og:image" content="https://cdn.x.com/icons-site/hero-photo.jpg">', 'https://x.com/').image, 'https://cdn.x.com/icons-site/hero-photo.jpg', 'a folder named icons is fine');
   assert.equal(shareImage('<meta property="og:image" content="https://x.com/img/Little-Gym_logo.png">', 'https://x.com/'), null);

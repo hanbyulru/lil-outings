@@ -118,6 +118,7 @@ export function shareImage(html, pageUrl) {
   if (!src) return null;
   let abs;
   try { abs = new URL(src, pageUrl).href; } catch { return null; }
+  abs = abs.replace(/^http:\/\//, 'https://'); // Squarespace and others still list http:// share images; their CDNs serve https
   if (!/^https:\/\//.test(abs) || /\.(svg|ico|gif)(\?|$)/i.test(abs)) return null;
   // Logos and icons: judged on the file name only (CDN paths often contain words like 'icon' for other reasons).
   const file = decodeURIComponent(new URL(abs).pathname.split('/').pop() || '');
@@ -137,7 +138,7 @@ export async function addWebsiteImages(places, http, log = () => {}) {
       const html = await politeFetch(p.url, { ...http, ttlMs: 30 * 24 * 3600 * 1000, timeoutMs: 15000, retries: 0, headers: { ...(http.headers || {}), accept: 'text/html' } });
       const got = shareImage(html.slice(0, 400000), p.url);
       if (got) { p.image = got.image; p.image_credit = `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website'; n++; }
-      else misses.push(`${p.name}: no share image${/captcha|cf-chl|challenge-platform|Just a moment/i.test(html) ? ' (bot check page)' : ''}`);
+      else misses.push(`${p.name}: no share image${/cf-chl|challenge-platform|<title>Just a moment|Attention Required! \| Cloudflare/i.test(html) ? ' (bot check page)' : ''}`);
     } catch (err) { failed++; misses.push(`${p.name}: ${String(err.message).slice(0, 60)}`); }
   }
   if (todo.length) log(`  website photos: ${n} of ${todo.length} places${failed ? ` (${failed} sites unreachable)` : ''}`);
