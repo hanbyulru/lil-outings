@@ -74,6 +74,9 @@ test('shareImage: og:image (either attribute order), relative URLs, logos skippe
   assert.equal(shareImage('<meta property="og:image" content="https://x.com/site-logo.png">', 'https://x.com/'), null);
   assert.equal(shareImage('<meta property="og:image" content="http://x.com/a.jpg">', 'https://x.com/'), null); // https only
   assert.equal(shareImage('<title>no share image</title>', 'https://x.com/'), null);
+  assert.equal(shareImage('<meta property="og:image" content="https://cdn.x.com/icons-site/hero-photo.jpg">', 'https://x.com/').image, 'https://cdn.x.com/icons-site/hero-photo.jpg', 'a folder named icons is fine');
+  assert.equal(shareImage('<meta property="og:image" content="https://x.com/img/Little-Gym_logo.png">', 'https://x.com/'), null);
+  assert.equal(shareImage('<script type="application/ld+json">{"@type":"LocalBusiness","image":["https:\\/\\/x.com\\/barn.jpg"]}</script>', 'https://x.com/').image, 'https://x.com/barn.jpg', 'JSON-LD image');
 });
 
 test('addWebsiteImages: only businesses without a photo, credited to the site', async () => {

@@ -109,10 +109,19 @@ export function shareImage(html, pageUrl) {
     const link = [...String(html).matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]).find((t) => /\brel\s*=\s*["']image_src["']/i.test(t));
     src = link ? unent(attr(link, 'href')) : null;
   }
+  if (!src) { // schema.org JSON-LD: "image": "url" | ["url", ...] | { "url": ... }
+    for (const m of String(html).matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
+      const im = m[1].match(/"image"\s*:\s*(?:\[\s*)?(?:\{[^}]*?"url"\s*:\s*)?"([^"]+)"/);
+      if (im) { src = im[1].replace(/\\\//g, '/'); break; }
+    }
+  }
   if (!src) return null;
   let abs;
   try { abs = new URL(src, pageUrl).href; } catch { return null; }
-  if (!/^https:\/\//.test(abs) || /\.(svg|ico|gif)(\?|$)/i.test(abs) || /logo|favicon|icon|placeholder|default[-_]?(og|share)/i.test(abs)) return null;
+  if (!/^https:\/\//.test(abs) || /\.(svg|ico|gif)(\?|$)/i.test(abs)) return null;
+  // Logos and icons: judged on the file name only (CDN paths often contain words like 'icon' for other reasons).
+  const file = decodeURIComponent(new URL(abs).pathname.split('/').pop() || '');
+  if (/(^|[^a-z])(logo|favicon|icon|placeholder)s?([^a-z]|$)|apple-touch|default[-_]?(og|share)/i.test(file)) return null;
   const w = +meta(['og:image:width']);
   if (w && w < 300) return null;
   const site = meta(['og:site_name']) || new URL(pageUrl).hostname.replace(/^www\./, '');
@@ -122,12 +131,15 @@ export function shareImage(html, pageUrl) {
 export async function addWebsiteImages(places, http, log = () => {}) {
   const todo = places.filter((p) => !p.image && p.url && /^https?:\/\//.test(p.url) && (p.explore || []).some((e) => WEBSITE_PHOTO_KINDS.includes(e)));
   let n = 0, failed = 0;
+  const misses = [];
   for (const p of todo) {
     try {
       const html = await politeFetch(p.url, { ...http, ttlMs: 30 * 24 * 3600 * 1000, timeoutMs: 15000, retries: 0, headers: { ...(http.headers || {}), accept: 'text/html' } });
-      const got = shareImage(html.slice(0, 300000), p.url);
+      const got = shareImage(html.slice(0, 400000), p.url);
       if (got) { p.image = got.image; p.image_credit = `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website'; n++; }
-    } catch { failed++; }
+      else misses.push(`${p.name}: no share image${/captcha|cf-chl|challenge-platform|Just a moment/i.test(html) ? ' (bot check page)' : ''}`);
+    } catch (err) { failed++; misses.push(`${p.name}: ${String(err.message).slice(0, 60)}`); }
   }
   if (todo.length) log(`  website photos: ${n} of ${todo.length} places${failed ? ` (${failed} sites unreachable)` : ''}`);
+  for (const m of misses) log(`    - ${m}`);
 }
