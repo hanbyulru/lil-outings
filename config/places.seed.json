@@ -1501,5 +1501,27 @@
   "explore": [
    "science"
   ]
+ },
+ {
+  "id": "seed-molallatrain",
+  "name": "Molalla Train Park",
+  "kind": "train park",
+  "lat": 45.14344,
+  "lon": -122.53885,
+  "address": "31803 S Shady Dell Rd, Molalla, OR 97038",
+  "url": "https://www.shadydell.org/",
+  "hours_text": "Sundays in season",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "trains"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "alert": "Closed until Summer 2027",
+  "note": "Volunteer-run park with miniature trains to ride. Free; donations welcome.",
+  "explore": [
+   "trains_planes"
+  ]
  }
 ]

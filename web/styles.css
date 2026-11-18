@@ -220,6 +220,7 @@ h1.pagehead{margin:0 0 60px}
 .place h3{font-size:20px;line-height:1.25}
 .place .kind{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .place p{margin:8px 0 0;font-size:15px;color:var(--muted)}
+.place p.alert{color:var(--ink);font-weight:700} /* e.g. "Closed until Summer 2027" (seed `alert`, owner) */
 .notice{margin:24px 0 0;font-size:14px;color:var(--muted)}
 footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-size:15px}
 .demo{background:var(--sun);border-bottom:1px solid #E9D68A;font-size:14px;font-weight:600;padding:8px 0;text-align:center}
