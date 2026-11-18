@@ -97,6 +97,11 @@ function fitsAge(e) {
   if (!S.ages.length || e.age_min == null || e.age_max == null) return true;
   return pickedAges().some((g) => e.age_min <= g[4][1] && e.age_max >= g[4][0]);
 }
+// First visit: a little "Click me" bubble on the first menu phrase, gone for good once any headline menu is opened (owner, Nov 2026).
+const HINT_KEY = 'lilOutings.menuHint';
+function hintSeen() { try { return localStorage.getItem(HINT_KEY) === '1'; } catch { return false; } }
+function markHintSeen() { try { localStorage.setItem(HINT_KEY, '1'); } catch { /* not critical */ } }
+const hintText = () => (matchMedia('(hover: none)').matches ? 'Tap me!' : 'Click me!');
 function saveLoc() { try { localStorage.setItem(LOC_KEY, JSON.stringify(S.loc)); } catch { /* not critical */ } }
 // Geography (config/geo.json): regions ("a quick drive from home") > districts > named towns/neighborhoods.
 const regionById = (id) => GEO.regions.find((r) => r.id === id);
@@ -346,7 +351,8 @@ function renderHeadline() {
   $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? locMenu : ''}</span>`;
   const wp = whatPhrase(), ws = pickedWhats();
   const whatLook = !ws.length ? null : ws.length > 1 ? 'mosaic' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
+  const hint = S.hint && !S.open ? `<span class="menuhint" aria-hidden="true">${hintText()}</span>` : '';
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $(`${onPlaces ? '#placeshead' : '#headline'} .menu`);
   if (m && getComputedStyle(m).position === 'absolute') {
@@ -501,6 +507,7 @@ document.addEventListener('click', (ev) => {
   const t = ev.target.closest('button, a[data-nav]'); if (!t) return;
   const d = t.dataset;
   if (d.menu) {
+    if (S.hint) { S.hint = false; markHintSeen(); }
     S.open = S.open === d.menu ? null : d.menu;
     if (S.open === 'loc') S.locOpen = S.loc && !S.loc.region ? regionOfLoc(S.loc)?.id || null : null;
     renderHeadline();
@@ -600,6 +607,7 @@ load().then((d) => {
   DATA = d; GEO = d.geo;
   S.loc = loadLoc();
   S.ages = loadAges();
+  S.hint = !hintSeen();
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
   DEFAULT_WHEN = S.when;
   renderHeadline(); renderToday(); renderMore(); renderFoot();
