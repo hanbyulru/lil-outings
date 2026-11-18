@@ -22,12 +22,27 @@ const WHAT = [
   ['play', 'Playful things', 'to do', 'Play', 'play'],
   ['other', 'Other things', 'to do', 'Other', null]
 ];
-const whatOf = () => WHAT.find((w) => w[0] === S.what) || WHAT[0];
-/** Does an event fit the headline's "what"? */
+// "What" and "who" are multi-select (owner, Nov 2026): S.whats / S.ages hold the picks in menu order; empty = everything.
+const joinList = (xs) => (xs.length < 3 ? xs.join(' + ') : `${xs.slice(0, -1).join(', ')} + ${xs[xs.length - 1]}`);
+const pickedWhats = () => S.whats.map((v) => WHAT.find((w) => w[0] === v)).filter(Boolean);
+/** The "what" phrase and the words after it: nothing picked = "Something good … to do"; several = their labels joined. */
+function whatPhrase() {
+  const ws = pickedWhats();
+  if (!ws.length) return { text: WHAT[0][1], after: WHAT[0][2] };
+  if (ws.length === 1) return { text: ws[0][1], after: ws[0][2] };
+  return { text: joinList(ws.map((w) => w[3])), after: 'to do' };
+}
+/** Does an event fit the headline's "what"? Any picked interest counts. */
 function fitsWhat(e) {
-  if (S.what === 'all') return true;
+  if (!S.whats.length) return true;
   const t = tagsOf(e);
-  return S.what === 'other' ? t.length === 0 : t.includes(S.what);
+  return S.whats.some((v) => (v === 'other' ? t.length === 0 : t.includes(v)));
+}
+/** Toggle v in a pick list, keeping the menu's order; picking every option is the same as picking none. */
+function togglePickIn(list, v, order) {
+  const next = list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
+  const sorted = order.filter((o) => next.includes(o));
+  return sorted.length === order.length ? [] : sorted;
 }
 // The headline's age picker. [value, phrase after "a", menu label, menu hint, age range (years) or null for everyone].
 // Upper bounds stop just short of the next group so a "babies 0-1" listing isn't also a toddler listing.
@@ -53,7 +68,7 @@ const INK = '#16181D'; // headline underline once a menu is changed from its def
 let MAP = 'loading'; // 'loading' | true (real basemap) | false (illustrative fallback)
 let mapItems = [];
 let mapSel = null;
-const S = { expanded: new Set() /* event ids whose description is opened */, what: 'all', when: 'today', age: 'all', open: null /* 'what' | 'age' | 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, explore: 'indoor_play', showN: 24, sel: null, showMap: false };
+const S = { expanded: new Set() /* event ids whose description is opened */, whats: [], when: 'today', ages: [], open: null /* 'what' | 'age' | 'when' | 'loc' */, loc: null /* null | {region} | {district} | {place} */, locOpen: null /* region expanded in the menu */, explore: 'indoor_play', showN: 24, sel: null, showMap: false };
 
 function loadLoc() {
   try {
@@ -65,9 +80,22 @@ function loadLoc() {
   } catch { /* storage blocked: start with anywhere */ }
   return null;
 }
-function loadAge() { try { const v = localStorage.getItem(AGE_KEY); return AGE_GROUPS.some((a) => a[0] === v) ? v : 'all'; } catch { return 'all'; } }
-function saveAge() { try { localStorage.setItem(AGE_KEY, S.age); } catch { /* not critical */ } }
-const ageGroup = () => AGE_GROUPS.find((a) => a[0] === S.age) || AGE_GROUPS[0];
+const AGE_IDS = AGE_GROUPS.slice(1).map((a) => a[0]);
+function loadAges() {
+  try {
+    const raw = localStorage.getItem(AGE_KEY);
+    const v = raw && raw.startsWith('[') ? JSON.parse(raw) : [raw]; // older visits stored one group as a plain string
+    return AGE_IDS.filter((id) => v.includes(id));
+  } catch { return []; }
+}
+function saveAges() { try { localStorage.setItem(AGE_KEY, JSON.stringify(S.ages)); } catch { /* not critical */ } }
+const pickedAges = () => S.ages.map((v) => AGE_GROUPS.find((a) => a[0] === v)).filter(Boolean);
+const agePhrase = () => (S.ages.length ? joinList(pickedAges().map((g) => g[1])) : AGE_GROUPS[0][1]);
+/** Does an event fit the picked age groups? Any overlap with any picked group; listings without ages always fit. */
+function fitsAge(e) {
+  if (!S.ages.length || e.age_min == null || e.age_max == null) return true;
+  return pickedAges().some((g) => e.age_min <= g[4][1] && e.age_max >= g[4][0]);
+}
 function saveLoc() { try { localStorage.setItem(LOC_KEY, JSON.stringify(S.loc)); } catch { /* not critical */ } }
 // Geography (config/geo.json): regions ("a quick drive from home") > districts > named towns/neighborhoods.
 const regionById = (id) => GEO.regions.find((r) => r.id === id);
@@ -303,15 +331,21 @@ function renderHeadline() {
       <span class="reglist">${rows}</span>
     </span>`;
   }
-  const ag = ageGroup();
-  const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemradio" aria-checked="${v === S.age}" class="${v === S.age ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}</span>` : '';
-  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemradio" aria-checked="${v === S.what}" class="${v === S.what ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}</span>` : '';
+  // Interest and age menus are multi-select like the location's Narrow step (owner, Nov 2026): tap to toggle, "All" clears, Done closes.
+  const onAge = (v) => (v === 'all' ? !S.ages.length : S.ages.includes(v));
+  const onWhat = (v) => (v === 'all' ? !S.whats.length : S.whats.includes(v));
+  const done = '<button class="pickdone" data-menudone>Done</button>';
+  const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemcheckbox" aria-checked="${onAge(v)}" class="${onAge(v) ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}${done}</span>` : '';
+  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemcheckbox" aria-checked="${onWhat(v)}" class="${onWhat(v) ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}${done}</span>` : '';
   const cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1); // each menu phrase starts with a capital (owner, Nov 2026)
-  const trigger = (kind, text, open, color) => `<button class="whenbtn${color ? ' active' : ''}"${color ? ` style="--ul:${color}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
+  // look: null = default gray underline; 'mosaic' = chosen (the six-color strip); a color = one interest picked, underlined in its color.
+  const trigger = (kind, text, open, look) => `<button class="whenbtn${look === 'mosaic' ? ' active' : look ? ' solid' : ''}"${look && look !== 'mosaic' ? ` style="--ul:${look}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
   const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
-  const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? '' : locMenu}</span>`;
-  $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? INK : null)}${onPlaces ? locMenu : ''}</span>`;
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what', whatOf()[4] ? COLORS[whatOf()[4]] : S.what !== 'all' ? INK : null)}${whatMenu}</span> <span class="filler">${esc(whatOf()[2])} with a</span> <span class="whenwrap">${trigger('age', ag[1], S.open === 'age', S.age !== 'all' ? INK : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', INK)}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
+  const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? '' : locMenu}</span>`;
+  $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? locMenu : ''}</span>`;
+  const wp = whatPhrase(), ws = pickedWhats();
+  const whatLook = !ws.length ? null : ws.length > 1 ? 'mosaic' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $(`${onPlaces ? '#placeshead' : '#headline'} .menu`);
   if (m && getComputedStyle(m).position === 'absolute') {
@@ -322,14 +356,23 @@ function renderHeadline() {
   }
 }
 
+/** After a tap in the interest or age menu: the menu stays open (multi-select) and keeps focus; elsewhere (e.g. "See all happenings" on an empty day) it's a one-off. */
+function afterPick(t, kind, sel) {
+  S.sel = null;
+  const inMenu = !!t.closest('.menu');
+  if (!inMenu) S.open = null;
+  renderHeadline(); renderToday();
+  if (inMenu) $(`#headline .whenmenu ${sel}`)?.focus({ preventScroll: true });
+  else if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' });
+}
 function closeMenu() { if (S.open) { S.open = null; renderHeadline(); } }
 
 /** The day's list, right under the headline, with the map beside it. */
 function renderToday() {
   const c = ctx();
-  const opts = { when: S.when, loc: S.loc, age: ageGroup()[4] };
-  const events = filterEvents(DATA.events, opts, c).filter(fitsWhat);
-  const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).filter(fitsWhat).length - events.length : 0;
+  const opts = { when: S.when, loc: S.loc, age: null }; // ages are filtered below (several groups can be picked)
+  const events = filterEvents(DATA.events, opts, c).filter(fitsWhat).filter(fitsAge);
+  const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).filter(fitsWhat).filter(fitsAge).length - events.length : 0;
   events.forEach((e, i) => { e._n = i + 1; });
   const multiDay = S.when === 'weekend' || S.when === 'week';
   const bar = `<div class="todaybar"><span class="count">${events.length} ${events.length === 1 ? 'thing' : 'things'} to do</span><span class="muted">${esc(rangeLabel(S.when))}${over > 0 ? ` · ${over} earlier ${over === 1 ? 'one is' : 'ones are'} over` : ''}</span><button class="tog maptoggle ${S.showMap ? 'on' : ''}" data-showmap>${S.showMap ? 'Hide map' : 'Map'}</button></div>`;
@@ -337,15 +380,15 @@ function renderToday() {
   if (!events.length) {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
     const phrase = WHEN.find((w) => w[0] === S.when)[1];
-    const where = (S.what !== 'all' ? ` under ${whatOf()[3]}` : '') + (S.age !== 'all' ? ` for a ${ageGroup()[1]}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
-    const msg = S.when === 'today' && over > 0 && !S.loc && S.what === 'all' ? 'That’s everything for today.' : `No events listed${where} ${phrase}.`;
+    const where = (S.whats.length ? ` under ${joinList(pickedWhats().map((w) => w[3]))}` : '') + (S.ages.length ? ` for a ${agePhrase()}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
+    const msg = S.when === 'today' && over > 0 && !S.loc && !S.whats.length ? 'That’s everything for today.' : `No events listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
     const wider = w ? `<button class="btn-ink" ${w.district ? `data-locsetdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : '';
-    const allAges = S.age !== 'all' ? `<button class="${w || S.loc ? 'textbtn' : 'btn-ink'}" data-agegroup="all">See all ages</button>` : '';
-    const allWhat = S.what !== 'all' ? `<button class="${w || S.loc || S.age !== 'all' ? 'textbtn' : 'btn-ink'}" data-what="all">See all happenings</button>` : '';
+    const allAges = S.ages.length ? `<button class="${w || S.loc ? 'textbtn' : 'btn-ink'}" data-agegroup="all">See all ages</button>` : '';
+    const allWhat = S.whats.length ? `<button class="${w || S.loc || S.ages.length ? 'textbtn' : 'btn-ink'}" data-what="all">See all happenings</button>` : '';
     // The next day is a dark button only when nothing else is offered; otherwise a text link (shown once).
     const nextBtn = wider || allAges || allWhat ? next.replace('btn-ink', 'textbtn') : next;
-    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${nextBtn}<a class="textbtn" href="#places" data-gokind="${INTEREST_KIND[S.what] || ''}">Explore places instead</a></div></div>`;
+    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${nextBtn}<a class="textbtn" href="#places" data-gokind="${S.whats.length === 1 ? INTEREST_KIND[S.whats[0]] || '' : ''}">Explore places instead</a></div></div>`;
   } else {
     let list;
     if (multiDay) {
@@ -406,7 +449,7 @@ document.addEventListener('click', (ev) => {
 
 function setWhen(v) { track('choose_day', { day: v }); S.when = v; S.open = null; S.sel = null; renderHeadline(); renderToday(); }
 function setLoc(loc) { track('choose_area', { area: loc ? loc.region || loc.district || loc.place : 'anywhere' }); S.loc = loc; S.open = null; S.sel = null; S.showN = 24; saveLoc(); renderHeadline(); renderToday(); renderMore(); }
-function setAge(v) { track('choose_age', { age: v }); S.age = v; S.open = null; S.sel = null; saveAge(); renderHeadline(); renderToday(); }
+
 
 /**
  * "Portland, OR metro" pill: ask visitors elsewhere which city they want next, then (optionally) their email.
@@ -472,8 +515,9 @@ document.addEventListener('click', (ev) => {
     btn?.closest('.regrow')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); // phones: the opened row may be below the fold
     return;
   }
-  if (d.what) { track('choose_interest', { interest: d.what }); S.what = d.what; S.open = null; S.sel = null; renderHeadline(); renderToday(); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
-  if (d.agegroup) { setAge(d.agegroup); if (t.closest('.empty')) $('#today').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (d.what) { track('choose_interest', { interest: d.what }); S.whats = d.what === 'all' ? [] : togglePickIn(S.whats, d.what, WHAT.slice(1).map((w) => w[0])); return afterPick(t, 'what', `[data-what="${d.what}"]`); }
+  if (d.agegroup) { track('choose_age', { age: d.agegroup }); S.ages = d.agegroup === 'all' ? [] : togglePickIn(S.ages, d.agegroup, AGE_IDS); saveAges(); return afterPick(t, 'age', `[data-agegroup="${d.agegroup}"]`); }
+  if (d.menudone !== undefined) { const k = S.open; closeMenu(); $(`[data-menu="${k}"]`)?.focus(); return; }
   if (d.locany !== undefined) return setLoc(null);
   if (d.locregion) return setLoc({ region: d.locregion });
   if (d.locsetdistrict) return setLoc({ district: d.locsetdistrict }); // "See all of <district>" on an empty day
@@ -554,7 +598,7 @@ initMap().then((ok) => { MAP = ok; if (DATA) renderToday(); });
 load().then((d) => {
   DATA = d; GEO = d.geo;
   S.loc = loadLoc();
-  S.age = loadAge();
+  S.ages = loadAges();
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
   DEFAULT_WHEN = S.when;
   renderHeadline(); renderToday(); renderMore(); renderFoot();

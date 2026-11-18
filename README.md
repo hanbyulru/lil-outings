@@ -87,8 +87,8 @@ Google Analytics 4, Measurement ID `G-VY8N6BJX9H` (tag in `web/index.html`; not 
 
 | Event | Parameters | When |
 |---|---|---|
-| `choose_interest` | `interest` (books, art, nature, science, trains, play, other, all) | headline "what" menu |
-| `choose_age` | `age` | headline "who" menu |
+| `choose_interest` | `interest` (books, art, nature, science, trains, play, other, all) | headline "what" menu (each toggle; `all` = cleared) |
+| `choose_age` | `age` | headline "who" menu (each toggle; `all` = cleared) |
 | `choose_day` | `day` (today, tomorrow, week, weekend) | headline "when" menu |
 | `choose_area` | `area` (region, district or town id; `anywhere`) | location menu |
 | `switch_tab` | `tab` (events, places) | Events/Places toggle |
