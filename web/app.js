@@ -388,7 +388,7 @@ function renderFoot() {
   const m = DATA.meta;
   const when = new Date(m.generated_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Los_Angeles' });
   // Short footer (owner, Nov 2026): no per-source list; the sources are in the README.
-  $('#foot').innerHTML = `<p>Lil’ Outings gathers kids’ events from local libraries and parks &amp; rec calendars, updated every morning (last ${esc(when)}). Times and details can change, so check the event’s own page before you go.</p><p>We use Google Analytics to see which parts of the site families find helpful, so we can keep making it better.</p>`;
+  $('#foot').innerHTML = `<p>Lil’ Outings gathers kids’ events from local libraries and parks &amp; rec calendars, updated every morning (last ${esc(when)}). Times and details can change, so check the event’s own page before you go.</p><p>We use Google Analytics to learn what’s helpful.</p>`;
   if (String(m.mode).startsWith('demo')) { const d = $('#demo'); d.hidden = false; d.textContent = 'Demo data: sample listings generated in the real feeds’ formats, not live Portland events. Run the refresh with network access for real data.'; }
 }
 
