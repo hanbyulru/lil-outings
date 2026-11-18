@@ -10,16 +10,16 @@ const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Natur
 
 // The headline's day picker. [value, phrase in the headline, menu label]
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend']];
-// The headline's "what" picker (owner, Nov 2026). [value, sentence opening, menu label, interest tag or null]
-// 'all' = every event; 'other' = events with no interest tag.
+// The headline's "what" picker (owner, Nov 2026). [value, underlined phrase, words after it, menu label, interest tag or null]
+// Only the first part is the underlined menu; "to do" / "to go to" sit outside the underline. 'other' = no interest tag.
 const WHAT = [
-  ['all', 'Something good to do', 'All Happenings', null],
-  ['books', 'Storytime to go', 'Storytime', 'books'],
-  ['art', 'Music & art things to do', 'Music & Art', 'art'],
-  ['science', 'Science things to do', 'Science', 'science'],
-  ['nature', 'Animal & nature things to do', 'Animals & Nature', 'nature'],
-  ['trains', 'Train & plane things to do', 'Trains & Planes', 'trains'],
-  ['other', 'Other things to do', 'Other', null]
+  ['all', 'Something good', 'to do', 'All Happenings', null],
+  ['books', 'Storytime', 'to go to', 'Storytime', 'books'],
+  ['art', 'Music & art things', 'to do', 'Music & Art', 'art'],
+  ['science', 'Science things', 'to do', 'Science', 'science'],
+  ['nature', 'Animal & nature things', 'to do', 'Animals & Nature', 'nature'],
+  ['trains', 'Train & plane things', 'to do', 'Trains & Planes', 'trains'],
+  ['other', 'Other things', 'to do', 'Other', null]
 ];
 const whatOf = () => WHAT.find((w) => w[0] === S.what) || WHAT[0];
 /** Does an event fit the headline's "what"? */
@@ -255,9 +255,9 @@ function renderHeadline() {
   }
   const ag = ageGroup();
   const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemradio" aria-checked="${v === S.age}" class="${v === S.age ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}</span>` : '';
-  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , label, tag]) => `<button role="menuitemradio" aria-checked="${v === S.what}" class="${v === S.what ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}</span>` : '';
+  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemradio" aria-checked="${v === S.what}" class="${v === S.what ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}</span>` : '';
   const trigger = (kind, text, open) => `<button class="whenbtn" data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(text)}</span><span class="caret" aria-hidden="true">▾</span></button>`;
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what')}${whatMenu}</span> with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age')}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when')}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc')}${locMenu}</span>`;
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${trigger('what', whatOf()[1], S.open === 'what')}${whatMenu}</span> ${esc(whatOf()[2])} with a <span class="whenwrap">${trigger('age', ag[1], S.open === 'age')}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when')}${whenMenu}</span> in <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc')}${locMenu}</span>`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $('#headline .menu');
   if (m && getComputedStyle(m).position === 'absolute') {
@@ -283,7 +283,7 @@ function renderToday() {
   if (!events.length) {
     const next = S.when === 'today' ? `<button class="btn-ink" data-when="tomorrow">See tomorrow</button>` : S.when === 'tomorrow' ? `<button class="btn-ink" data-when="weekend">See this weekend</button>` : '';
     const phrase = WHEN.find((w) => w[0] === S.when)[1];
-    const where = (S.what !== 'all' ? ` under ${whatOf()[2]}` : '') + (S.age !== 'all' ? ` for a ${ageGroup()[1]}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
+    const where = (S.what !== 'all' ? ` under ${whatOf()[3]}` : '') + (S.age !== 'all' ? ` for a ${ageGroup()[1]}` : '') + (S.loc ? ` in ${locPhrase(S.loc)}` : '');
     const msg = S.when === 'today' && over > 0 && !S.loc && S.what === 'all' ? 'That’s everything for today.' : `Nothing listed${where} ${phrase}.`;
     const w = widerLoc(S.loc);
     const wider = w ? `<button class="btn-ink" ${w.district ? `data-locdistrict="${w.district}"` : `data-locregion="${w.region}"`}>See all of ${esc(locPhrase(w))}</button>` : S.loc ? `<button class="btn-ink" data-locany>See anywhere in Portland</button>` : next;
