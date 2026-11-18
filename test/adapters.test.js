@@ -124,3 +124,27 @@ test('curated places: valid explore ids, real coordinates, and every pill but no
   }
   for (const id of ids) assert.ok(seed.some((p) => (p.explore || []).includes(id)) || id === 'playgrounds' || id === 'science' || id === 'art', `curated coverage for ${id}`);
 });
+
+import { parseOverpass as po } from '../src/adapters/osm_places.js';
+test('unnamed playgrounds are named after their park, one per park', () => {
+  const park = (id, name, b, extra = {}) => ({ type: 'way', id, tags: { leisure: 'park', name, ...extra }, bounds: b });
+  const els = [
+    park(1, 'Irving Park', { minlat: 45.540, minlon: -122.660, maxlat: 45.546, maxlon: -122.650 }, { wikidata: 'Q6074' }),
+    park(2, 'Big Regional Park', { minlat: 45.50, minlon: -122.70, maxlat: 45.60, maxlon: -122.60 }),
+    park(3, 'Gabriel Park', { minlat: 45.474, minlon: -122.726, maxlat: 45.482, maxlon: -122.716 }),
+    { type: 'node', id: 9, lat: 45.5431, lon: -122.6551, tags: { leisure: 'playground', access: 'private' } }, // private: doesn't claim Irving
+    { type: 'node', id: 10, lat: 45.543, lon: -122.655, tags: { leisure: 'playground' } }, // inside Irving (smallest box wins)
+    { type: 'node', id: 11, lat: 45.544, lon: -122.656, tags: { leisure: 'playground' } }, // second one in Irving: skipped
+    { type: 'node', id: 12, lat: 45.478, lon: -122.721, tags: { leisure: 'playground' } }, // Gabriel already has a named one
+    { type: 'node', id: 13, lat: 45.479, lon: -122.721, tags: { leisure: 'playground', name: 'Gabriel Park Playground' } },
+    { type: 'node', id: 14, lat: 45.300, lon: -122.900, tags: { leisure: 'playground' } }, // in no park: no name, dropped
+    { type: 'node', id: 15, lat: 45.545, lon: -122.652, tags: { leisure: 'playground', access: 'private' } }
+  ];
+  const out = po({ elements: els }, { id: 'osm' });
+  const names = out.map((p) => p.name).sort();
+  assert.deepEqual(names, ['Gabriel Park Playground', 'Irving Park playground']);
+  const irving = out.find((p) => p.name === 'Irving Park playground');
+  assert.deepEqual(irving.explore, ['playgrounds']);
+  assert.equal(irving.wikidata, 'Q6074', "the park's photo can be the card banner");
+  assert.ok(!out.some((p) => p.kind === 'park'), 'parks themselves are not listed');
+});
