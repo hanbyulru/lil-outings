@@ -12,7 +12,9 @@ test('when ranges: today, weekend (from a Monday, from Saturday, from Sunday), w
   assert.deepEqual(whenRange('weekend', '2026-11-16'), ['2026-11-21', '2026-11-22']);
   assert.deepEqual(whenRange('weekend', '2026-11-21'), ['2026-11-21', '2026-11-22']);
   assert.deepEqual(whenRange('weekend', '2026-11-22'), ['2026-11-22', '2026-11-22']);
-  assert.deepEqual(whenRange('week', '2026-11-16'), ['2026-11-16', '2026-11-22']);
+  assert.deepEqual(whenRange('week', '2026-11-16'), ['2026-11-16', '2026-11-20'], 'Monday through Friday');
+  assert.deepEqual(whenRange('week', '2026-11-19'), ['2026-11-19', '2026-11-20'], 'Thursday through Friday');
+  assert.deepEqual(whenRange('week', '2026-11-21'), ['2026-11-21', '2026-11-27'], 'Saturday: through the coming Friday');
 });
 
 test('age overlap, interest, category, cost filters', () => {

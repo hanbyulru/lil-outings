@@ -15,10 +15,13 @@ function addDays(dateStr, n) {
 function dow(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)).getUTCDay(); }
 
 /** Inclusive [from, to] date range for a "when" value. A literal YYYY-MM-DD picks that day. */
+export const isFriday = (dateStr) => dow(dateStr) === 5;
+
 export function whenRange(when, today) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(when)) return [when, when];
   if (when === 'tomorrow') return [addDays(today, 1), addDays(today, 1)];
-  if (when === 'week') return [today, addDays(today, 6)];
+  // This week: today through Friday (owner, Nov 2026); on a weekend, through the coming Friday. The menu hides it on Fridays.
+  if (when === 'week') return [today, addDays(today, (5 - dow(today) + 7) % 7)];
   if (when === 'weekend') {
     const d = dow(today);
     if (d === 6) return [today, addDays(today, 1)];

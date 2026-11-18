@@ -1,4 +1,4 @@
-import { filterEvents, filterPlaces, filterPrograms, whenRange } from './query.js';
+import { filterEvents, filterPlaces, filterPrograms, whenRange, isFriday } from './query.js';
 import { initMap, showPins } from './map.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -282,8 +282,11 @@ function renderProgram(p) {
 
 /** "Something good to do with a small person [today ▾] in [SW ▾]": both underlined phrases are menus. */
 function renderHeadline() {
+  // No "This week" on Fridays: today is the end of it (owner, Nov 2026).
+  const whens = isFriday(NOW().date) ? WHEN.filter((w) => w[0] !== 'week') : WHEN;
+  if (!whens.some((w) => w[0] === S.when)) S.when = 'today';
   const cur = WHEN.find((w) => w[0] === S.when);
-  const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${WHEN.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
+  const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${whens.map(([v, , label]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}" data-when="${v}"><span>${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
   let locMenu = '';
   if (S.open === 'loc') {
     const isOn = (k, v) => (k === 'region' ? S.loc?.region === v : picksOf(S.loc).some((x) => x[k] === v));
