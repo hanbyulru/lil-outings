@@ -26,6 +26,16 @@ const PLACE_DEFAULTS = {
   play: { age_min: 0, age_max: 10, interests: [], cost: 'paid', setting: 'indoor' }
 };
 
+/** Is OSM feature f a place we already have? Same Wikidata item, same name, or (within ~150 m) one name inside the
+ *  other or the same first word: "OMSI (Oregon Museum of Science and Industry)" = "Oregon Museum of Science and Industry". */
+export function samePlace(p, f) {
+  if (p.wikidata && f.wikidata && p.wikidata === f.wikidata) return true;
+  const a = normalizeVenueKey(p.name), b = normalizeVenueKey(f.name);
+  if (a === b) return true;
+  if (haversineMiles(p, f) >= 0.1) return false;
+  return a.split(' ')[0] === b.split(' ')[0] || (Math.min(a.length, b.length) >= 8 && (a.includes(b) || b.includes(a)));
+}
+
 export async function refresh({ offline = false, now = new Date(), useLLM = true, outDir = 'data/public', horizonDays = 60, log = console.log, llmOptions = {}, cacheDir = 'data/cache' } = {}) {
   const sources = readJson('config/sources.json');
   const today = portlandDate(now);
@@ -40,7 +50,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     try {
       const found = await PLACE_ADAPTERS[src.type](src, ctx);
       for (const f of found) {
-        const dup = places.find((p) => normalizeVenueKey(p.name) === normalizeVenueKey(f.name) || (haversineMiles(p, f) < 0.1 && normalizeVenueKey(p.name).split(' ')[0] === normalizeVenueKey(f.name).split(' ')[0]));
+        const dup = places.find((p) => samePlace(p, f));
         if (dup) continue;
         const d = PLACE_DEFAULTS[f.kind] || { age_min: 0, age_max: 12, interests: [], cost: 'varies', setting: 'unknown' };
         places.push({ id: `osm-${f.source_place_id.replace('/', '-')}`, name: f.name, kind: f.kind, lat: f.lat, lon: f.lon, address: f.address, url: f.url, hours_text: f.hours_text, note: f.description || '', ...d, explore: f.explore || [], wikidata: f.wikidata || undefined, commons: f.commons || undefined, image: f.image || undefined, source: 'osm', verified: false });

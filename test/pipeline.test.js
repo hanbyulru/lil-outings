@@ -67,3 +67,11 @@ test('guessVenue infers location from a known place name in the title', () => {
   assert.equal(e.geo_source, 'place-name');
   assert.equal(guessVenue({ title: 'Something else', description: '' }, places).lat, undefined);
 });
+
+import { samePlace } from '../src/pipeline.js';
+test('samePlace: a curated place and its OSM twin are one place', () => {
+  const omsi = { name: 'OMSI (Oregon Museum of Science and Industry)', lat: 45.50835, lon: -122.66566, wikidata: 'Q174617' };
+  assert.ok(samePlace(omsi, { name: 'Oregon Museum of Science and Industry', lat: 45.50835, lon: -122.66597, wikidata: 'Q174617' }));
+  assert.ok(samePlace({ ...omsi, wikidata: undefined }, { name: 'Oregon Museum of Science and Industry', lat: 45.50835, lon: -122.66597 }), 'name inside name, same spot');
+  assert.ok(!samePlace(omsi, { name: 'USS Blueback', lat: 45.5079, lon: -122.6670, wikidata: 'Q2468659' }), 'a neighbour is not a duplicate');
+});
