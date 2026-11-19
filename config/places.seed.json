@@ -847,9 +847,10 @@
   ],
   "cost": "paid",
   "setting": "outdoor",
-  "note": "Animal farm with baby-animal and beehive tours, horse rides (ages 3+), Spring on the Farm and Fall Fest, and a farm preschool.",
+  "note": "Animal farm with baby-animal and beehive tours, horse rides (ages 3+), Spring on the Farm and Fall Fest, and a farm preschool. In December: Santa on the Farm.",
   "explore": [
-   "farms"
+   "farms",
+   "holidays"
   ]
  },
  {
@@ -868,9 +869,10 @@
   ],
   "cost": "paid",
   "setting": "outdoor",
-  "note": "Fall pumpkin patch with llamas, a llama-themed corn maze, and a giant bounce park. Tickets on site only.",
+  "note": "Fall pumpkin patch with llamas, a llama-themed corn maze, and a giant bounce park. Tickets on site only. In December: visits with Santa and Mrs. Claus.",
   "explore": [
-   "farms"
+   "farms",
+   "holidays"
   ]
  },
  {
@@ -889,9 +891,10 @@
   ],
   "cost": "paid",
   "setting": "outdoor",
-  "note": "Seasonal farm: sunflower fields, a pumpkin patch and corn maze in fall, Christmas trees, and a Saturday market.",
+  "note": "Seasonal farm: sunflower fields, a pumpkin patch and corn maze in fall, Christmas trees, and a Saturday market. In December: Christmas trees and Santa visits.",
   "explore": [
-   "farms"
+   "farms",
+   "holidays"
   ]
  },
  {
@@ -1627,6 +1630,131 @@
   "note": "Volunteer-run park with miniature trains to ride. Free; donations welcome.",
   "explore": [
    "trains_planes"
+  ]
+ },
+ {
+  "id": "seed-zoolights",
+  "name": "ZooLights at the Oregon Zoo",
+  "kind": "light display",
+  "lat": 45.50981,
+  "lon": -122.71269,
+  "address": "4001 SW Canyon Rd, Portland",
+  "url": "https://www.oregonzoo.org/zoolights",
+  "hours_text": "Nightly from 4:30 pm, Nov 20, 2026 – Jan 3, 2027 (closed some nights and Dec 25); check site",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "holidays"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "A walk through the zoo lit up for the holidays. Tickets by date.",
+  "explore": [
+   "holidays"
+  ]
+ },
+ {
+  "id": "seed-grotto-lights",
+  "name": "Christmas Festival of Lights at The Grotto",
+  "kind": "light display",
+  "lat": 45.55323,
+  "lon": -122.57087,
+  "address": "8840 NE Skidmore St, Portland, OR 97220",
+  "url": "https://www.thegrotto.org",
+  "hours_text": "Evenings, late Nov – Dec 30 (closed Christmas); check site for 2026 dates",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "holidays"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "Holiday lights across the sanctuary grounds, with concerts and family activities.",
+  "explore": [
+   "holidays"
+  ]
+ },
+ {
+  "id": "seed-peacocklane",
+  "name": "Peacock Lane",
+  "kind": "light display",
+  "lat": 45.51801,
+  "lon": -122.62176,
+  "address": "SE Peacock Ln between SE Belmont and SE Stark, Portland, OR 97214",
+  "url": "https://www.peacocklane.com",
+  "hours_text": "Evenings, Dec 15–31; some nights pedestrian-only",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "holidays"
+  ],
+  "cost": "free",
+  "setting": "outdoor",
+  "note": "A whole block of homes decorated for the holidays, a Portland tradition for decades. Free; walk or drive through.",
+  "explore": [
+   "holidays"
+  ]
+ },
+ {
+  "id": "seed-holidayexpress",
+  "name": "Holiday Express at the Oregon Rail Heritage Center",
+  "kind": "train ride",
+  "lat": 45.50727,
+  "lon": -122.66162,
+  "address": "2250 SE Water Ave, Portland",
+  "url": "https://orhf.org/train-rides/holiday-express",
+  "hours_text": "Fridays–Sundays, Nov 27 – Dec 27, 2026; tickets by time",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "holidays"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "A holiday train ride along the Willamette behind a historic locomotive, with Santa aboard.",
+  "explore": [
+   "holidays"
+  ]
+ },
+ {
+  "id": "seed-winterwonderland",
+  "name": "Winter Wonderland at Portland International Raceway",
+  "kind": "light display",
+  "lat": 45.59593,
+  "lon": -122.68617,
+  "address": "1940 N Victory Blvd, Portland, OR 97217",
+  "hours_text": "Evenings in December; check for this year's dates",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "holidays"
+  ],
+  "cost": "paid",
+  "setting": "outdoor",
+  "note": "Drive-through holiday lights around the racetrack, from the warm car.",
+  "explore": [
+   "holidays"
+  ]
+ },
+ {
+  "id": "seed-pittock-xmas",
+  "name": "Christmas at Pittock Mansion",
+  "kind": "historic house",
+  "lat": 45.5252,
+  "lon": -122.71624,
+  "address": "3229 NW Pittock Dr, Portland, OR 97210",
+  "url": "https://pittockmansion.org",
+  "hours_text": "Daily in late Nov – Dec; check site",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "holidays"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "The historic mansion decked out for Christmas, with a new theme every year.",
+  "explore": [
+   "holidays"
   ]
  }
 ]

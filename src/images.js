@@ -95,7 +95,7 @@ export async function addPlaceImages(places, http, log = () => {}) {
 
 // Businesses rarely have free photos. Owner's call (Nov 2026): places with no Commons photo use their own website's
 // share image (og:image), credited to the site and linking back to it. Every kind on the Places tab (Public Playgrounds is hidden).
-export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries', 'science', 'nature', 'history', 'trains_planes'];
+export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries', 'science', 'nature', 'history', 'trains_planes', 'holidays'];
 // A business's logo is a fair stand-in for a photo (owner: don't skip logos); a museum or park page's logo is usually the
 // city's or agency's, so other kinds take a website photo only.
 export const WEBSITE_LOGO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries'];
