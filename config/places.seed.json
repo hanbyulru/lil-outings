@@ -1588,7 +1588,8 @@
   "note": "Kids' coding center: coding and robotics classes and camps.",
   "explore": [
    "science"
-  ]
+  ],
+  "chain": "Code Ninjas"
  },
  {
   "id": "seed-codeninjas-bridgeport",
@@ -1608,7 +1609,8 @@
   "note": "Kids' coding center: coding and robotics classes and camps.",
   "explore": [
    "science"
-  ]
+  ],
+  "chain": "Code Ninjas"
  },
  {
   "id": "seed-molallatrain",
@@ -1982,7 +1984,8 @@
   "note": "Bouldering gym (short walls, no ropes or harnesses), good for kids about 5 and up who can follow basic safety rules.",
   "explore": [
    "gymnastics"
-  ]
+  ],
+  "chain": "The Circuit Bouldering Gym"
  },
  {
   "id": "seed-circuit-sw",
@@ -2003,7 +2006,8 @@
   "note": "Bouldering gym (short walls, no ropes or harnesses), good for kids about 5 and up who can follow basic safety rules.",
   "explore": [
    "gymnastics"
-  ]
+  ],
+  "chain": "The Circuit Bouldering Gym"
  },
  {
   "id": "seed-circuit-ne",
@@ -2024,6 +2028,73 @@
   "note": "Bouldering gym (short walls, no ropes or harnesses), good for kids about 5 and up who can follow basic safety rules.",
   "explore": [
    "gymnastics"
+  ],
+  "chain": "The Circuit Bouldering Gym"
+ },
+ {
+  "id": "seed-ifly-pdx",
+  "name": "iFLY Indoor Skydiving Portland",
+  "kind": "indoor skydiving",
+  "lat": 45.44351,
+  "lon": -122.77918,
+  "address": "10645 SW Greenburg Rd, Tigard, OR 97223",
+  "url": "https://www.iflyworld.com/portland/",
+  "hours_text": "Check site for hours and booking",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Indoor skydiving in a vertical wind tunnel, with an instructor right alongside first-time flyers. Book ahead.",
+  "explore": [
+   "gymnastics"
   ]
+ },
+ {
+  "id": "seed-skyzone-gresham",
+  "name": "Sky Zone Gresham",
+  "kind": "trampoline park",
+  "lat": 45.51763,
+  "lon": -122.41231,
+  "address": "2990 NE Hogan Dr, Gresham, OR 97030",
+  "url": "https://www.skyzone.com/gresham/",
+  "chain": "Sky Zone Trampoline Park",
+  "hours_text": "Check site for hours, toddler times and tickets",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Trampoline park with ninja courses, air courts, a drop slide, zip lines, and a toddler zone.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-skyzone-happyvalley",
+  "name": "Sky Zone Clackamas Town Center",
+  "kind": "trampoline park",
+  "lat": 45.43587,
+  "lon": -122.57341,
+  "address": "11900 SE 82nd Ave, Happy Valley, OR 97086",
+  "url": "https://www.skyzone.com",
+  "chain": "Sky Zone Trampoline Park",
+  "hours_text": "Check site for opening date and hours",
+  "age_min": 1,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "New trampoline park in the former Nordstrom at Clackamas Town Center.",
+  "explore": [
+   "gymnastics"
+  ],
+  "alert": "Opening fall 2026: check that it's open before you go"
  }
 ]

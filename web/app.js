@@ -339,7 +339,28 @@ function mosaic(seed, catId) {
   return `<svg viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice" width="100%" height="100%"><rect width="400" height="100" fill="${c}" opacity=".12"/>${g}</svg>`;
 }
 
+/**
+ * Chains (owner, Nov 2026): when several locations of one business (seed field `chain`, e.g. The Circuit, Sky Zone) match the
+ * chosen area, show one card listing them instead of a card each. A lone match stays a normal card.
+ */
+function groupChains(items) {
+  const out = [], byChain = new Map();
+  for (const p of items) {
+    if (!p.chain) { out.push(p); continue; }
+    let g = byChain.get(p.chain);
+    if (!g) { g = { chainGroup: true, name: p.chain, locs: [] }; byChain.set(p.chain, g); out.push(g); }
+    g.locs.push(p);
+  }
+  return out.map((g) => (g.chainGroup && g.locs.length === 1 ? g.locs[0] : g));
+}
+function renderChain(g, catId) {
+  const c = lookOf(catId)[1], f = g.locs[0];
+  const label = (p) => p.name.replace(g.name, '').replace(/^[\s·–-]+/, '').trim() || p.neighborhood || p.address;
+  const locs = g.locs.map((p) => `<li><b>${p.url && p.url !== f.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(label(p))} ↗</a>` : esc(label(p))}</b>${p.neighborhood && p.neighborhood !== label(p) ? ` · ${esc(p.neighborhood)}` : ''}<br><span class="addr">${esc(p.address || '')}</span>${p.alert ? `<br><span class="alert">${esc(p.alert)}</span>` : ''}</li>`).join('');
+  return `<article class="place chain">${banner(f, catId)}<div class="kind">${dot(c)}${esc(f.kind || 'place')} · ${g.locs.length} locations</div><h3>${f.url ? `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(g.name)} ↗</a>` : esc(g.name)}</h3>${f.note ? `<p>${esc(f.note)}</p>` : ''}<ul class="locs">${locs}</ul><p style="font-size:14px">${f.cost === 'free' ? 'Free' : f.price ? esc(f.price) : f.cost === 'paid' ? 'Paid' : ''} · Ages ${f.age_min ?? 0}–${f.age_max ?? 12}${f.hours_text ? ' · ' + esc(f.hours_text) : ''}</p></article>`;
+}
 function renderPlace(p, catId) {
+  if (p.chainGroup) return renderChain(p, catId);
   const c = lookOf(catId)[1];
   return `<article class="place">${banner(p, catId)}<div class="kind">${dot(c)}${esc(p.kind || 'place')}${p.neighborhood ? ' · ' + esc(p.neighborhood) : ''}${p.miles != null ? ` · ${p.miles.toFixed(1)} mi` : ''}</div><h3>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} ↗</a>` : esc(p.name)}</h3>${p.address ? `<p class="addr">${esc(p.address)}</p>` : ''}${p.alert ? `<p class="alert">${esc(p.alert)}</p>` : ''}${p.note ? `<p>${esc(p.note)}</p>` : ''}<p style="font-size:14px">${p.cost === 'free' ? 'Free' : p.price ? esc(p.price) : p.cost === 'paid' ? 'Paid' : ''} · Ages ${p.age_min ?? 0}–${p.age_max ?? 12}${p.hours_text ? ' · ' + esc(p.hours_text) : ''}${p.verified ? '' : ' · from OpenStreetMap'}</p></article>`;
 }
@@ -477,9 +498,9 @@ function renderMore() {
   const placesFor = (id) => filterPlaces(DATA.places, { explore: id, loc: S.loc }, c);
   // Under Sports (id 'gymnastics'; owner renamed it Nov 2026): the PP&R class series for sports and movement.
   const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c).filter((p) => /gymnast|tumbl|vault|acrobat|soccer|basketball|baseball|t-?ball|softball|lacrosse|hockey|skateboard|ollie|martial|karate|ninja|obstacle|sport/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
-  const count = (id) => placesFor(id).length + (id === 'gymnastics' ? programs.length : 0);
+  const count = (id) => groupChains(placesFor(id)).length + (id === 'gymnastics' ? programs.length : 0);
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
-  const items = placesFor(cur.id);
+  const items = groupChains(placesFor(cur.id));
   const shown = items.slice(0, S.showN);
   let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
