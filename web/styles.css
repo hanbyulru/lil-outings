@@ -189,8 +189,7 @@ h1.pagehead{margin:0 0 60px}
 .whenmenu button{display:flex;justify-content:space-between;align-items:baseline;gap:20px;white-space:nowrap;width:100%;padding:12px 14px;border:0;border-radius:12px;background:transparent;font:inherit;font-weight:600;color:var(--ink);text-align:left;cursor:pointer}
 .whenmenu button:hover,.whenmenu button:focus-visible{background:var(--paper);outline:none}
 .whenmenu button.on{background:var(--sun)}
-.whenmenu button.soonitem{cursor:default;color:var(--muted)}
-.whenmenu button.soonitem:hover{background:#EFEFF1} /* hover shows, in light gray, though the row can't be picked (owner) */
+.whenmenu button.soonitem,.whenmenu button.soonitem:hover{cursor:default;color:var(--muted);background:#EFEFF1;align-items:center} /* always light gray (owner); centered so "Coming soon" lines up with the name next to the bigger icon */
 .whenmenu button.soonitem span{display:inline-flex;align-items:center}
 /* The sparkle is 24px, wider than the 12px swatches: centered on them (6px out on each side), the name starting where the others do */
 .whenmenu button.soonitem svg{flex:none;margin:-6px 4px -6px -6px}
