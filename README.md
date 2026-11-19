@@ -98,7 +98,11 @@ Google Analytics 4, Measurement ID `G-VY8N6BJX9H` (tag in `web/index.html`; not 
 | `open_place_site` | `place_name`, `kind` | a place's website link |
 | `open_subscribe` | `from` (header, holidays) | the Get updates dialog opens |
 | `open_partner` | | the Partner with us dialog opens |
-| `contact` | `from` (missing_place, missing_event, partner), `kind` | an email link to hello@liloutings.com is clicked |
+| `open_partner_form` | | its Get in touch button (the form) |
+| `partner_enquiry` | `interest` | the partner form is sent |
+| `open_suggest` | `type` (Event, Place), `kind` | a Missing an event / spot card's Tell us about it button |
+| `suggest` | `type`, `kind` | a suggestion is sent |
+| `contact` | `from` (suggest, partner), `kind` | the email link under a form is clicked |
 | `subscribe` | `from` | an email is submitted (the address itself is never sent to Google Analytics) |
 
 To report on a parameter, register it in GA: Admin > Custom definitions > Create custom dimension (event scope).

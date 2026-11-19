@@ -74,14 +74,63 @@ if (!/^(localhost|127\.|0\.0\.0\.0|\[::1\]|$)/.test(location.hostname)) {
     <p>Check your inbox for a confirmation email to finish signing up.</p>
   </div>
 </dialog>
-<dialog id="partner" class="cityask subscribe partner" aria-labelledby="partner-title">
-  <button class="x" type="button" data-partnerclose aria-label="Close">×</button>
+<dialog id="partner" class="cityask subscribe partner formdlg" aria-labelledby="partner-title">
+  <button class="x" type="button" data-formclose aria-label="Close">×</button>
   <div class="subtiles" aria-hidden="true"><i style="--c:#F2B705" class="a"></i><i style="--c:#B05CD6" class="b"></i><i style="--c:#3B6FE0" class="c"></i><i style="--c:#2E9E6B" class="d"></i><i style="--c:#F0614F" class="b"></i><i style="--c:#E4559B" class="a"></i></div>
-  <h2 id="partner-title">Partner with us</h2>
-  <p>Portland families use Lil’ Outings to find something good to do with their kids, every day. If you run a <span style="white-space:nowrap">kid-friendly</span> business, host family events, or want to reach local parents, we’d love to hear from you.</p>
-  <ul class="offers"><li style="--c:#F2B705"><b>Featured spots</b>: your place at the top of its category, marked Featured</li><li style="--c:#3B6FE0"><b>Newsletter sponsorships</b>: a spot in our email to local families</li></ul>
-  <p class="stats" id="partner-stats"></p>
-  <a class="btn-ink partnercta" id="partner-mail" href="mailto:hello@liloutings.com" data-contact="partner">Email hello@liloutings.com</a>
+  <div class="scroll">
+  <div class="step" data-step="pitch">
+    <h2 id="partner-title">Partner with us</h2>
+    <p>Portland families use Lil’ Outings to find something good to do with their kids, every day. If you run a <span style="white-space:nowrap">kid-friendly</span> business, host family events, or want to reach local parents, we’d love to hear from you.</p>
+    <ul class="offers"><li style="--c:#F2B705"><b>Featured spots</b>: your place at the top of its category, marked Featured</li><li style="--c:#3B6FE0"><b>Newsletter sponsorships</b>: a spot in our email to local families</li></ul>
+    <p class="stats" id="partner-stats"></p>
+    <button class="btn-ink partnercta" type="button" data-partnerstep="form">Get in touch</button>
+  </div>
+  <div class="step" data-step="form" hidden>
+    <h2>Get in touch</h2>
+    <p>Tell us a little about your business and we’ll reply by email.</p>
+    <form data-form="partner" class="stack">
+      <label>Business name<input name="business" required maxlength="200" autocomplete="organization"></label>
+      <label>Your name <span>(optional)</span><input name="name" maxlength="120" autocomplete="name"></label>
+      <label>Email<input name="email" type="email" required maxlength="160" autocomplete="email"></label>
+      <label>Website <span>(optional)</span><input name="website" maxlength="300" inputmode="url" autocomplete="url"></label>
+      <fieldset class="checks"><legend>Interested in <span>(optional)</span></legend><label><input type="checkbox" name="interest" value="Featured spot"> Featured spot</label><label><input type="checkbox" name="interest" value="Newsletter sponsorship"> Newsletter sponsorship</label><label><input type="checkbox" name="interest" value="Something else"> Something else</label></fieldset>
+      <label>Message <span>(optional)</span><textarea name="message" rows="3" maxlength="2000"></textarea></label>
+      <input class="hp" name="website2" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn-ink" type="submit">Send</button>
+    </form>
+    <p class="fine">Or email <a href="mailto:hello@liloutings.com" data-contact="partner">hello@liloutings.com</a></p>
+  </div>
+  <div class="step" data-step="done" hidden>
+    <h2>Thank you!</h2>
+    <p data-donemsg>We’ll be in touch soon.</p>
+  </div>
+  </div>
+</dialog>
+<dialog id="suggest" class="cityask subscribe suggest formdlg" aria-labelledby="suggest-title">
+  <button class="x" type="button" data-formclose aria-label="Close">×</button>
+  <div class="subtiles" aria-hidden="true"><i style="--c:#F2B705" class="a"></i><i style="--c:#B05CD6" class="b"></i><i style="--c:#3B6FE0" class="c"></i><i style="--c:#2E9E6B" class="d"></i><i style="--c:#F0614F" class="b"></i><i style="--c:#E4559B" class="a"></i></div>
+  <div class="scroll">
+  <div class="step" data-step="form">
+    <h2 id="suggest-title">What are we missing?</h2>
+    <p>Tell us about an event or place for kids that belongs here, including your own. Only the name is required.</p>
+    <form data-form="suggest" class="stack">
+      <div class="seg" role="radiogroup" aria-label="Event or place"><label><input type="radio" name="type" value="Event"><span>An event</span></label><label><input type="radio" name="type" value="Place"><span>A place</span></label></div>
+      <label>Name<input name="name" required maxlength="200"></label>
+      <label>Website or link <span>(optional)</span><input name="link" maxlength="500" inputmode="url"></label>
+      <label><b data-detailslabel>Where and when</b> <span>(optional)</span><input name="details" maxlength="300"></label>
+      <label>Anything else? <span>(optional)</span><textarea name="note" rows="3" maxlength="2000"></textarea></label>
+      <label>Your email <span>(optional, if you’d like a reply)</span><input name="email" type="email" maxlength="160" autocomplete="email"></label>
+      <input class="hp" name="website2" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <input type="hidden" name="category">
+      <button class="btn-ink" type="submit">Send</button>
+    </form>
+    <p class="fine">Or email <a href="mailto:hello@liloutings.com" data-contact="suggest">hello@liloutings.com</a></p>
+  </div>
+  <div class="step" data-step="done" hidden>
+    <h2>Thank you!</h2>
+    <p data-donemsg>We’ll take a look and add it if it fits.</p>
+  </div>
+  </div>
 </dialog>
 <footer><div class="wrap" id="foot"></div></footer>
 <script type="module" src="app.js"></script>

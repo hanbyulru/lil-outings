@@ -528,14 +528,13 @@ const CONTACT = 'hello@liloutings.com';
 const mailto = (subject) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}`;
 function missingCard(cur) {
   const col = lookOf(cur.id)[1];
-  return `<div class="place missing" style="--c:${col}"><div class="plus" aria-hidden="true"></div><h3>Missing a spot?</h3><p>Know a place that belongs here, or run one?<br class="deskbr"> Tell us at <a href="${mailto(`Place suggestion: ${cur.label}`)}" data-contact="missing_place" data-kind="${esc(cur.id)}">${CONTACT}</a></p></div>`;
+  return `<div class="place missing" style="--c:${col}"><div class="plus" aria-hidden="true"></div><h3>Missing a spot?</h3><p>Know a place that belongs here, or run one?</p><button class="btn-ink tellus" type="button" data-suggest="Place" data-category="${esc(cur.label)}" data-kind="${esc(cur.id)}">Tell us about it</button></div>`;
 }
 
 /** The Events list's last card (owner, Nov 2026), like the Places one: ask for missing events, from parents or hosts. */
 function missingEventCard() {
   const one = S.whats.length === 1 ? S.whats[0] : null, col = one && COLORS[one] ? COLORS[one] : '#8A8E98';
-  const subject = `Event suggestion${one ? `: ${pickedWhats()[0][3]}` : ''}`;
-  return `<div class="missing-ev" style="--c:${col}"><div class="plus" aria-hidden="true"></div><div><h3>Missing an event?</h3><p>Know a kids’ event we should list, or hosting one? Tell us at <a href="${mailto(subject)}" data-contact="missing_event">${CONTACT}</a></p></div></div>`;
+  return `<div class="missing-ev" style="--c:${col}"><div class="plus" aria-hidden="true"></div><div class="txt"><h3>Missing an event?</h3><p>Know a kids’ event we should list, or hosting one?</p></div><button class="btn-ink tellus" type="button" data-suggest="Event" data-category="${one ? esc(pickedWhats()[0][3]) : ''}">Tell us about it</button></div>`;
 }
 
 function renderFoot() {
@@ -567,19 +566,83 @@ function setLoc(loc) { track('choose_area', { area: loc ? loc.region || loc.dist
  */
 const SIGNUP_ENDPOINT = '';
 
-// "Partner with us" (owner, Nov 2026): footer link opens a short dialog for businesses; the counts are live.
+// "Partner with us" (owner, Nov 2026): footer link opens a short pitch, then a form; "Missing a spot/event?" cards open
+// the suggestion form. Both POST to a Google Apps Script web app that adds a row to the owner's Sheet
+// (docs/forms-apps-script.gs). With no FORMS_ENDPOINT, Send opens an email to hello@ with the answers instead.
+const FORMS_ENDPOINT = '';
+function formStep(d, name) {
+  for (const el of d.querySelectorAll('.step')) el.hidden = el.dataset.step !== name;
+  d.querySelector('.scroll').scrollTop = 0;
+  d.querySelector(`[data-step="${name}"] input:not([type=radio]):not(.hp)`)?.focus();
+}
+function openForm(d, step) {
+  for (const f of d.querySelectorAll('form')) f.reset();
+  d.querySelector('.err')?.remove(); d.classList.remove('joined');
+  d.showModal(); formStep(d, step);
+}
+function syncSuggestType(form) {
+  const place = form.type.value === 'Place';
+  form.querySelector('[data-detailslabel]').textContent = place ? 'Where is it?' : 'Where and when';
+  form.name.placeholder = place ? 'e.g. a play cafe, farm, or museum' : 'e.g. a storytime, festival, or class';
+  form.details.placeholder = place ? 'Neighborhood or address' : 'e.g. Sat Dec 6, 10am, Sellwood Park';
+}
+const formFields = (form) => {
+  const out = {};
+  for (const [k, v] of new FormData(form)) out[k] = out[k] ? `${out[k]}, ${v}` : String(v).trim();
+  return out;
+};
+async function sendForm(kind, fields) {
+  if (fields.website2) return 'sent'; // honeypot
+  if (!FORMS_ENDPOINT) {
+    const labels = kind === 'partner' ? { business: 'Business', name: 'Name', email: 'Email', website: 'Website', interest: 'Interested in', message: 'Message' }
+      : { type: 'Event or place', category: 'Category', name: 'Name', link: 'Link', details: 'Where & when', note: 'Note', email: 'My email' };
+    const body = Object.entries(labels).filter(([k]) => fields[k]).map(([k, l]) => `${l}: ${fields[k]}`).join('\n');
+    location.href = `${mailto(kind === 'partner' ? 'Partnering with Lil’ Outings' : `${fields.type || 'Event or place'} suggestion`)}&body=${encodeURIComponent(body)}`;
+    return 'mail';
+  }
+  // Apps Script answers through a redirect without CORS headers, so the reply can't be read: a network error is the only failure we see.
+  await fetch(FORMS_ENDPOINT, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ form: kind, ...fields, page: location.href }) });
+  return 'sent';
+}
+document.addEventListener('change', (ev) => { const f = ev.target.closest('form[data-form="suggest"]'); if (f && ev.target.name === 'type') syncSuggestType(f); });
+document.addEventListener('submit', async (ev) => {
+  const form = ev.target.closest('form[data-form="suggest"], form[data-form="partner"]');
+  if (!form) return;
+  ev.preventDefault();
+  const kind = form.dataset.form, d = form.closest('dialog'), btn = form.querySelector('button[type=submit]');
+  btn.disabled = true; d.querySelector('.err')?.remove();
+  try {
+    const fields = formFields(form);
+    const how = await sendForm(kind, fields);
+    track(kind === 'partner' ? 'partner_enquiry' : 'suggest', kind === 'partner' ? { interest: fields.interest || '' } : { type: fields.type || '', kind: d.dataset.kind || '' });
+    d.querySelector('[data-donemsg]').textContent = how === 'mail' ? 'Your email app should open with your answers filled in. Just hit send.'
+      : kind === 'partner' ? 'We’ll be in touch soon.' : 'We’ll take a look and add it if it fits.';
+    d.classList.add('joined'); formStep(d, 'done');
+  } catch { form.insertAdjacentHTML('afterend', '<p class="err">Sorry, that didn’t go through. Please try again, or email hello@liloutings.com.</p>'); }
+  finally { btn.disabled = false; }
+});
 document.addEventListener('click', (ev) => {
   const c = ev.target.closest('[data-contact]');
   if (c) { track('contact', { from: c.dataset.contact, kind: c.dataset.kind || '' }); return; }
-  const d = $('#partner');
-  if (ev.target.closest('[data-partnerclose]')) { d.close(); return; }
+  const fd = ev.target.closest('dialog.formdlg');
+  if (ev.target.closest('[data-formclose]')) { fd.close(); return; }
+  if (fd && ev.target === fd) { const r = fd.getBoundingClientRect(); if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) fd.close(); return; }
+  const ps = ev.target.closest('[data-partnerstep]');
+  if (ps) { formStep($('#partner'), ps.dataset.partnerstep); track('open_partner_form'); return; }
+  const sg = ev.target.closest('[data-suggest]');
+  if (sg) {
+    const d = $('#suggest'); openForm(d, 'form');
+    const form = d.querySelector('form'); form.type.value = sg.dataset.suggest; form.category.value = sg.dataset.category || ''; d.dataset.kind = sg.dataset.kind || '';
+    syncSuggestType(form); form.name.focus();
+    track('open_suggest', { type: sg.dataset.suggest, kind: sg.dataset.kind || '' });
+    return;
+  }
   if (!ev.target.closest('[data-partner]')) return;
   // Only places in the kinds people can browse (Public Playgrounds are hidden), one per chain; rounded down ("160+").
   const places = groupChains(DATA.places.filter((p) => (p.explore || []).some((k) => !HIDDEN_KINDS.includes(k) && k !== 'holidays'))).length, events = (DATA.events || []).length;
   const n = (x) => { const r = x >= 1000 ? 100 : 10; return x >= r ? `${(Math.floor(x / r) * r).toLocaleString('en-US')}+` : String(x); };
   $('#partner-stats').innerHTML = `<b>${n(places)}</b> places · <b>${n(events)}</b> upcoming events`;
-  $('#partner-mail').href = mailto('Partnering with Lil’ Outings');
-  d.showModal(); track('open_partner');
+  openForm($('#partner'), 'pitch'); track('open_partner');
 });
 async function sendSignup(fields) {
   if (!SIGNUP_ENDPOINT) { console.warn('Lil\' Outings: SIGNUP_ENDPOINT is not set; not sent', fields); return; }

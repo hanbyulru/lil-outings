@@ -351,13 +351,15 @@ h1.pagehead{margin:0 0 60px}
 .place.missing .plus{width:48px;height:48px;border-radius:14px 14px 14px 4px;background:color-mix(in srgb,var(--c) 18%,#fff);position:relative;margin-bottom:14px}
 .place.missing .plus::before,.place.missing .plus::after{content:'';position:absolute;left:50%;top:50%;width:20px;height:3px;border-radius:2px;background:var(--c);transform:translate(-50%,-50%)}
 .place.missing .plus::after{transform:translate(-50%,-50%) rotate(90deg)}
-.place.missing .deskbr{display:none}@media (min-width:701px){.place.missing .deskbr{display:inline}}
 .place.missing a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;word-break:break-word}
 /* "Missing an event?" last card in the Events list (owner, Nov 2026) */
 .missing-ev{display:flex;align-items:center;gap:18px;margin:18px 0 8px;padding:22px 24px;border:2px dashed color-mix(in srgb,var(--c) 45%,var(--hair2));border-radius:20px}
 .missing-ev .plus{flex:none;width:48px;height:48px;border-radius:14px 14px 14px 4px;background:color-mix(in srgb,var(--c) 18%,#fff);position:relative}
 .missing-ev .plus::before,.missing-ev .plus::after{content:'';position:absolute;left:50%;top:50%;width:20px;height:3px;border-radius:2px;background:var(--c);transform:translate(-50%,-50%)}
 .missing-ev .plus::after{transform:translate(-50%,-50%) rotate(90deg)}
+.missing-ev .txt{flex:1;min-width:0}
+.missing-ev .tellus{flex:none;margin-top:0}
+@media (max-width:700px){.missing-ev{flex-wrap:wrap}.missing-ev .txt{flex-basis:calc(100% - 66px)}.missing-ev .tellus{margin-left:66px}}
 .missing-ev h3{font-size:20px;line-height:1.25}
 .missing-ev p{margin:6px 0 0;font-size:15px;color:var(--muted)}
 .missing-ev a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;word-break:break-word}
@@ -371,6 +373,35 @@ footer p.partner .textbtn{font:inherit;font-weight:600;color:var(--ink)}
 .partner .offers li{padding-left:14px;border-left:3px solid var(--c)}
 .partner .stats{margin-top:16px;color:var(--ink)}
 .partner .partnercta{display:inline-flex;margin-top:20px;text-decoration:none}
+/* Suggestion + partner forms (owner, Nov 2026; docs/forms-apps-script.gs). The tiles peek over the top, so the dialog stays
+   overflow:visible and its content scrolls inside .scroll on short screens. */
+.formdlg{padding:0;max-height:none}
+.formdlg .scroll{max-height:calc(100dvh - 72px);overflow:auto;padding:40px 28px 28px;border-radius:24px}
+.cityask.suggest{width:min(520px,calc(100vw - 32px))}
+.cityask form.stack{display:grid;gap:12px;margin-top:18px}
+.stack label,.stack legend{display:block;font-size:14px;font-weight:600;color:var(--ink)}
+.cityask .stack label>input,.cityask .stack label>textarea{display:block;margin-top:6px}
+.stack label b{font-weight:600}
+.stack label span,.stack legend span{font-weight:400;color:var(--muted)}
+.cityask .stack input,.cityask .stack textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;font-weight:400;padding:10px 14px;border:1.5px solid var(--hair2);border-radius:12px;background:var(--paper);color:var(--ink)}
+.cityask .stack textarea{resize:vertical;min-height:84px}
+.cityask .stack input:focus,.cityask .stack textarea:focus{outline:none;border-color:var(--ink)}
+.stack .btn-ink{justify-self:start;padding:11px 26px;margin-top:4px}
+.stack .hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+.stack .seg{display:flex;gap:8px}
+.stack .seg label{display:block;cursor:pointer}
+.stack .seg input{position:absolute;opacity:0;pointer-events:none}
+.stack .seg span{display:inline-block;padding:8px 16px;border:1.5px solid var(--hair2);border-radius:999px;font-size:15px;font-weight:600;color:var(--muted)}
+.stack .seg input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+.stack .seg input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
+.stack .checks{border:0;margin:0;padding:0;display:grid;gap:8px}
+.stack .checks legend{margin-bottom:6px;padding:0}
+.stack .checks label{display:flex;align-items:center;gap:10px;font-weight:400;font-size:15px}
+.cityask .stack .checks input{width:18px;height:18px;flex:none;accent-color:var(--ink);padding:0;margin:0}
+.formdlg p.fine{margin-top:14px;font-size:14px}
+.formdlg p.fine a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.formdlg .err{margin-top:10px}
+.tellus{margin-top:14px;padding:9px 18px;font-size:14px}
 footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-size:15px}
 footer p{margin:0;max-width:720px}footer p+p{margin-top:8px}
 .demo{background:var(--sun);border-bottom:1px solid #E9D68A;font-size:14px;font-weight:600;padding:8px 0;text-align:center}
