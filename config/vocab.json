@@ -42,7 +42,8 @@
     "nature",
     "science",
     "trains",
-    "play"
+    "play",
+    "holidays"
   ],
   "categories": [
     "storytime",
@@ -130,7 +131,8 @@
     "nature": "Animals & Nature",
     "science": "Science",
     "trains": "Vehicles",
-    "play": "Play"
+    "play": "Play",
+    "holidays": "Holidays"
   },
   "interest_aliases": {
     "music": "art",

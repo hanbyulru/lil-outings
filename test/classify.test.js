@@ -120,7 +120,7 @@ test('classifyBatchLLM: requests schema-enforced JSON limited to the vocabulary,
   assert.equal(fmt.type, 'json_schema');
   const item = fmt.schema.properties.results.items;
   assert.equal(item.additionalProperties, false);
-  assert.deepEqual(item.properties.interests.items.enum, ['books', 'art', 'nature', 'science', 'trains', 'play']);
+  assert.deepEqual(item.properties.interests.items.enum, ['books', 'art', 'nature', 'science', 'trains', 'play', 'holidays']);
 });
 
 test('classifyAll: listings that fell back to rules are retried with Claude on the next run', async () => {
@@ -161,6 +161,12 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
   assert.deepEqual(tags('Tales to Tails', ['books']).sort(), ['books', 'nature']);
   assert.deepEqual(tags('StoryWalk® at Fields Bridge Park!', ['books']), ['nature', 'books'], 'StoryWalk: nature first (owner)');
   assert.deepEqual(tags('Touch a Truck'), ['trains'], 'Vehicles');
+  assert.ok(tags('Storytime with Santa', ['books']).includes('holidays'), 'Santa is Holidays');
+  assert.ok(tags('Hanukkah Crafts').includes('holidays'));
+  assert.ok(tags('Noon Year\'s Eve Party').includes('holidays'));
+  assert.ok(!tags('Thanksgiving Holiday Craft').includes('holidays'), 'Thanksgiving is not the winter holidays');
+  assert.ok(!tags('Lunar New Year Celebration', ['holidays']).includes('holidays'), 'nor is Lunar New Year, even if the model says so');
+  assert.ok(!tags('Elfin Forest Walk').includes('holidays'));
   assert.ok(!tags('Cartoon Club').includes('trains'));
   assert.deepEqual(tags('Read to the Dogs', ['books']).sort(), ['books', 'nature']);
   assert.deepEqual(tags('Music & Movement Storytime').sort(), ['art', 'books']);

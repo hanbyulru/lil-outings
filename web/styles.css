@@ -36,6 +36,38 @@ body.cansub [data-subscribe]{display:inline-flex}
 .subbtn{align-items:center;gap:8px;border:1.5px solid var(--ink);background:transparent;border-radius:999px;padding:8px 16px;font-weight:600;font-size:15px;color:var(--ink);white-space:nowrap;transition:background .15s,color .15s}
 .subbtn:hover,.subbtn:focus-visible{background:var(--ink);color:#fff;outline:none}
 .soon .subcta{margin-top:4px}
+/* Holiday launch splash (owner, Nov 2026: sparkly and festive): a midnight card, silver and gold sparkles twinkling around it,
+   the big silver sparkle tile, the title in the headline font. */
+.holisplash{width:min(520px,calc(100vw - 32px));border:0;border-radius:28px;padding:44px 36px 30px;text-align:center;color:#F6F1E4;overflow:visible;
+  background:radial-gradient(120% 90% at 50% 0%,#2C3550 0%,#1B2033 55%,#141826 100%);box-shadow:0 30px 80px rgba(10,12,20,.45),inset 0 0 0 1px rgba(232,185,35,.35)}
+.holisplash::backdrop{background:rgba(22,24,29,.55);backdrop-filter:blur(3px)}
+.holisplash .x{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;border-radius:50%;background:transparent;font-size:26px;line-height:1;color:#C9CFD6}
+.holisplash .x:hover{background:rgba(255,255,255,.08);color:#fff}
+.holisplash .holitile{display:flex;justify-content:center;margin:-6px 0 6px}
+.holisplash h2{font-family:'Palette Mosaic','Instrument Sans',sans-serif;font-weight:400;font-size:40px;line-height:1.1;letter-spacing:-1px;color:#fff;margin:6px 0 14px}
+.pm .holisplash h2{word-spacing:-.4em}
+.holisplash p{margin:0 auto;max-width:380px;font-size:17px;line-height:1.5;color:#D9DEE6}
+.holiactions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:26px}
+.holibtn{border:1.5px solid rgba(246,241,228,.55);background:transparent;color:#F6F1E4;border-radius:999px;padding:12px 20px;font-weight:700;font-size:15px}
+.holibtn:hover,.holibtn:focus-visible{background:rgba(255,255,255,.1);outline:none}
+.holibtn.gold{border-color:transparent;background:linear-gradient(135deg,#F2D16B,#E8B923 55%,#C9952A);color:#1B2033}
+.holibtn.gold:hover,.holibtn.gold:focus-visible{background:linear-gradient(135deg,#F7DC85,#EEC33A 55%,#D3A033)}
+.holisplash p.holifine{margin-top:22px;font-size:13px;color:#9AA3AE;letter-spacing:.02em}
+.holisparks{position:absolute;inset:-18px;pointer-events:none}
+.holisparks i{position:absolute;width:var(--s,14px);height:var(--s,14px);background:var(--c,#E8B923);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);animation:holitwinkle 2.6s ease-in-out infinite;animation-delay:var(--d,0s)}
+.holisparks i:nth-child(1){left:6%;top:8%;--s:16px}
+.holisparks i:nth-child(2){left:22%;top:-2%;--s:10px;--c:#C9CFD6;--d:.4s}
+.holisparks i:nth-child(3){right:16%;top:4%;--s:18px;--d:.9s}
+.holisparks i:nth-child(4){right:3%;top:30%;--s:11px;--c:#C9CFD6;--d:1.3s}
+.holisparks i:nth-child(5){left:1%;top:44%;--s:12px;--c:#F2D16B;--d:.2s}
+.holisparks i:nth-child(6){right:6%;bottom:22%;--s:15px;--d:1.7s}
+.holisparks i:nth-child(7){left:8%;bottom:10%;--s:13px;--c:#C9CFD6;--d:.7s}
+.holisparks i:nth-child(8){left:46%;bottom:-3%;--s:10px;--d:2s}
+.holisparks i:nth-child(9){right:28%;bottom:2%;--s:9px;--c:#C9CFD6;--d:1.1s}
+.holisparks i:nth-child(10){left:34%;top:16%;--s:8px;--c:#F2D16B;--d:1.5s}
+@keyframes holitwinkle{0%,100%{transform:scale(1) rotate(0);opacity:1}50%{transform:scale(.4) rotate(45deg);opacity:.45}}
+@media (prefers-reduced-motion:reduce){.holisparks i{animation:none}}
+@media (max-width:700px){.holisplash{padding:40px 22px 26px}.holisplash h2{font-size:32px}.holiactions{flex-direction:column}.holibtn{width:100%}}
 /* Sign-up box personality (owner, Nov 2026): mosaic tiles peeking over the top edge (they hop when the box opens and
    dance on success), the title in the headline font, and the email field + Subscribe as one pill. */
 .subscribe{overflow:visible;padding-top:40px}
@@ -129,6 +161,12 @@ h1.pagehead{margin:0 0 60px}
 .whenbtn.active .whentext{text-decoration-color:transparent;background-image:var(--mosaic);background-repeat:repeat-x;background-size:102px 5px;background-position:0 calc(100% - 3px);padding-bottom:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .whenbtn.active .caret{color:var(--ink)}
 /* Thanksgiving week (owner, Nov 2026): the chosen phrase's strip in fall colors, with a falling-leaf shimmer; a leaf tile in the menu */
+.whenbtn.festive{--mosaic:repeating-linear-gradient(90deg,#C9CFD6 0 14px,transparent 14px 17px,#E8B923 17px 31px,transparent 31px 34px,#8E97A3 34px 48px,transparent 48px 51px,#F2D16B 51px 65px,transparent 65px 68px)}
+.whenbtn.festive .whentext{background-size:68px 5px;animation:festdrift 4s linear infinite}
+@keyframes festdrift{from{background-position:0 calc(100% - 3px)}to{background-position:68px calc(100% - 3px)}}
+@media (prefers-reduced-motion:reduce){.whenbtn.festive .whentext{animation:none}}
+.whenmenu button.festiveitem span{display:inline-flex;align-items:center;gap:8px}
+.whenmenu button.festiveitem svg{margin-left:-2px}
 .whenbtn.autumn{--mosaic:repeating-linear-gradient(90deg,#E8772E 0 14px,transparent 14px 17px,#C8452F 17px 31px,transparent 31px 34px,#F2B705 34px 48px,transparent 48px 51px,#8A5A3B 51px 65px,transparent 65px 68px,#7A9A2E 68px 82px,transparent 82px 85px)}
 .whenbtn.autumn .whentext{background-size:85px 5px;animation:leafdrift 6s linear infinite}
 @keyframes leafdrift{from{background-position:0 calc(100% - 3px)}to{background-position:85px calc(100% - 3px)}}

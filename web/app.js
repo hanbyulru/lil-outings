@@ -4,9 +4,9 @@ import { initMap, showPins } from './map.js';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // Interest colors (owner, Nov 2026). TEXT_COLORS: darker shades where the fill is too light to read as text (yellow).
-const COLORS = { books: '#F2B705', art: '#B05CD6', nature: '#2E9E6B', science: '#3B6FE0', trains: '#F0614F', play: '#E4559B' };
-const TEXT_COLORS = { books: '#9A6B00' };
-const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Vehicles', play: 'Play' };
+const COLORS = { books: '#F2B705', art: '#B05CD6', nature: '#2E9E6B', science: '#3B6FE0', trains: '#F0614F', play: '#E4559B', holidays: '#9AA3AE' };
+const TEXT_COLORS = { books: '#9A6B00', holidays: '#5E6672' };
+const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Vehicles', play: 'Play', holidays: 'Holidays' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
 const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend'], ['nextweek', 'next week', 'Next week']];
@@ -20,10 +20,25 @@ const WHAT = [
   ['nature', 'Animal & nature things', 'to do', 'Animals & Nature', 'nature'],
   ['trains', 'Vehicle things', 'to do', 'Vehicles', 'trains'],
   ['play', 'Playful things', 'to do', 'Play', 'play'],
+  ['holidays', 'Holiday things', 'to do', 'Holidays', 'holidays'], // only while the holiday guide is live (holidaySeason)
   ['other', 'Other things', 'to do', 'Other', null]
 ];
 // Interests left out of the menu for now (owner, Nov 2026): Vehicles has no events at the moment. Its tag, colors and Places kind stay.
 const HIDDEN_WHAT = ['trains'];
+/**
+ * The holiday guide's season (owner, Nov 2026; winter holidays only). 'soon' from Nov 1 through Thanksgiving Day ("Coming soon"
+ * in the interest menu and on the Places tab), 'live' from the day after Thanksgiving through Jan 1, else 'off' (no Holidays
+ * anywhere). Preview any state with ?holidays=soon|live|off.
+ */
+function holidaySeason(dateStr = NOW().date) {
+  const q = new URLSearchParams(location.search).get('holidays');
+  if (q === 'soon' || q === 'live' || q === 'off') return q;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (m === 1 && d === 1) return 'live';
+  if (m < 11) return 'off';
+  return dateStr <= thanksgiving(y) ? 'soon' : 'live';
+}
+const holidaysLive = () => holidaySeason() === 'live';
 // "What" and "who" are multi-select (owner, Nov 2026): S.whats / S.ages hold the picks in menu order; empty = everything.
 const joinList = (xs) => (xs.length < 3 ? xs.join(' + ') : `${xs.slice(0, -1).join(', ')} + ${xs[xs.length - 1]}`);
 const pickedWhats = () => S.whats.map((v) => WHAT.find((w) => w[0] === v)).filter(Boolean);
@@ -257,7 +272,7 @@ function srcLine(e) { const also = (e.also_listed_on || []).length ? ` + ${e.als
 function tagsOf(e) {
   const t = [...(e.interests || [])];
   if (!t.includes('books') && (e.categories || []).includes('storytime')) t.unshift('books');
-  return t.filter((k) => LABEL[k]);
+  return t.filter((k) => LABEL[k] && (k !== 'holidays' || holidaysLive()));
 }
 function tagChips(e) {
   const t = tagsOf(e);
@@ -361,17 +376,18 @@ function renderHeadline() {
   const onWhat = (v) => (v === 'all' ? !S.whats.length : S.whats.includes(v));
   const done = '<button class="pickdone" data-menudone>Done</button>';
   // Holidays is announced but not live yet (owner, Nov 2026): a greyed-out row with the sparkle tile and "Coming soon".
-  const HOLIDAYS_SOON = `<button class="soonitem" disabled aria-disabled="true"><span>${tile('sparkle', '#8E97A3', 14)}Holidays</span><small>Coming soon</small></button>`;
+  const HOLIDAYS_SOON = holidaySeason() === 'soon' ? `<button class="soonitem" disabled aria-disabled="true"><span>${tile('sparkle', '#8E97A3', 14)}Holidays</span><small>Coming soon</small></button>` : '';
+  const hiddenWhat = holidaysLive() ? HIDDEN_WHAT : [...HIDDEN_WHAT, 'holidays'];
   const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemcheckbox" aria-checked="${onAge(v)}" class="${onAge(v) ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}${done}</span>` : '';
-  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.filter((w) => !HIDDEN_WHAT.includes(w[0])).map(([v, , , label, tag]) => `<button role="menuitemcheckbox" aria-checked="${onWhat(v)}" class="${onWhat(v) ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}${HOLIDAYS_SOON}${done}</span>` : '';
+  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.filter((w) => !hiddenWhat.includes(w[0])).map(([v, , , label, tag]) => `<button role="menuitemcheckbox" aria-checked="${onWhat(v)}" class="${onWhat(v) ? 'on' : ''}${tag === 'holidays' ? ' festiveitem' : ''}" data-what="${v}"><span>${tag === 'holidays' ? tile('sparkle', '#8E97A3', 16) : tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}${HOLIDAYS_SOON}${done}</span>` : '';
   const cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1); // each menu phrase starts with a capital (owner, Nov 2026)
   // look: null = default gray underline; 'mosaic' = chosen (the six-color strip); a color = one interest picked, underlined in its color.
-  const trigger = (kind, text, open, look) => `<button class="whenbtn${look === 'mosaic' ? ' active' : look === 'autumn' ? ' active autumn' : look ? ' solid' : ''}"${look && look !== 'mosaic' && look !== 'autumn' ? ` style="--ul:${look}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
+  const trigger = (kind, text, open, look) => `<button class="whenbtn${look === 'mosaic' ? ' active' : look === 'autumn' || look === 'festive' ? ` active ${look}` : look ? ' solid' : ''}"${look && !['mosaic', 'autumn', 'festive'].includes(look) ? ` style="--ul:${look}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
   const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
   const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? '' : locMenu}</span>`;
   $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? locMenu : ''}</span>`;
   const wp = whatPhrase(), ws = pickedWhats();
-  const whatLook = !ws.length ? null : ws.length > 1 ? 'mosaic' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
+  const whatLook = !ws.length ? null : ws.length > 1 ? 'mosaic' : ws[0][0] === 'holidays' ? 'festive' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
   const hint = S.hint && !S.open ? `<span class="menuhint" aria-hidden="true">${hintText()}</span>` : '';
   $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', cur[3] === 'autumn' ? 'autumn' : 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
@@ -437,7 +453,10 @@ function renderToday() {
 const HIDDEN_KINDS = ['playgrounds'];
 function renderMore() {
   const c = ctx();
-  const pills = (DATA.meta.vocab?.explore || EXPLORE_FALLBACK).filter((x) => !HIDDEN_KINDS.includes(x.id));
+  // Holidays places follow the holiday season: "Soon" before launch, hidden out of season (holidaySeason).
+  const season = holidaySeason();
+  const pills = (DATA.meta.vocab?.explore || EXPLORE_FALLBACK).filter((x) => !HIDDEN_KINDS.includes(x.id) && !(x.id === 'holidays' && season === 'off'))
+    .map((x) => (x.id === 'holidays' ? { ...x, soon: season === 'soon' } : x));
   const placesFor = (id) => filterPlaces(DATA.places, { explore: id, loc: S.loc }, c);
   // Under Gymnastics: the PP&R class series that are gymnastics or tumbling.
   const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c).filter((p) => /gymnast|tumbl|vault|acrobat/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
@@ -448,7 +467,7 @@ function renderMore() {
   let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation gymnastics classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
-  if (cur.soon && !items.length) body = `<div class="soon">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 64)}<p>Coming soon</p><button class="btn-ink subcta" type="button" data-subscribe="holidays">Tell me when it’s live</button></div>`;
+  if (cur.soon) body = `<div class="soon">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 64)}<p>Coming soon</p><button class="btn-ink subcta" type="button" data-subscribe="holidays">Tell me when it’s live</button></div>`;
   else if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${S.loc ? ` in ${esc(locPhrase(S.loc))}` : ''} yet.</h3>${S.loc ? '<div class="empty-actions"><button class="btn-ink" data-locany>See anywhere in Portland</button></div>' : ''}</div>`;
   $('#results-inner').innerHTML = `<div class="placesgrid">
     <div class="explore-list" role="group" aria-label="Kinds of places">${pills.map((x) => { const [k, col] = lookOf(x.id), on = x.id === cur.id; return `<button class="${on ? 'on' : ''}" style="--c:${col}" data-explore="${x.id}" aria-pressed="${on}"><span class="ic">${tile(k, col, 34)}</span><span class="nm">${esc(x.label)}</span><span class="n">${x.soon ? 'Soon' : count(x.id)}</span><span class="arr" aria-hidden="true">→</span></button>`; }).join('')}</div>
@@ -469,7 +488,7 @@ const track = (name, params = {}) => { try { window.gtag?.('event', name, params
 
 // "Explore places instead" on an empty day opens the Places kind that matches the chosen interest (owner, Nov 2026).
 // Storytime has no kind of its own: Indoor Playgrounds (owner). All / Other open the Places tab as it was.
-const INTEREST_KIND = { books: 'indoor_play', art: 'art', science: 'science', nature: 'nature', trains: 'trains_planes', play: 'indoor_play' };
+const INTEREST_KIND = { holidays: 'holidays', books: 'indoor_play', art: 'art', science: 'science', nature: 'nature', trains: 'trains_planes', play: 'indoor_play' };
 document.addEventListener('click', (ev) => {
   const a = ev.target.closest('a[data-gokind]'); if (!a || !a.dataset.gokind) return;
   S.explore = a.dataset.gokind; S.showN = 24; renderMore(); // the link's #places hash then switches the tab
@@ -521,6 +540,44 @@ async function sendSubscribe(email) {
   const j = await res.json().catch(() => ({}));
   if (!res.ok || (j.status && j.status !== 'success')) throw new Error(j.errors?.messages?.[0] || j.message || `HTTP ${res.status}`);
 }
+/**
+ * Holiday launch splash (owner, Nov 2026): once per visitor per season, the first visit after the guide goes live.
+ * "See holiday events" picks the Holidays interest; "Explore holiday places" opens the Holidays kind on the Places tab.
+ */
+const holiDlg = () => $('#holisplash');
+const holiKey = () => { const [y, m] = NOW().date.split('-').map(Number); return `lilOutings.holidaySplash.${m === 1 ? y - 1 : y}`; };
+function maybeHolidaySplash() {
+  if (!holidaysLive()) return;
+  try { if (localStorage.getItem(holiKey()) === '1' && !/[?&]holidays=live/.test(location.search)) return; } catch { /* storage blocked: still show it once this visit */ }
+  holiDlg().querySelector('.holitile').innerHTML = tile('sparkle', '#8E97A3', 88);
+  holiDlg().showModal(); track('holiday_splash', { action: 'shown' });
+}
+function closeHoliday(action) {
+  try { localStorage.setItem(holiKey(), '1'); } catch { /* not critical */ }
+  holiDlg().close(); track('holiday_splash', { action });
+}
+document.addEventListener('click', (ev) => {
+  const go = ev.target.closest('[data-holigo]');
+  if (go) {
+    closeHoliday(go.dataset.holigo);
+    if (go.dataset.holigo === 'events') {
+      S.whats = ['holidays']; S.sel = null;
+      if (S.hint) { S.hint = false; markHintSeen(); } // they've used the menus now
+      // Land on the soonest day choice that has holiday events (today, else this week, the weekend, next week).
+      const c = ctx(), has = (w) => filterEvents(DATA.events, { when: w, loc: S.loc, age: null }, c).filter(fitsWhat).filter(fitsAge).length > 0;
+      const opts = whenOptions().map((w) => w[0]);
+      S.when = ['today', 'tomorrow', 'week', 'weekend', 'nextweek'].find((w) => opts.includes(w) && has(w)) || S.when;
+      if (location.hash === '#places') location.hash = '#events';
+      renderHeadline(); renderToday();
+    }
+    else { S.explore = 'holidays'; S.showN = 24; renderMore(); location.hash = '#places'; }
+    return;
+  }
+  if (ev.target.closest('[data-holiclose]')) return closeHoliday('closed');
+  if (ev.target === holiDlg()) { const r = holiDlg().getBoundingClientRect(); if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) closeHoliday('closed'); }
+});
+holiDlg()?.addEventListener('cancel', () => { try { localStorage.setItem(holiKey(), '1'); } catch { /* not critical */ } }); // Esc
+
 const subDlg = () => $('#subscribe');
 function subStep(name) { for (const el of subDlg().querySelectorAll('.step')) el.hidden = el.dataset.step !== name; subDlg().querySelector(`[data-step="${name}"] input`)?.focus(); }
 document.addEventListener('submit', async (ev) => {
@@ -681,4 +738,5 @@ load().then((d) => {
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
   DEFAULT_WHEN = S.when;
   renderHeadline(); renderToday(); renderMore(); renderFoot();
+  maybeHolidaySplash();
 }).catch((e) => { $('#today-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });
