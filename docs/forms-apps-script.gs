@@ -1,3 +1,4 @@
+/** @OnlyCurrentDoc */  // limits the script to this one Sheet (the permission screen then says "this spreadsheet", not all of them)
 /**
  * Lil' Outings forms -> Google Sheet (owner, Nov 2026).
  *
