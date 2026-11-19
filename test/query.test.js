@@ -110,3 +110,22 @@ test('location multi-select: an item in any picked district or town matches', ()
   assert.deepEqual(titles({ picks: [{ district: d1.id }] }), [d1.name], 'one pick acts like a single district');
   assert.deepEqual(titles({ picks: [] }).length, 3, 'no picks: anywhere');
 });
+
+test('markSeries / collapseSeries: a weekday run shows once, labeled', async () => {
+  const { markSeries, collapseSeries } = await import('../web/query.js');
+  const ev = (date, extra = {}) => ({ source: { id: 'lib' }, title: 'Letters', venue_name: 'Library', start_min: 480, date, ...extra });
+  const dates = ['2026-11-30', '2026-12-01', '2026-12-02', '2026-12-03', '2026-12-04', '2026-12-07', '2026-12-08'];
+  const events = markSeries([...dates.map((d) => ev(d)), ev('2026-12-19', { start_min: 990 }), ev('2026-12-28', { start_min: 540 }), ev('2026-12-29', { start_min: 540 })]);
+  assert.equal(events[0].series.pattern, 'weekdays');
+  assert.equal(events[0].series.last, '2026-12-08');
+  assert.equal(events[7].series, undefined); // a one-off at another time
+  assert.equal(events[8].series, undefined); // only two dates
+  const shown = collapseSeries(events.slice(2, 7));
+  assert.deepEqual(shown.map((e) => e.date), ['2026-12-02']);
+  const daily = markSeries(['2026-12-01', '2026-12-02', '2026-12-03', '2026-12-04'].map((d) => ev(d)));
+  assert.equal(daily[0].series.pattern, 'daily');
+  const three = markSeries(['2026-12-02', '2026-12-05', '2026-12-07'].map((d) => ev(d))); // e.g. Gingerbread House: stays as is
+  assert.equal(three[0].series, undefined);
+  const mws = markSeries(['2026-11-30', '2026-12-02', '2026-12-05', '2026-12-07', '2026-12-09'].map((d) => ev(d))); // Mon/Wed/Sat storytime
+  assert.equal(mws[0].series, undefined);
+});

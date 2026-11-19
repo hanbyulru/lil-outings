@@ -239,3 +239,39 @@ export function filterPrograms(programs, opts = {}, ctx) {
   }
   return out.sort((a, b) => a.age_min - b.age_min || a.name.localeCompare(b.name));
 }
+
+/**
+ * Repeating series (owner, Nov 2026: "Letters to Winter Wonderland" ran every weekday for three weeks and crowded the feed).
+ * Same source, title, venue and start time on 4+ dates, each within 3 days of the last (so weekday runs survive weekends).
+ * Only runs held every day or every weekday count. Sets e.series = { key, last, pattern: 'daily' | 'weekdays' } on every event of a run; returns the events.
+ */
+export function markSeries(events) {
+  const groups = new Map();
+  for (const e of events) {
+    const k = [e.source?.id || e.source, e.title, e.venue_name || '', e.start_min ?? ''].join('|');
+    (groups.get(k) || groups.set(k, []).get(k)).push(e);
+  }
+  const day = (d) => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 864e5;
+  for (const [k, list] of groups) {
+    const dates = [...new Set(list.map((e) => e.date))].sort();
+    const runs = []; let run = [];
+    for (const d of dates) { if (run.length && day(d) - day(run.at(-1)) > 3) { runs.push(run); run = []; } run.push(d); }
+    if (run.length) runs.push(run);
+    for (const r of runs) {
+      if (r.length < 4) continue; // two or three dates stay as they are (owner, Nov 2026)
+      const gaps = r.slice(1).map((d, i) => day(d) - day(r[i]));
+      const weekday = (d) => { const w = new Date(day(d) * 864e5).getUTCDay(); return w > 0 && w < 6; };
+      const pattern = gaps.every((g) => g === 1) ? 'daily' : r.every(weekday) && gaps.every((g, i) => g === 1 || (g === 3 && new Date(day(r[i]) * 864e5).getUTCDay() === 5)) ? 'weekdays' : null;
+      if (!pattern) continue; // a few set days a week (e.g. a Mon/Wed/Sat storytime) stays as separate listings
+      const series = { key: `${k}|${r[0]}`, last: r.at(-1), pattern };
+      for (const e of list) if (e.date >= r[0] && e.date <= series.last) e.series = series;
+    }
+  }
+  return events;
+}
+
+/** Keep only the first (soonest) date of each repeating series in a time-sorted list. */
+export function collapseSeries(events) {
+  const seen = new Set();
+  return events.filter((e) => !e.series || (seen.has(e.series.key) ? false : seen.add(e.series.key)));
+}

@@ -1,4 +1,4 @@
-import { filterEvents, filterPlaces, filterPrograms, whenRange, isFriday, isSaturday, isSunday } from './query.js';
+import { filterEvents, filterPlaces, filterPrograms, whenRange, isFriday, isSaturday, isSunday, markSeries, collapseSeries } from './query.js';
 import { initMap, showPins } from './map.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -297,6 +297,12 @@ function showMoreButtons() {
 }
 addEventListener('resize', () => requestAnimationFrame(showMoreButtons));
 
+/** "Repeats weekdays until Dec 17" for an event in a repeating series (markSeries in query.js); nothing on its last date. */
+function repeatsLine(e) {
+  const r = e.series; if (!r || e.date >= r.last) return '';
+  const until = fmtDay(r.last, { month: 'short', day: 'numeric' });
+  return `<div class="repeats">${r.pattern === 'daily' ? 'Repeats daily' : 'Repeats weekdays'} until ${esc(until)}</div>`;
+}
 function renderEvent(e, n) {
   const age = e.age_min != null ? (e.age_max >= 12 ? `Ages ${e.age_min}+` : `Ages ${e.age_min}–${e.age_max}`) : '';
   const cost = e.cost_type === 'free' ? '<span class="free">Free</span>' : e.cost_amount ? `$${e.cost_amount}` : e.cost_type === 'paid' ? 'Paid' : '';
@@ -308,6 +314,7 @@ function renderEvent(e, n) {
     <span class="bar4" style="background:${colorOf(e)}"></span>
     <div class="body">${tagChips(e)}
     <h3>${esc(e.title)}</h3><div class="where">${e.venue_name ? `<b>${esc(e.venue_name)}</b>` : 'Location on source page'}${e.neighborhood ? ' · ' + esc(e.neighborhood) : ''}${e.miles != null ? ` · ${e.miles.toFixed(1)} mi` : ''}</div>
+    ${repeatsLine(e)}
     ${desc ? `<p class="desc ${open ? 'open' : ''}">${desc}</p><button class="more" type="button" data-more="${e.id}" aria-expanded="${open}" hidden>${open ? 'less' : 'more'}</button>` : ''}
     <div class="meta"><span>${esc(age)}</span>${cost}<span>${esc(reg)}</span>${srcLine(e)}${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">Details ↗</a>` : ''}</div></div></article>`;
 }
@@ -452,10 +459,12 @@ function closeMenu() { if (S.open) { S.open = null; renderHeadline(); } }
 function renderToday() {
   const c = ctx();
   const opts = { when: S.when, loc: S.loc, age: null }; // ages are filtered below (several groups can be picked)
-  const events = filterEvents(DATA.events, opts, c).filter(fitsWhat).filter(fitsAge);
+  const multiDay = S.when === 'weekend' || S.when === 'week' || S.when === 'nextweek' || S.when === 'upcoming';
+  // A repeating series shows once, on its soonest date in view, labeled "Repeats weekdays until Dec 17" (owner, Nov 2026).
+  let events = filterEvents(DATA.events, opts, c).filter(fitsWhat).filter(fitsAge);
+  if (multiDay) events = collapseSeries(events);
   const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).filter(fitsWhat).filter(fitsAge).length - events.length : 0;
   events.forEach((e, i) => { e._n = i + 1; });
-  const multiDay = S.when === 'weekend' || S.when === 'week' || S.when === 'nextweek' || S.when === 'upcoming';
   const bar = `<div class="todaybar"><span class="count">${events.length} ${events.length === 1 ? 'thing' : 'things'} to do</span><span class="muted">${esc(rangeLabel(S.when))}${over > 0 ? ` · ${over} earlier ${over === 1 ? 'one is' : 'ones are'} over` : ''}</span><button class="tog maptoggle ${S.showMap ? 'on' : ''}" data-showmap>${S.showMap ? 'Hide map' : 'Map'}</button></div>`;
   let body;
   if (!events.length) {
@@ -791,6 +800,7 @@ document.fonts?.load("1em 'Palette Mosaic'").then((f) => { if (f.length) documen
 initMap().then((ok) => { MAP = ok; if (DATA) renderToday(); });
 load().then((d) => {
   DATA = d; GEO = d.geo;
+  markSeries(DATA.events);
   S.loc = loadLoc();
   S.ages = loadAges();
   S.hint = !hintSeen();
