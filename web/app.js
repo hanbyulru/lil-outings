@@ -22,6 +22,8 @@ const WHAT = [
   ['play', 'Playful things', 'to do', 'Play', 'play'],
   ['other', 'Other things', 'to do', 'Other', null]
 ];
+// Interests left out of the menu for now (owner, Nov 2026): Vehicles has no events at the moment. Its tag, colors and Places kind stay.
+const HIDDEN_WHAT = ['trains'];
 // "What" and "who" are multi-select (owner, Nov 2026): S.whats / S.ages hold the picks in menu order; empty = everything.
 const joinList = (xs) => (xs.length < 3 ? xs.join(' + ') : `${xs.slice(0, -1).join(', ')} + ${xs[xs.length - 1]}`);
 const pickedWhats = () => S.whats.map((v) => WHAT.find((w) => w[0] === v)).filter(Boolean);
@@ -361,7 +363,7 @@ function renderHeadline() {
   // Holidays is announced but not live yet (owner, Nov 2026): a greyed-out row with the sparkle tile and "Coming soon".
   const HOLIDAYS_SOON = `<button class="soonitem" disabled aria-disabled="true"><span>${tile('sparkle', '#8E97A3', 14)}Holidays</span><small>Coming soon</small></button>`;
   const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemcheckbox" aria-checked="${onAge(v)}" class="${onAge(v) ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}${done}</span>` : '';
-  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.map(([v, , , label, tag]) => `<button role="menuitemcheckbox" aria-checked="${onWhat(v)}" class="${onWhat(v) ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}${HOLIDAYS_SOON}${done}</span>` : '';
+  const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.filter((w) => !HIDDEN_WHAT.includes(w[0])).map(([v, , , label, tag]) => `<button role="menuitemcheckbox" aria-checked="${onWhat(v)}" class="${onWhat(v) ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}${HOLIDAYS_SOON}${done}</span>` : '';
   const cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1); // each menu phrase starts with a capital (owner, Nov 2026)
   // look: null = default gray underline; 'mosaic' = chosen (the six-color strip); a color = one interest picked, underlined in its color.
   const trigger = (kind, text, open, look) => `<button class="whenbtn${look === 'mosaic' ? ' active' : look === 'autumn' ? ' active autumn' : look ? ' solid' : ''}"${look && look !== 'mosaic' && look !== 'autumn' ? ` style="--ul:${look}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
