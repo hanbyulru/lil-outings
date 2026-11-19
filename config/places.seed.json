@@ -2097,5 +2097,26 @@
    "gymnastics"
   ],
   "alert": "Opening fall 2026: check that it's open before you go"
+ },
+ {
+  "id": "seed-multnomah-arts-center",
+  "name": "Multnomah Arts Center",
+  "kind": "arts center",
+  "lat": 45.46828,
+  "lon": -122.70985,
+  "address": "7688 SW Capitol Hwy, Portland, OR 97219",
+  "url": "https://www.portland.gov/parks/multnomah-arts-center",
+  "hours_text": "Classes run in 5- and 10-week sessions; register through Portland Parks & Recreation",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "art"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Portland Parks & Recreation's arts center in Multnomah Village: youth music, theatre, dance, and visual arts classes, plus family art classes for grown-ups and kids together. Performances and gallery shows, too.",
+  "explore": [
+   "art"
+  ]
  }
 ]
