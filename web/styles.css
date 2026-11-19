@@ -143,6 +143,7 @@ h1.pagehead{margin:0 0 60px}
 .whenwrap{position:relative;display:inline-block;white-space:nowrap}
 /* Several areas can make a long phrase: let it wrap instead of widening the page (phones zoomed out and the menu sheet slid off) */
 .locwrap{max-width:100%;white-space:normal}
+.locwrap .whenbtn{text-align:left} /* a wrapped phrase lines up on the left, not centered (owner) */
 /* First-visit hint over the first menu phrase (owner, Nov 2026): a small warm-brown speech bubble (70% opacity), centered on the phrase, with a centered tail pointing down at it,
    bobbing gently. Gone once any headline menu is opened (localStorage lilOutings.menuHint). */
 .menuhint{position:absolute;left:50%;bottom:calc(100% + 2px);z-index:5;padding:6px 12px 7px;border-radius:999px;background:rgba(122,92,67,.7);color:#fff;font-family:'Instrument Sans',system-ui,sans-serif;font-size:14px;font-weight:700;letter-spacing:0;word-spacing:normal;line-height:1.2;white-space:nowrap;pointer-events:none;box-shadow:0 4px 12px rgba(80,58,40,.15);animation:hintbob 1.6s ease-in-out infinite}

@@ -175,18 +175,23 @@ function setDistricts(ids, focusSel) {
   if (focusSel) $(`.locmenu ${focusSel}`)?.focus({ preventScroll: true });
 }
 /** The words after "in": Portland (anywhere), a region, a district, or a town. */
-const locPhrase = (loc) => {
+const locPhrase = (loc, compact = false) => {
   if (!loc) return 'Portland';
   if (loc.region) return regionById(loc.region).short;
-  // A region whose districts are all picked reads as the region ("SW Portland & Westside + Inner Eastside").
-  // A district in two regions would count toward both (none are, since Nov 2026).
+  // A fully picked region reads as its short name ("SW & the Westside + Lake Oswego"); names follow the order they were picked.
   const picked = pickedDistricts(loc), n = [];
   const whole = GEO.regions.filter((r) => r.districts.length > 1 && r.districts.every((d) => picked.includes(d)));
-  n.push(...whole.map((r) => r.short));
-  n.push(...picked.filter((d) => !whole.some((r) => r.districts.includes(d))).map((d) => districtById(d).name));
+  for (const d of picked) {
+    const r = whole.find((w) => w.districts.includes(d));
+    const name = r ? r.short : districtById(d).name;
+    if (!n.includes(name)) n.push(name);
+  }
+  // Phones: the first pick and "+ N more", so the headline stays above the fold (owner, Nov 2026).
+  if (compact && n.length > 1) return `${n[0]} + ${n.length - 1} more`;
   // "+" joins picks: area names already contain "&" (Beaverton & Cedar Mill)
   return n.length <= 2 ? n.join(' + ') : n.length === 3 ? `${n[0]}, ${n[1]} + ${n[2]}` : `${n[0]}, ${n[1]} + ${n.length - 2} more`;
 };
+const compactLoc = () => matchMedia('(max-width:700px)').matches;
 /** One step wider: town -> its district -> its region -> anywhere. */
 const widerLoc = (loc) => (loc?.picks ? { region: regionOfLoc(loc).id } : loc?.place ? { district: districtOfLoc(loc).id } : loc?.district ? { region: regionOfLoc(loc).id } : null);
 
@@ -456,8 +461,8 @@ function renderHeadline() {
   // (Thanksgiving week: fall colors; Holidays: silver and gold; owner, Nov 2026).
   const strip = holidayMode() || S.when === 'upcoming' ? 'festive' : cur[3] === 'autumn' ? 'autumn' : 'mosaic';
   const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
-  const locTrigger = `<span class="whenwrap locwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? strip : null)}${onPlaces ? '' : locMenu}</span>`;
-  $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap locwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? strip : null)}${onPlaces ? locMenu : ''}</span>`;
+  const locTrigger = `<span class="whenwrap locwrap">${trigger('loc', locPhrase(S.loc, compactLoc()), S.open === 'loc', S.loc ? strip : null)}${onPlaces ? '' : locMenu}</span>`;
+  $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap locwrap">${trigger('loc', locPhrase(S.loc, compactLoc()), S.open === 'loc', S.loc ? strip : null)}${onPlaces ? locMenu : ''}</span>`;
   const wp = whatPhrase(), ws = pickedWhats();
   const whatLook = !ws.length ? null : ws.length > 1 ? strip : ws[0][0] === 'holidays' ? 'festive' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
   const hint = S.hint && !S.open ? `<span class="menuhint" aria-hidden="true">${hintText()}</span>` : '';
