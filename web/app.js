@@ -432,7 +432,7 @@ function renderHeadline() {
       const all = r.districts.every((d) => on.has(d));
       const pills = r.districts.map(districtById).map((d) => `<button class="opt ${on.has(d.id) ? 'on' : ''}" aria-pressed="${on.has(d.id)}" data-locdistrict="${d.id}">${esc(d.name)}</button>`).join('');
       // The whole box selects the region (owner, Nov 2026): a tap anywhere but on a district pill toggles all of its districts.
-      return `<span class="regblock ${all ? 'all' : ''}" data-regbox="${r.id}"><span class="reghead"><span class="regname">${esc(r.name)}</span><button class="regall" data-locall="${r.id}" aria-pressed="${all}"><span>${all ? 'All selected' : 'Select all'}</span><i aria-hidden="true"></i></button></span><span class="regpills">${pills}</span></span>`;
+      return `<span class="regblock ${all ? 'all' : ''}" data-regbox="${r.id}"><span class="reghead"><span class="regname">${esc(r.name)}</span><button class="regall" data-locall="${r.id}" aria-pressed="${all}" aria-label="${all ? 'All selected' : 'Select all'}: ${esc(r.name)}"><span class="long">${all ? 'All selected' : 'Select all'}</span><span class="short">All</span><i aria-hidden="true"></i></button></span><span class="regpills">${pills}</span></span>`;
     }).join('');
     locMenu = `<span class="locmenu menu" role="dialog" aria-label="Choose where">
       <button class="opt any ${!S.loc ? 'on' : ''}" data-locany>Anywhere in Portland &amp; the metro</button>

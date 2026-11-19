@@ -210,9 +210,13 @@ h1.pagehead{margin:0 0 60px}
 .reghead{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .regname{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .regblock.all .regname{color:var(--ink)}
-.regall{display:inline-flex;align-items:center;gap:8px;padding:0;border:0;background:none;font:inherit;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;white-space:nowrap}
-.regall i{position:relative;width:18px;height:18px;border:1.5px solid var(--ink);border-radius:50%;box-sizing:border-box}
+.regall{display:inline-flex;align-items:center;gap:8px;padding:0;border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap} /* same treatment as the region name (owner) */
+.regblock.all .regall{color:var(--ink)}
+.regall .short{display:none}
+@media (max-width:700px){.regall .long{display:none}.regall .short{display:inline}} /* phones: just "All" (owner) */
+.regall i{position:relative;width:18px;height:18px;border:1.5px solid currentColor;border-radius:50%;box-sizing:border-box}
 .regblock:hover .regall span{text-decoration:underline;text-underline-offset:3px}
+.regblock:hover .regall{color:var(--ink)}
 .regblock.all .regall i{background:var(--ink)}
 .regblock.all .regall i::after{content:'';position:absolute;left:5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .regpills{display:flex;flex-wrap:wrap;gap:6px}
