@@ -38,7 +38,7 @@ body.cansub [data-subscribe]{display:inline-flex}
 .soon .subcta{margin-top:4px}
 /* Sign-up box personality (owner, Nov 2026): mosaic tiles peeking over the top edge (they hop when the box opens and
    dance on success), the title in the headline font, and the email field + Subscribe as one pill. */
-.subscribe{overflow:visible;padding-top:40px}
+.subscribe{overflow:visible;padding-top:40px;width:min(500px,calc(100vw - 32px))} /* wide enough for "Yay, you're on the list!" on one line (owner) */
 .subscribe h2{font-family:'Palette Mosaic','Instrument Sans',sans-serif;font-weight:400;font-size:30px;letter-spacing:-1px;line-height:1.15}
 .pm .subscribe h2{word-spacing:-.4em}
 .subscribe p.fine{margin-top:16px;font-size:14px}
