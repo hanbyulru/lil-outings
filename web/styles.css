@@ -355,6 +355,8 @@ h1.pagehead{margin:0 0 60px}
 /* "Partner with us" (owner, Nov 2026): footer link + dialog (reuses .cityask/.subscribe) */
 footer p.partner{margin-top:16px;color:var(--ink);font-weight:600}
 footer p.partner .textbtn{font:inherit;font-weight:600;color:var(--ink)}
+.cityask.partner{width:min(660px,calc(100vw - 32px))}
+.partner p,.partner .offers li{text-wrap:pretty}
 .partner .offers{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px;color:var(--ink);font-size:16px}
 .partner .offers li{padding-left:14px;border-left:3px solid var(--c)}
 .partner .stats{margin-top:16px;color:var(--ink)}
