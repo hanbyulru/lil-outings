@@ -490,20 +490,32 @@ async function sendSignup(fields) {
 /**
  * "Get updates" (owner, Nov 2026): newsletter sign-up for new activities, new places and the Holidays guide.
  * Emails go straight from the visitor's browser to Kit; this site never stores them.
- * Kit's public v3 API (form subscribe) answers with JSON, so a failed sign-up shows an error instead of a false "you're on the list".
- * (Posting to the form's own URL was silently rejected, Nov 2026.) The v3 API key can only add subscribers and is meant for
- * client-side forms; the API *secret* must never go here. Until the key is set, every "Get updates" button stays hidden (body.cansub).
+ * 1) Kit's v3 API (form subscribe), which answers with JSON, so a rejected sign-up shows an error. The v3 *API key* only adds
+ *    subscribers and is meant for public forms; the API *secret* (and v4 keys) must never go here.
+ * 2) If v3 is gone (Kit calls it deprecated) or unreachable, the form's own endpoint, as Kit's embed script does; if the browser
+ *    can't read that reply (no CORS), the request was still sent, so it counts as done.
+ * Nov 2026: early sign-ups failed only because the owner's Kit account email wasn't confirmed yet.
  */
-const KIT = { form: '10210670', apiKey: '' }; // Kit form "Lil' Outings updates" (owner, Nov 2026)
-document.body.classList.toggle('cansub', !!(KIT.form && KIT.apiKey));
+const KIT = { form: '10210670', apiKey: '-I6SGYHluuRtbULgL87EJg' }; // Kit form "Lil' Outings updates" (owner, Nov 2026)
+document.body.classList.toggle('cansub', !!KIT.form);
+class KitRejected extends Error {}
 async function sendSubscribe(email) {
-  const res = await fetch(`https://api.convertkit.com/v3/forms/${encodeURIComponent(KIT.form)}/subscribe`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json; charset=utf-8' },
-    body: JSON.stringify({ api_key: KIT.apiKey, email })
-  });
+  if (KIT.apiKey) {
+    try {
+      const res = await fetch(`https://api.convertkit.com/v3/forms/${encodeURIComponent(KIT.form)}/subscribe`, {
+        method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body: JSON.stringify({ api_key: KIT.apiKey, email })
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.subscription) return;
+      if (res.status >= 400 && res.status < 500 && res.status !== 404 && res.status !== 410) throw new KitRejected(j.message || `HTTP ${res.status}`);
+    } catch (err) { if (err instanceof KitRejected) throw err; } // network/CORS trouble or v3 retired: try the form endpoint
+  }
+  const body = new FormData(); body.append('email_address', email);
+  let res;
+  try { res = await fetch(`https://app.kit.com/forms/${encodeURIComponent(KIT.form)}/subscriptions`, { method: 'POST', body, headers: { accept: 'application/json' } }); }
+  catch { if (!navigator.onLine) throw new Error('offline'); return; } // reply unreadable, but Kit got the request
   const j = await res.json().catch(() => ({}));
-  if (!res.ok || !j.subscription) throw new Error(j.message || `HTTP ${res.status}`);
+  if (!res.ok || (j.status && j.status !== 'success')) throw new Error(j.errors?.messages?.[0] || j.message || `HTTP ${res.status}`);
 }
 const subDlg = () => $('#subscribe');
 function subStep(name) { for (const el of subDlg().querySelectorAll('.step')) el.hidden = el.dataset.step !== name; subDlg().querySelector(`[data-step="${name}"] input`)?.focus(); }
