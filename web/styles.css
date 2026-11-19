@@ -353,6 +353,15 @@ h1.pagehead{margin:0 0 60px}
 .place.missing .plus::after{transform:translate(-50%,-50%) rotate(90deg)}
 .place.missing .deskbr{display:none}@media (min-width:701px){.place.missing .deskbr{display:inline}}
 .place.missing a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;word-break:break-word}
+/* "Missing an event?" last card in the Events list (owner, Nov 2026) */
+.missing-ev{display:flex;align-items:center;gap:18px;margin:18px 0 8px;padding:22px 24px;border:2px dashed color-mix(in srgb,var(--c) 45%,var(--hair2));border-radius:20px}
+.missing-ev .plus{flex:none;width:48px;height:48px;border-radius:14px 14px 14px 4px;background:color-mix(in srgb,var(--c) 18%,#fff);position:relative}
+.missing-ev .plus::before,.missing-ev .plus::after{content:'';position:absolute;left:50%;top:50%;width:20px;height:3px;border-radius:2px;background:var(--c);transform:translate(-50%,-50%)}
+.missing-ev .plus::after{transform:translate(-50%,-50%) rotate(90deg)}
+.missing-ev h3{font-size:20px;line-height:1.25}
+.missing-ev p{margin:6px 0 0;font-size:15px;color:var(--muted)}
+.missing-ev a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;word-break:break-word}
+body.holimode .missing-ev p{color:inherit;opacity:.8}body.holimode .missing-ev a{color:inherit}
 /* "Partner with us" (owner, Nov 2026): footer link + dialog (reuses .cityask/.subscribe) */
 footer p.partner{margin-top:16px;color:var(--ink);font-weight:600}
 footer p.partner .textbtn{font:inherit;font-weight:600;color:var(--ink)}

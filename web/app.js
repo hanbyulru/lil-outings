@@ -478,14 +478,14 @@ function renderToday() {
     const allWhat = S.whats.length ? `<button class="${w || S.loc || S.ages.length ? 'textbtn' : 'btn-ink'}" data-what="all">See all happenings</button>` : '';
     // The next day is a dark button only when nothing else is offered; otherwise a text link (shown once).
     const nextBtn = wider || allAges || allWhat ? next.replace('btn-ink', 'textbtn') : next;
-    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${nextBtn}<a class="textbtn" href="#places" data-gokind="${S.whats.length === 1 ? INTEREST_KIND[S.whats[0]] || '' : ''}">Explore places instead</a></div></div>`;
+    body = `<div class="empty"><h3>${esc(msg)}</h3><div class="empty-actions">${wider}${allWhat}${allAges}${nextBtn}<a class="textbtn" href="#places" data-gokind="${S.whats.length === 1 ? INTEREST_KIND[S.whats[0]] || '' : ''}">Explore places instead</a></div></div>${missingEventCard()}`;
   } else {
     let list;
     if (multiDay) {
       const days = {}; events.forEach((e) => (days[e.date] ||= []).push(e));
       list = Object.entries(days).map(([d, es]) => `<div class="daytitle">${esc(dayLabel(d))}</div>${es.map((e) => renderEvent(e, e._n)).join('')}`).join('');
     } else list = events.map((e) => renderEvent(e, e._n)).join('');
-    body = `<div class="split today-split ${S.showMap ? 'showmap' : ''}"><div class="list">${list}</div><aside class="map">${mapHtml(events)}</aside></div>`;
+    body = `<div class="split today-split ${S.showMap ? 'showmap' : ''}"><div class="list">${list}${missingEventCard()}</div><aside class="map">${mapHtml(events)}</aside></div>`;
   }
   $('#today-inner').innerHTML = bar + body;
   requestAnimationFrame(showMoreButtons);
@@ -529,6 +529,13 @@ const mailto = (subject) => `mailto:${CONTACT}?subject=${encodeURIComponent(subj
 function missingCard(cur) {
   const col = lookOf(cur.id)[1];
   return `<div class="place missing" style="--c:${col}"><div class="plus" aria-hidden="true"></div><h3>Missing a spot?</h3><p>Know a place that belongs here, or run one?<br class="deskbr"> Tell us at <a href="${mailto(`Place suggestion: ${cur.label}`)}" data-contact="missing_place" data-kind="${esc(cur.id)}">${CONTACT}</a></p></div>`;
+}
+
+/** The Events list's last card (owner, Nov 2026), like the Places one: ask for missing events, from parents or hosts. */
+function missingEventCard() {
+  const one = S.whats.length === 1 ? S.whats[0] : null, col = one && COLORS[one] ? COLORS[one] : '#8A8E98';
+  const subject = `Event suggestion${one ? `: ${pickedWhats()[0][3]}` : ''}`;
+  return `<div class="missing-ev" style="--c:${col}"><div class="plus" aria-hidden="true"></div><div><h3>Missing an event?</h3><p>Know a kids’ event we should list, or hosting one? Tell us at <a href="${mailto(subject)}" data-contact="missing_event">${CONTACT}</a></p></div></div>`;
 }
 
 function renderFoot() {
