@@ -31,6 +31,7 @@ Han Byul at Lil' Outings
 ---
 
 *Notes for sending*
+- Banner: `docs/holiday-email-banner.png` (1200×600, shown at 600 wide). In Kit, add an Image block at the top of the email, upload it, link it to the same URL as the button, and set the alt text to "Holidays are here! Light displays, Santa visits, and tree lightings for little ones around Portland."
 - The link has UTM tags so Google Analytics shows visits from this email (Acquisition → Traffic acquisition, campaign "holiday-launch").
 - Kit adds the unsubscribe link and your mailing address automatically.
 - Send yourself a test first (Kit: "Send test email") and click the link.
