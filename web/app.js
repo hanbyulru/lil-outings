@@ -367,13 +367,16 @@ function renderHeadline() {
   const cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1); // each menu phrase starts with a capital (owner, Nov 2026)
   // look: null = default gray underline; 'mosaic' = chosen (the six-color strip); a color = one interest picked, underlined in its color.
   const trigger = (kind, text, open, look) => `<button class="whenbtn${look === 'mosaic' ? ' active' : look === 'autumn' ? ' active autumn' : look ? ' solid' : ''}"${look && look !== 'mosaic' && look !== 'autumn' ? ` style="--ul:${look}"` : ''} data-menu="${kind}" aria-haspopup="${kind === 'loc' ? 'dialog' : 'menu'}" aria-expanded="${open}"><span class="whentext">${esc(cap(text))}</span><span class="caret" aria-hidden="true">▾</span></button>`;
+  // The strip under chosen phrases: the six-color mosaic, or a themed one for every chosen phrase while a themed choice is on
+  // (Thanksgiving week: fall colors; owner, Nov 2026).
+  const strip = cur[3] === 'autumn' ? 'autumn' : 'mosaic';
   const onPlaces = document.body.dataset.view === 'places'; // one location menu, shown under whichever headline is visible
-  const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? '' : locMenu}</span>`;
-  $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? 'mosaic' : null)}${onPlaces ? locMenu : ''}</span>`;
+  const locTrigger = `<span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? strip : null)}${onPlaces ? '' : locMenu}</span>`;
+  $('#placeshead').innerHTML = `<span class="filler">Somewhere good to go in</span> <span class="whenwrap">${trigger('loc', locPhrase(S.loc), S.open === 'loc', S.loc ? strip : null)}${onPlaces ? locMenu : ''}</span>`;
   const wp = whatPhrase(), ws = pickedWhats();
-  const whatLook = !ws.length ? null : ws.length > 1 ? 'mosaic' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
+  const whatLook = !ws.length ? null : ws.length > 1 ? strip : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
   const hint = S.hint && !S.open ? `<span class="menuhint" aria-hidden="true">${hintText()}</span>` : '';
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', cur[3] === 'autumn' ? 'autumn' : 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? strip : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', strip)}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $(`${onPlaces ? '#placeshead' : '#headline'} .menu`);
   if (m && getComputedStyle(m).position === 'absolute') {
