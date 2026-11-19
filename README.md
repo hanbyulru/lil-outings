@@ -102,6 +102,7 @@ Google Analytics 4, Measurement ID `G-VY8N6BJX9H` (tag in `web/index.html`; not 
 | `open_partner` | | the Partner with us dialog opens |
 | `open_partner_form` | | its Get in touch button (the form) |
 | `partner_enquiry` | `interest` | the partner form is sent |
+| `city_ask` | `step` (city, email) | the "come to your city?" dialog: a city, then an email, sent |
 | `open_suggest` | `type` (Event, Place), `kind` | a Missing an event / spot card's Tell us about it button |
 | `suggest` | `type`, `kind` | a suggestion is sent |
 | `contact` | `from` (suggest, partner), `kind` | the email link under a form is clicked |

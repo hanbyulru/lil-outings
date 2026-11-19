@@ -562,7 +562,8 @@ function setLoc(loc) { track('choose_area', { area: loc ? loc.region || loc.dist
 
 /**
  * "Portland, OR metro" pill: ask visitors elsewhere which city they want next, then (optionally) their email.
- * Submissions go to SIGNUP_ENDPOINT (a form service URL that accepts a POST); until it is set they are not sent anywhere.
+ * Turned back on (owner, Nov 2026). Answers go to the forms Google Sheet (FORMS_ENDPOINT, "Cities" tab) unless
+ * SIGNUP_ENDPOINT names another service.
  */
 const SIGNUP_ENDPOINT = '';
 
@@ -646,11 +647,10 @@ document.addEventListener('click', (ev) => {
   openForm($('#partner'), 'pitch'); track('open_partner');
 });
 async function sendSignup(fields) {
-  if (!SIGNUP_ENDPOINT) { console.warn('Lil\' Outings: SIGNUP_ENDPOINT is not set; not sent', fields); return; }
-  const body = new FormData();
-  for (const [k, v] of Object.entries({ ...fields, page: location.href })) body.append(k, v);
-  const res = await fetch(SIGNUP_ENDPOINT, { method: 'POST', body, headers: { accept: 'application/json' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  // Same Google Apps Script as the suggestion/partner forms (FORMS_ENDPOINT, docs/forms-apps-script.gs): "Cities" tab.
+  const url = SIGNUP_ENDPOINT || FORMS_ENDPOINT;
+  if (!url) { console.warn('Lil\' Outings: no endpoint set; not sent', fields); return; }
+  await fetch(url, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ form: 'city', ...fields, page: location.href }) });
 }
 /**
  * "Get updates" (owner, Nov 2026): newsletter sign-up for new activities, new places and the Holidays guide.
@@ -748,11 +748,13 @@ document.addEventListener('submit', async (ev) => {
   try {
     if (form.dataset.form === 'city') {
       askedCity = form.city.value.trim();
-      await sendSignup({ kind: 'city', city: askedCity });
+      await sendSignup({ step: 'city', city: askedCity });
+      track('city_ask', { step: 'city' });
       cityDlg().querySelector('[data-cityname]').textContent = askedCity; // textContent: the visitor's words are never HTML
       cityStep('email');
     } else {
-      await sendSignup({ kind: 'email', city: askedCity, email: form.email.value.trim() });
+      await sendSignup({ step: 'email', city: askedCity, email: form.email.value.trim() });
+      track('city_ask', { step: 'email' });
       cityStep('done');
     }
   } catch {

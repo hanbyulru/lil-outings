@@ -13,6 +13,8 @@
  * The site POSTs url-encoded fields. Each form gets its own tab, created on first use with a header row:
  *   form=suggest -> "Suggestions" (events/places people think are missing)
  *   form=partner -> "Partners"    (businesses asking about featured spots / newsletter sponsorships)
+ *   form=city    -> "Cities"      ("Portland, OR metro" pill: which city to launch next; then, optionally, an email.
+ *                                   Two rows per visitor at most: step "city", then step "email". Emails you only on "email".)
  * A hidden "website2" field is a honeypot: bots fill it, people don't, and those posts are dropped.
  * Each new row also sends you an email (set NOTIFY = false to stop that).
  */
@@ -20,6 +22,7 @@ const NOTIFY = true;
 
 const FORMS = {
   suggest: { tab: 'Suggestions', cols: [['received', 'Received'], ['type', 'Event or place'], ['category', 'Category'], ['name', 'Name'], ['link', 'Link'], ['details', 'Where & when'], ['note', 'Note'], ['email', 'Their email'], ['page', 'Page']] },
+  city: { tab: 'Cities', notifyIf: 'email', cols: [['received', 'Received'], ['step', 'Step'], ['city', 'City'], ['email', 'Email'], ['page', 'Page']] },
   partner: { tab: 'Partners', cols: [['received', 'Received'], ['business', 'Business'], ['name', 'Contact name'], ['email', 'Email'], ['website', 'Website'], ['interest', 'Interested in'], ['message', 'Message'], ['page', 'Page']] }
 };
 
@@ -41,9 +44,9 @@ function doPost(e) {
     }
     const row = form.cols.map(([key]) => (key === 'received' ? new Date() : clean(p[key])));
     sh.appendRow(row);
-    if (NOTIFY) {
+    if (NOTIFY && (!form.notifyIf || p[form.notifyIf])) {
       const lines = form.cols.slice(1).map(([key, label], i) => (row[i + 1] ? `${label}: ${row[i + 1]}` : '')).filter(Boolean);
-      MailApp.sendEmail(Session.getEffectiveUser().getEmail(), `Lil' Outings: new ${form.tab === 'Partners' ? 'partner enquiry' : 'suggestion'}`, `${lines.join('\n')}\n\n${ss.getUrl()}`);
+      MailApp.sendEmail(Session.getEffectiveUser().getEmail(), `Lil' Outings: new ${{ Partners: 'partner enquiry', Cities: 'city request' }[form.tab] || 'suggestion'}`, `${lines.join('\n')}\n\n${ss.getUrl()}`);
     }
   } finally {
     lock.releaseLock();
