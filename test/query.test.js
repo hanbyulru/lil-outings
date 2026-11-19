@@ -36,7 +36,7 @@ test('region / district / place / zip location filters', () => {
   const t = (loc, extra = {}) => filterEvents(list, { loc, ...extra }, ctx).map((x) => x.title);
   assert.deepEqual(t({ region: 'north-east' }), ['ne']);
   assert.deepEqual(t({ region: 'westside' }), ['sw']);
-  assert.deepEqual(t({ region: 'south-metro' }), ['sw'], 'Tigard is in two regions');
+  assert.deepEqual(t({ region: 'south-metro' }), [], 'Tigard is only in SW Portland & Westside (owner, Nov 2026)');
   assert.deepEqual(t({ district: 'tigard' }), ['sw']);
   assert.deepEqual(t({ place: 'Tigard' }), ['sw']);
   assert.deepEqual(t({ place: 'Bull Mountain' }), [], '2.6 mi away is not "in" Bull Mountain');

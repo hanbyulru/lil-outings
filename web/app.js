@@ -144,7 +144,7 @@ const regionById = (id) => GEO.regions.find((r) => r.id === id);
 const districtById = (id) => GEO.districts.find((d) => d.id === id);
 const districtOfPlace = (name) => GEO.districts.find((d) => d.places.some((p) => p.name === name));
 const districtOfLoc = (loc) => (loc?.picks ? districtOfLoc(loc.picks[0]) : loc?.district ? districtById(loc.district) : loc?.place ? districtOfPlace(loc.place) : null);
-/** The region to show expanded for a choice (Tigard sits in two; the first wins). */
+/** The region a choice belongs to (if a district were ever in two regions, the first wins). */
 const regionOfLoc = (loc) => (loc?.region ? regionById(loc.region) : GEO.regions.find((r) => r.districts.includes(districtOfLoc(loc)?.id)) || null);
 /** Districts and towns picked in the Narrow step: several can be on at once (owner, Nov 2026). */
 const picksOf = (loc) => (loc?.picks ? loc.picks : loc?.district || loc?.place ? [loc] : []);
@@ -164,7 +164,7 @@ function locFromDistricts(ids) {
 function toggleRegion(id) {
   const r = regionById(id), cur = pickedDistricts(S.loc), all = r.districts.every((x) => cur.includes(x));
   track('choose_area', { area: id, all: !all });
-  // Clearing a region keeps a shared district (Tigard) that another fully picked region still needs.
+  // Clearing a region keeps a shared district that another fully picked region still needs (none shared since Nov 2026).
   const keep = GEO.regions.filter((o) => o.id !== id && o.districts.every((x) => cur.includes(x))).flatMap((o) => o.districts);
   setDistricts(all ? cur.filter((x) => !r.districts.includes(x) || keep.includes(x)) : [...cur, ...r.districts], `[data-locall="${id}"]`);
 }
@@ -179,7 +179,7 @@ const locPhrase = (loc) => {
   if (!loc) return 'Portland';
   if (loc.region) return regionById(loc.region).short;
   // A region whose districts are all picked reads as the region ("SW Portland & Westside + Inner Eastside").
-  // A district in two regions (Tigard) counts toward both.
+  // A district in two regions would count toward both (none are, since Nov 2026).
   const picked = pickedDistricts(loc), n = [];
   const whole = GEO.regions.filter((r) => r.districts.length > 1 && r.districts.every((d) => picked.includes(d)));
   n.push(...whole.map((r) => r.short));
