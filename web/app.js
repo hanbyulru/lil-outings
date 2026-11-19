@@ -489,21 +489,21 @@ async function sendSignup(fields) {
 }
 /**
  * "Get updates" (owner, Nov 2026): newsletter sign-up for new activities, new places and the Holidays guide.
- * Emails go straight from the visitor's browser to the email service; this site never stores them.
- * SUBSCRIBE: { provider: 'buttondown', id: '<username>' } or { provider: 'kit', id: '<form id>' }. Until a provider is set,
- * every "Get updates" button stays hidden (body.cansub), so nothing is ever collected into thin air.
+ * Emails go straight from the visitor's browser to Kit; this site never stores them.
+ * Kit's public v3 API (form subscribe) answers with JSON, so a failed sign-up shows an error instead of a false "you're on the list".
+ * (Posting to the form's own URL was silently rejected, Nov 2026.) The v3 API key can only add subscribers and is meant for
+ * client-side forms; the API *secret* must never go here. Until the key is set, every "Get updates" button stays hidden (body.cansub).
  */
-const SUBSCRIBE = { provider: 'kit', id: '10210670' }; // Kit form "Lil' Outings updates" (owner, Nov 2026)
-const SUBSCRIBE_URL = {
-  buttondown: (id) => [`https://buttondown.com/api/emails/embed-subscribe/${encodeURIComponent(id)}`, 'email'],
-  kit: (id) => [`https://app.kit.com/forms/${encodeURIComponent(id)}/subscriptions`, 'email_address']
-};
-document.body.classList.toggle('cansub', !!(SUBSCRIBE_URL[SUBSCRIBE.provider] && SUBSCRIBE.id));
+const KIT = { form: '10210670', apiKey: '' }; // Kit form "Lil' Outings updates" (owner, Nov 2026)
+document.body.classList.toggle('cansub', !!(KIT.form && KIT.apiKey));
 async function sendSubscribe(email) {
-  const [url, field] = SUBSCRIBE_URL[SUBSCRIBE.provider](SUBSCRIBE.id);
-  const body = new FormData(); body.append(field, email);
-  // The services don't send CORS headers for embedded forms, so the response can't be read: a network error is the only failure we see.
-  await fetch(url, { method: 'POST', body, mode: 'no-cors' });
+  const res = await fetch(`https://api.convertkit.com/v3/forms/${encodeURIComponent(KIT.form)}/subscribe`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ api_key: KIT.apiKey, email })
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.subscription) throw new Error(j.message || `HTTP ${res.status}`);
 }
 const subDlg = () => $('#subscribe');
 function subStep(name) { for (const el of subDlg().querySelectorAll('.step')) el.hidden = el.dataset.step !== name; subDlg().querySelector(`[data-step="${name}"] input`)?.focus(); }
