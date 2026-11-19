@@ -650,6 +650,33 @@
         "urls": []
       },
       "notes": "Add event-list URLs for OMSI, Oregon Zoo, Oaks Park, etc. once their markup is checked."
+    },
+    {
+      "id": "hoyt_arboretum",
+      "name": "Hoyt Arboretum",
+      "type": "ical",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://www.hoytarboretum.org/events/",
+      "config": {
+        "urls": [
+          "https://www.hoytarboretum.org/events.ics"
+        ],
+        "exclude_titles": [
+          "^Tuesday Crew",
+          "Tending Grief",
+          "\\bvolunteer",
+          "\\bmember(s)? (only|event)"
+        ],
+        "default_venue": {
+          "name": "Hoyt Arboretum Visitor Center",
+          "address": "4000 SW Fairview Blvd, Portland, OR 97221",
+          "lat": 45.516,
+          "lon": -122.711
+        }
+      },
+      "notes": "WordPress Events Manager iCal feed (owner's source list, Nov 2026). Events have no LOCATION; all at the arboretum."
     }
   ],
   "places": [

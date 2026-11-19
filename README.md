@@ -30,6 +30,7 @@ The prototype was built in a sandbox with no internet access. So:
 | Lake Oswego and West Linn libraries (Drupal 7 calendar) | `drupal_calendar` | verified; month views give titles and start times only (no descriptions) |
 | Oak Lodge & Gladstone libraries (Clackamas County events) | `clackamas_events` | verified; library department list, UTC times |
 | Happy Valley Library (LibCal iCal) | `ical` | verified Nov 2026; "CLOSED" entries dropped |
+| Hoyt Arboretum (WordPress Events Manager iCal, `/events.ics`) | `ical` | verified Nov 2026; no locations, so the visitor center; volunteer crews and adult series dropped by title |
 | Ledding Library, Milwaukie (Revize calendar JSON) | `revize_calendar` | verified; repeating events expanded from RRULE blocks |
 | Lake Oswego Parks & Recreation (city calendar groups 19, 14, 37273, 22) | `drupal_calendar` | verified; venue from the title ("Indoor Playground at LORAC"), else town center |
 | West Linn Parks & Recreation | `drupal_calendar` | verified; town-level pin |
