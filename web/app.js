@@ -361,7 +361,7 @@ function renderHeadline() {
   const onWhat = (v) => (v === 'all' ? !S.whats.length : S.whats.includes(v));
   const done = '<button class="pickdone" data-menudone>Done</button>';
   // Holidays is announced but not live yet (owner, Nov 2026): a greyed-out row with the sparkle tile and "Coming soon".
-  const HOLIDAYS_SOON = `<button class="soonitem" disabled aria-disabled="true"><span>${tile('sparkle', '#8E97A3', 14)}Holidays</span><small>Coming soon</small></button>`;
+  const HOLIDAYS_SOON = `<button class="soonitem" disabled aria-disabled="true"><span>${tile('sparkle', '#8E97A3', 24)}Holidays</span><small>Coming soon</small></button>`;
   const ageMenu = S.open === 'age' ? `<span class="whenmenu agemenu menu" role="menu">${AGE_GROUPS.map(([v, , label, hint]) => `<button role="menuitemcheckbox" aria-checked="${onAge(v)}" class="${onAge(v) ? 'on' : ''}" data-agegroup="${v}"><span>${label}</span><small>${hint}</small></button>`).join('')}${done}</span>` : '';
   const whatMenu = S.open === 'what' ? `<span class="whenmenu whatmenu menu" role="menu">${WHAT.filter((w) => !HIDDEN_WHAT.includes(w[0])).map(([v, , , label, tag]) => `<button role="menuitemcheckbox" aria-checked="${onWhat(v)}" class="${onWhat(v) ? 'on' : ''}" data-what="${v}"><span>${tag ? `<i class="swatch" style="background:${COLORS[tag]}"></i>` : `<i class="swatch ${v}"></i>`}${label}</span></button>`).join('')}${HOLIDAYS_SOON}${done}</span>` : '';
   const cap = (t) => String(t).charAt(0).toUpperCase() + String(t).slice(1); // each menu phrase starts with a capital (owner, Nov 2026)
