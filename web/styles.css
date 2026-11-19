@@ -141,6 +141,8 @@ nav.main.viewtoggle{gap:0;padding:0;justify-self:center} /* beats nav.main{gap:2
 .hero.today h1,h1.pagehead{font-size:clamp(32px,3.9vw,48px);line-height:1.5}
 h1.pagehead{margin:0 0 60px}
 .whenwrap{position:relative;display:inline-block;white-space:nowrap}
+/* Several areas can make a long phrase: let it wrap instead of widening the page (phones zoomed out and the menu sheet slid off) */
+.locwrap{max-width:100%;white-space:normal}
 /* First-visit hint over the first menu phrase (owner, Nov 2026): a small warm-brown speech bubble (70% opacity), centered on the phrase, with a centered tail pointing down at it,
    bobbing gently. Gone once any headline menu is opened (localStorage lilOutings.menuHint). */
 .menuhint{position:absolute;left:50%;bottom:calc(100% + 2px);z-index:5;padding:6px 12px 7px;border-radius:999px;background:rgba(122,92,67,.7);color:#fff;font-family:'Instrument Sans',system-ui,sans-serif;font-size:14px;font-weight:700;letter-spacing:0;word-spacing:normal;line-height:1.2;white-space:nowrap;pointer-events:none;box-shadow:0 4px 12px rgba(80,58,40,.15);animation:hintbob 1.6s ease-in-out infinite}
@@ -200,21 +202,25 @@ h1.pagehead{margin:0 0 60px}
 .whenmenu small{color:var(--muted);font-size:14px;font-weight:500}
 .locmenu{position:absolute;z-index:60;left:0;top:calc(100% + 16px);width:min(640px,calc(100vw - 32px));max-height:min(70vh,640px);overflow:auto;display:block;background:#fff;border:1px solid var(--hair2);border-radius:20px;padding:18px;box-shadow:0 24px 60px rgba(22,24,29,.18);font-family:'Instrument Sans',sans-serif;font-size:16px;line-height:1.3;white-space:normal;letter-spacing:0}
 .locmenu .opt.any{display:block;width:100%;margin-bottom:14px;padding:10px 14px;border-radius:12px;text-align:left;font-weight:600}
-.reglist{display:flex;flex-direction:column;gap:8px}
-.regrow{display:grid;grid-template-columns:1fr auto;gap:0 8px;align-items:stretch;border:1.5px solid var(--hair2);border-radius:14px;background:#fff}
-.regrow.open{border-color:var(--ink)}
-.reg{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border:0;border-radius:12px;background:transparent;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
-.reg b{font-size:17px;font-weight:700}
-.reg small{color:var(--muted);font-size:13.5px;line-height:1.35}
-.reg:hover{background:var(--paper)}
-.reg.on{background:var(--sun)}
-.regmore{align-self:center;margin-right:8px;padding:8px 12px;border:0;border-radius:999px;background:transparent;font:inherit;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
-.regmore:hover{background:var(--paper);color:var(--ink)}
-.regdetail{grid-column:1 / -1;display:flex;flex-direction:column;gap:12px;padding:4px 14px 16px;border-top:1px solid var(--hair)}
-.dist{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:10px}
-.locmenu .opt.distbtn{font-weight:700;margin-right:4px}
-.locmenu .opt.town{padding:5px 11px;font-size:14px;border-color:var(--hair)}
+.reglist{display:flex;flex-direction:column;gap:10px}
+/* Each region is a box; a tap anywhere in it (not on a district pill) selects the whole region (owner, Nov 2026) */
+.regblock{display:flex;flex-direction:column;gap:10px;padding:12px 14px 14px;border:1.5px solid var(--hair2);border-radius:14px;background:#fff;cursor:pointer;transition:background .12s,border-color .12s}
+.regblock:hover{background:var(--paper)}
+.regblock.all{background:var(--sun);border-color:var(--ink)}
+.reghead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.regname{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.regblock.all .regname{color:var(--ink)}
+.regall{display:inline-flex;align-items:center;gap:8px;padding:0;border:0;background:none;font:inherit;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;white-space:nowrap}
+.regall i{position:relative;width:18px;height:18px;border:1.5px solid var(--ink);border-radius:50%;box-sizing:border-box}
+.regblock:hover .regall span{text-decoration:underline;text-underline-offset:3px}
+.regblock.all .regall i{background:var(--ink)}
+.regblock.all .regall i::after{content:'';position:absolute;left:5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.regpills{display:flex;flex-wrap:wrap;gap:6px}
+.locmenu .regpills .opt{padding:5px 11px;font-size:14px;border-color:var(--hair)} /* the old town-pill size (owner, Nov 2026) */
+.locmenu .regpills .opt.on{border-color:var(--ink)}
+.regblock.all .regpills .opt:not(.on){background:#fff}
 .locmenu .opt{cursor:pointer;font-family:inherit;color:var(--ink)}
+.locdone{position:sticky;bottom:-18px;display:flex;margin:16px -18px -18px;padding:12px 18px 16px;background:linear-gradient(rgba(255,255,255,0),#fff 30%)}
 .pickdone{align-self:flex-start;margin-top:4px}
 .empty-actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:16px}
 .todaybar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:68px;padding-bottom:14px;border-bottom:1px solid var(--ink);font-size:16px}
@@ -405,7 +411,7 @@ footer p.partner .textbtn{font:inherit;font-weight:600;color:var(--ink)}
 footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-size:15px}
 footer p{margin:0;max-width:720px}footer p+p{margin-top:8px}
 .demo{background:var(--sun);border-bottom:1px solid #E9D68A;font-size:14px;font-weight:600;padding:8px 0;text-align:center}
-@media (max-width:700px){.placesgrid{grid-template-columns:minmax(0,1fr);gap:28px}.placesgrid .explore-list{position:static}.hero.today h1,h1.pagehead{font-size:32px;line-height:1.72}h1.pagehead{margin-bottom:48px}.whenbtn .whentext{text-underline-offset:8px;text-decoration-thickness:4px}header.top{grid-template-columns:minmax(0,1fr) auto}.subbtn{padding:7px 12px;font-size:14px;gap:6px}header.top{align-items:start}.brand{flex-direction:column;align-items:flex-start;gap:2px}.citypill{padding:4px 10px;font-size:12px} /* phones: the pill stacks under the logo (owner, Nov 2026) */.logo{font-size:22px}.viewtoggle{position:fixed;z-index:50;left:50%;flex-wrap:nowrap;width:max-content;white-space:nowrap;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:4px;border-radius:999px;border:1.5px solid var(--ink);background:rgba(251,248,243,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 20px rgba(22,24,29,.14)}nav.main.viewtoggle{padding:5px} /* phones: the selected pill sits 5px inside the outline, like the Subscribe field (owner) */.viewtoggle a{padding:10px 24px;font-size:16px}body{padding-bottom:84px}.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.explore-list{grid-template-columns:minmax(0,1fr)}.explore-list button{padding:11px 8px 11px 0;gap:12px}.explore-list button .ic{width:24px;height:24px}.explore-list button[data-explore="holidays"] .ic{width:30px;height:30px;margin:0 -3px}.explore-list button .nm{font-size:18px}.explore-list button:hover{padding-left:0}.explore-list button.on{padding-left:8px}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:78vh;overflow:auto}.reg small{font-size:13px}.regmore .lbl{display:none}.regmore{font-size:18px;padding:10px 14px;margin-right:4px}.ev{grid-template-columns:4px minmax(0,1fr);column-gap:14px;row-gap:10px;padding-left:4px}.ev .time{grid-column:1/-1;display:flex;gap:10px;align-items:center;align-self:start}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}
+@media (max-width:700px){.placesgrid{grid-template-columns:minmax(0,1fr);gap:28px}.placesgrid .explore-list{position:static}.hero.today h1,h1.pagehead{font-size:32px;line-height:1.72}h1.pagehead{margin-bottom:48px}.whenbtn .whentext{text-underline-offset:8px;text-decoration-thickness:4px}header.top{grid-template-columns:minmax(0,1fr) auto}.subbtn{padding:7px 12px;font-size:14px;gap:6px}header.top{align-items:start}.brand{flex-direction:column;align-items:flex-start;gap:2px}.citypill{padding:4px 10px;font-size:12px} /* phones: the pill stacks under the logo (owner, Nov 2026) */.logo{font-size:22px}.viewtoggle{position:fixed;z-index:50;left:50%;flex-wrap:nowrap;width:max-content;white-space:nowrap;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:4px;border-radius:999px;border:1.5px solid var(--ink);background:rgba(251,248,243,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 20px rgba(22,24,29,.14)}nav.main.viewtoggle{padding:5px} /* phones: the selected pill sits 5px inside the outline, like the Subscribe field (owner) */.viewtoggle a{padding:10px 24px;font-size:16px}body{padding-bottom:84px}.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.explore-list{grid-template-columns:minmax(0,1fr)}.explore-list button{padding:11px 8px 11px 0;gap:12px}.explore-list button .ic{width:24px;height:24px}.explore-list button[data-explore="holidays"] .ic{width:30px;height:30px;margin:0 -3px}.explore-list button .nm{font-size:18px}.explore-list button:hover{padding-left:0}.explore-list button.on{padding-left:8px}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:78vh;overflow:auto}.ev{grid-template-columns:4px minmax(0,1fr);column-gap:14px;row-gap:10px;padding-left:4px}.ev .time{grid-column:1/-1;display:flex;gap:10px;align-items:center;align-self:start}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}
 
 /* ---- Holiday theme (owner, Nov 2026): Events with Holidays picked, or Places → Holidays (body.holimode, applyTheme in app.js).
    The page takes the launch splash's midnight, silver and gold; menus, the map card and dialogs keep their light look. ---- */
