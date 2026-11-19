@@ -755,7 +755,7 @@ document.addEventListener('submit', async (ev) => {
     } else {
       await sendSignup({ step: 'email', city: askedCity, email: form.email.value.trim() });
       track('city_ask', { step: 'email' });
-      cityStep('done');
+      cityDlg().classList.add('joined'); cityStep('done');
     }
   } catch {
     form.insertAdjacentHTML('afterend', '<p class="err">Sorry, that didn’t go through. Please try again.</p>');
@@ -763,7 +763,7 @@ document.addEventListener('submit', async (ev) => {
 });
 
 document.addEventListener('click', (ev) => {
-  if (ev.target.closest('[data-cityask]')) { const d = cityDlg(); for (const f of d.querySelectorAll('form')) f.reset(); d.querySelector('.err')?.remove(); d.showModal(); cityStep('city'); return; }
+  if (ev.target.closest('[data-cityask]')) { const d = cityDlg(); for (const f of d.querySelectorAll('form')) f.reset(); d.querySelector('.err')?.remove(); d.classList.remove('joined'); d.showModal(); cityStep('city'); return; }
   if (ev.target.closest('[data-cityclose]')) { cityDlg().close(); return; }
   if (ev.target === cityDlg()) { // the dimmed backdrop counts as the dialog itself: close only when the click is outside its box
     const r = cityDlg().getBoundingClientRect();

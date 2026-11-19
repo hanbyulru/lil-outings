@@ -35,20 +35,20 @@ if (!/^(localhost|127\.|0\.0\.0\.0|\[::1\]|$)/.test(location.hostname)) {
   </section>
 </div>
 <section class="results" id="more" hidden><div class="wrap"><h1 id="placeshead" class="pagehead">Somewhere good to go in Portland</h1><div id="results-inner"></div></div></section>
-<dialog id="cityask" class="cityask" aria-labelledby="cityask-title">
+<dialog id="cityask" class="cityask subscribe" aria-labelledby="cityask-title">
   <button class="x" type="button" data-cityclose aria-label="Close">×</button>
+  <div class="subtiles" aria-hidden="true"><i style="--c:#F2B705" class="a"></i><i style="--c:#B05CD6" class="b"></i><i style="--c:#3B6FE0" class="c"></i><i style="--c:#2E9E6B" class="d"></i><i style="--c:#F0614F" class="b"></i><i style="--c:#E4559B" class="a"></i></div>
   <div class="step" data-step="city">
-    <h2 id="cityask-title">Would you like to see Lil' Outings come to your city?</h2>
-    <p>Drop a line!</p>
-    <form data-form="city"><label class="sr" for="ca-city">Your city</label><input id="ca-city" name="city" placeholder="Enter your city" autocomplete="address-level2" required maxlength="80"><button class="btn-ink" type="submit">Submit</button></form>
+    <h2 id="cityask-title">Would you like to see Lil’ Outings come to your city?</h2>
+    <form data-form="city" class="pillform"><label class="sr" for="ca-city">Your city</label><input id="ca-city" name="city" placeholder="Your city" autocomplete="address-level2" required maxlength="80"><button class="btn-ink" type="submit">Submit</button></form>
   </div>
   <div class="step" data-step="email" hidden>
     <h2>Thank you!</h2>
-    <p>We would love to let you know when we launch Lil' Outings in <b data-cityname></b>. Where can we reach you?</p>
-    <form data-form="email"><label class="sr" for="ca-email">Email</label><input id="ca-email" name="email" type="email" placeholder="Email" autocomplete="email" required maxlength="120"><button class="btn-ink" type="submit">Submit</button></form>
+    <p>We would love to let you know when we launch Lil’ Outings in <b data-cityname></b>. Where can we reach you?</p>
+    <form data-form="email" class="pillform"><label class="sr" for="ca-email">Email</label><input id="ca-email" name="email" type="email" placeholder="Your email" autocomplete="email" required maxlength="120"><button class="btn-ink" type="submit">Submit</button></form>
   </div>
   <div class="step" data-step="done" hidden>
-    <h2>We'll keep you posted!</h2>
+    <h2>We’ll keep you posted!</h2>
   </div>
 </dialog>
 <dialog id="holisplash" class="holisplash" aria-labelledby="holi-title">

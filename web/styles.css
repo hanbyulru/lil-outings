@@ -74,7 +74,7 @@ body.cansub [data-subscribe]{display:inline-flex}
 .subscribe h2{font-family:'Palette Mosaic','Instrument Sans',sans-serif;font-weight:400;font-size:30px;letter-spacing:-1px;line-height:1.15}
 .pm .subscribe h2{word-spacing:-.4em}
 .subscribe p.fine{margin-top:16px;font-size:14px}
-.subscribe h2{margin-bottom:18px}
+.subscribe h2{margin-bottom:18px}.subscribe .step>h2:last-child{margin-bottom:0}
 .subtiles{position:absolute;top:-17px;left:28px;display:flex;gap:6px}
 .subtiles i{display:block;width:30px;height:30px;background:var(--c);border:3px solid #fff;box-sizing:content-box;animation:tilehop .5s cubic-bezier(.3,1.6,.5,1) backwards}
 .subtiles i.a{border-radius:50% 50% 50% 4px}
