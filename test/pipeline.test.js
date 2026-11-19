@@ -100,3 +100,8 @@ test('event overrides: add_interests tags a listing after the classifier (Recycl
   assert.deepEqual(overrideInterests({ source: { id: 'mcl' }, title: 'Super Saturday: Recyclesaurus' }, [], cfg), [], 'only the named source');
   assert.deepEqual(overrideInterests({ source: { id: 'x' }, title: 't' }, [], { rules: [{ source: 'x', title: 't', add_interests: ['dinosaurs'] }] }), [], 'no new vocabulary');
 });
+
+test('event overrides: only_interests replaces the tags (tabletop RPG = Play only)', () => {
+  const cfg = JSON.parse(readFileSync('config/event_overrides.json', 'utf8'));
+  assert.deepEqual(overrideInterests({ source: { id: 'fvrl' }, title: 'Tween and Teen Tabletop Role-Playing Game Adventure' }, ['books', 'play'], cfg), ['play']);
+});

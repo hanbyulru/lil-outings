@@ -594,7 +594,7 @@
   "cost": "varies",
   "setting": "outdoor",
   "explore": [
-   "farms"
+   "nature"
   ],
   "note": "Organic U-pick on Sauvie Island; spring and fall family festivals."
  },
@@ -616,7 +616,7 @@
   "cost": "varies",
   "setting": "outdoor",
   "explore": [
-   "farms"
+   "nature"
   ],
   "note": "Market, animal barn, and U-pick; corn maze in fall."
  },
@@ -638,7 +638,7 @@
   "cost": "varies",
   "setting": "outdoor",
   "explore": [
-   "farms"
+   "nature"
   ],
   "note": "U-pick berries and farm animals."
  },
@@ -660,7 +660,7 @@
   "setting": "outdoor",
   "note": "Family farm since 1869: u-pick pumpkins, a corn maze, and a farm train in October.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -682,7 +682,7 @@
   "setting": "outdoor",
   "note": "U-pick pumpkins and farm animals in fall, u-cut Christmas trees in winter.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -703,7 +703,7 @@
   "setting": "outdoor",
   "note": "U-pick berries and a farm market.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -724,7 +724,7 @@
   "setting": "outdoor",
   "note": "U-pick berries and produce on Sauvie Island.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -745,7 +745,7 @@
   "setting": "outdoor",
   "note": "Fall pumpkin season with farm animals in Helvetia.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -766,7 +766,7 @@
   "setting": "outdoor",
   "note": "Berry, tree fruit, and vegetable farm with free guided wagon tours.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -787,7 +787,7 @@
   "setting": "outdoor",
   "note": "U-pick pumpkins, a corn maze, hayrides, and a cow train on October weekends.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -807,7 +807,7 @@
   "setting": "outdoor",
   "note": "Farm store; check what's in season before you go.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -828,7 +828,7 @@
   "setting": "outdoor",
   "note": "Urban working farm in outer SE Portland.",
   "explore": [
-   "farms"
+   "nature"
   ]
  },
  {
@@ -849,7 +849,7 @@
   "setting": "outdoor",
   "note": "Animal farm with baby-animal and beehive tours, horse rides (ages 3+), Spring on the Farm and Fall Fest, and a farm preschool. In December: Santa on the Farm.",
   "explore": [
-   "farms",
+   "nature",
    "holidays"
   ]
  },
@@ -871,7 +871,7 @@
   "setting": "outdoor",
   "note": "Fall pumpkin patch with llamas, a llama-themed corn maze, and a giant bounce park. Tickets on site only. In December: visits with Santa and Mrs. Claus.",
   "explore": [
-   "farms",
+   "nature",
    "holidays"
   ]
  },
@@ -893,7 +893,7 @@
   "setting": "outdoor",
   "note": "Seasonal farm: sunflower fields, a pumpkin patch and corn maze in fall, Christmas trees, and a Saturday market. In December: Christmas trees and Santa visits.",
   "explore": [
-   "farms",
+   "nature",
    "holidays"
   ]
  },
@@ -1755,6 +1755,212 @@
   "note": "The historic mansion decked out for Christmas, with a new theme every year.",
   "explore": [
    "holidays"
+  ]
+ },
+ {
+  "id": "seed-winterhawks-skate",
+  "name": "Winterhawks Skating Center",
+  "kind": "ice rink",
+  "lat": 45.48496,
+  "lon": -122.77202,
+  "address": "9250 SW Beaverton Hillsdale Hwy, Beaverton, OR 97005",
+  "url": "https://www.winterhawksskatingcenter.com",
+  "hours_text": "Public skate sessions; check site",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Ice rink with public skate sessions; kids 5 and under skate free.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-sherwood-ice",
+  "name": "Sherwood Ice Arena",
+  "kind": "ice rink",
+  "lat": 45.36853,
+  "lon": -122.8486,
+  "address": "20407 SW Borchers Dr, Sherwood, OR 97140",
+  "url": "https://www.sherwoodicearena.com",
+  "hours_text": "Public skate sessions; check site",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Ice rink with public skate, skate rental included; little ones skate free with a paying adult.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-mtview-ice",
+  "name": "Mountain View Ice Arena",
+  "kind": "ice rink",
+  "lat": 45.61682,
+  "lon": -122.52513,
+  "address": "14313 SE Mill Plain Blvd, Vancouver, WA 98684",
+  "url": "https://www.mtviewice.com",
+  "hours_text": "Public skate sessions; check site",
+  "age_min": 3,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Ice rink with short public skate sessions and lots of beginner skate aids.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-oaks-rink",
+  "name": "Oaks Park Roller Rink",
+  "kind": "roller rink",
+  "lat": 45.46921,
+  "lon": -122.6638,
+  "address": "7805 SE Oaks Park Way, Portland, OR 97202",
+  "url": "https://www.oakspark.com",
+  "hours_text": "Open skate most days; Kids' Morning Skate (10 and under) and Preschool Skate (6 and under) on set days; check site",
+  "age_min": 2,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Historic roller rink at Oaks Amusement Park, with special skates just for little kids.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-movement-pdx",
+  "name": "Movement Portland",
+  "kind": "climbing gym",
+  "lat": 45.53315,
+  "lon": -122.68606,
+  "address": "1405 NW 14th Ave, Portland, OR 97209",
+  "url": "https://movementgyms.com",
+  "hours_text": "Daily; youth classes by registration",
+  "age_min": 6,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Climbing gym in the Pearl with youth intro classes (ages 6–12) and camps.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-pdx-rock-gym",
+  "name": "Portland Rock Gym",
+  "kind": "climbing gym",
+  "lat": 45.52321,
+  "lon": -122.65394,
+  "address": "21 NE 12th Ave, Portland, OR 97232",
+  "url": "https://portlandrockgym.com",
+  "hours_text": "Daily; kids' classes and camps by registration",
+  "age_min": 8,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Locally owned climbing gym since 1987, with after-school classes and camps for ages 8 and up.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-stoneworks",
+  "name": "Stoneworks Climbing Gym",
+  "kind": "climbing gym",
+  "lat": 45.47194,
+  "lon": -122.79063,
+  "address": "6775 SW 111th Ave, Beaverton, OR 97008",
+  "hours_text": "Check for day passes, camps and youth team",
+  "age_min": 6,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Climbing gym with day passes, summer camps, and a junior climbing team.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-swcc-pool",
+  "name": "Southwest Community Center Pool",
+  "kind": "pool",
+  "lat": 45.47583,
+  "lon": -122.72199,
+  "address": "6820 SW 45th Ave, Portland, OR 97219",
+  "hours_text": "Family swim times vary; check Portland Parks & Recreation",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Indoor pool with a big water slide (little ones can ride with an adult), a play pool, and a lap pool.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-epcc-pool",
+  "name": "East Portland Community Center Pool",
+  "kind": "pool",
+  "lat": 45.51579,
+  "lon": -122.55341,
+  "address": "740 SE 106th Ave, Portland, OR 97216",
+  "hours_text": "Family swim times vary; check Portland Parks & Recreation",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Indoor pool with a bright red spiral water slide.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-mtscott-pool",
+  "name": "Mt. Scott Community Center Pool",
+  "kind": "pool",
+  "lat": 45.48254,
+  "lon": -122.58868,
+  "address": "5530 SE 72nd Ave, Portland, OR 97206",
+  "hours_text": "Family swim times vary; check Portland Parks & Recreation",
+  "age_min": 0,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Indoor play pool with a lazy river, water features for little kids, and a water slide.",
+  "explore": [
+   "gymnastics"
   ]
  }
 ]

@@ -98,7 +98,7 @@ export async function addPlaceImages(places, http, log = () => {}) {
 export const WEBSITE_PHOTO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries', 'science', 'nature', 'history', 'trains_planes', 'holidays'];
 // A business's logo is a fair stand-in for a photo (owner: don't skip logos); a museum or park page's logo is usually the
 // city's or agency's, so other kinds take a website photo only.
-export const WEBSITE_LOGO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries'];
+export const WEBSITE_LOGO_KINDS = ['indoor_play', 'farms', 'gymnastics', 'art', 'eateries']; // farms are under Animals & Nature now: see canUseLogo
 
 const attr = (tag, name) => tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'))?.[2];
 const unent = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"').trim();
@@ -157,6 +157,9 @@ export function pickShareImage(html, pageUrl) {
   return { why: why || 'no usable image' };
 }
 
+/** Businesses may show their logo: the logo kinds, plus farms (kind 'farm'), which now sit under Animals & Nature (owner, Nov 2026). */
+const canUseLogo = (p) => (p.explore || []).some((e) => WEBSITE_LOGO_KINDS.includes(e)) || p.kind === 'farm';
+
 export async function addWebsiteImages(places, http, log = () => {}) {
   const todo = places.filter((p) => !p.image && !p.no_site_image && p.url && /^https?:\/\//.test(p.url) && (p.explore || []).some((e) => WEBSITE_PHOTO_KINDS.includes(e)));
   let n = 0, failed = 0, logos = 0;
@@ -165,7 +168,7 @@ export async function addWebsiteImages(places, http, log = () => {}) {
     try {
       const html = await politeFetch(p.url, { ...http, ttlMs: 30 * 24 * 3600 * 1000, timeoutMs: 15000, retries: 0, headers: { ...(http.headers || {}), accept: 'text/html' } });
       const got = pickShareImage(html.slice(0, 400000), p.url);
-      if (got.image && got.logo && !(p.explore || []).some((e) => WEBSITE_LOGO_KINDS.includes(e))) misses.push(`${p.name}: only a logo`);
+      if (got.image && got.logo && !canUseLogo(p)) misses.push(`${p.name}: only a logo`);
       else if (got.image) {
         p.image = got.image; p.image_credit = got.logo ? got.site : `Photo: ${got.site}`; p.image_page = p.url; p.image_source = 'website';
         if (got.logo) { p.image_logo = true; logos++; }

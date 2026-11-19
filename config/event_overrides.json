@@ -1,5 +1,5 @@
 {
-  "_about": "Hand corrections for event listings (src/pipeline.js). Each rule matches by source id and a title regex (case-insensitive). \"set\" fills listing fields before geocoding (e.g. a missing venue); \"add_interests\" adds interest tags after the classifier (known ids only: books, art, nature, science, trains, play).",
+  "_about": "Hand corrections for event listings (src/pipeline.js). Each rule matches by source id and a title regex (case-insensitive). \"set\" fills listing fields before geocoding (e.g. a missing venue); \"add_interests\" adds interest tags after the classifier, \"only_interests\" replaces them (known ids only: books, art, nature, science, trains, play).",
   "rules": [
     {
       "_why": "WCCLS lists this off-site storytime with no venue; the description says Sherwood School District Office, small gym (owner, Nov 2026)",
@@ -19,6 +19,14 @@
       "add_interests": [
         "art",
         "science"
+      ]
+    },
+    {
+      "_why": "A tabletop role-playing game is Play, not Storytime (owner, Nov 2026)",
+      "source": "fvrl",
+      "title": "Tabletop Role-?Playing Game",
+      "only_interests": [
+        "play"
       ]
     }
   ]

@@ -90,13 +90,8 @@
     },
     {
       "id": "nature",
-      "label": "Nature",
-      "hint": "The zoo, and trails that work for little legs and strollers"
-    },
-    {
-      "id": "farms",
-      "label": "Farms",
-      "hint": "U-pick, animals, and seasonal experiences"
+      "label": "Animals & Nature",
+      "hint": "The zoo, farms and U-pick, and trails that work for little legs and strollers"
     },
     {
       "id": "history",
@@ -110,8 +105,8 @@
     },
     {
       "id": "gymnastics",
-      "label": "Gymnastics",
-      "hint": "Open gym and movement classes for little ones"
+      "label": "Sports",
+      "hint": "Gymnastics, skating, swimming, climbing, and other ways to burn off energy"
     },
     {
       "id": "eateries",

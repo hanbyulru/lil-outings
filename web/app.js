@@ -81,7 +81,7 @@ const AGE_GROUPS = [
 const AGE_KEY = 'lilOutings.age';
 // From this hour (Portland time) little kids are winding down for bed, so the page opens on tomorrow.
 const EVENING_HOUR = 18;
-const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Nature'], ['farms', 'Farms'], ['history', 'History'], ['trains_planes', 'Vehicles'], ['gymnastics', 'Gymnastics'], ['eateries', 'Eateries'], ['holidays', 'Holidays', true]].map(([id, label, soon]) => ({ id, label, soon }));
+const EXPLORE_FALLBACK = [['indoor_play', 'Indoor Playgrounds'], ['playgrounds', 'Public Playgrounds'], ['art', 'Music & Art'], ['science', 'Science'], ['nature', 'Animals & Nature'], ['history', 'History'], ['trains_planes', 'Vehicles'], ['gymnastics', 'Sports'], ['eateries', 'Eateries'], ['holidays', 'Holidays', true]].map(([id, label, soon]) => ({ id, label, soon }));
 // "More to explore" icons: [mosaic tile shape, color] per config/vocab.json explore id.
 const EXPLORE_LOOK = { indoor_play: ['d', '#E4559B'], playgrounds: ['a', '#F2A93B'], art: ['b', '#B05CD6'], science: ['c', '#3B6FE0'], nature: ['a', '#2E9E6B'], farms: ['d', '#7A9A2E'], history: ['c', '#C9773B'], trains_planes: ['b', '#F0614F'], gymnastics: ['d', '#1FA5B8'], eateries: ['c', '#F2B705'], holidays: ['sparkle', '#8E97A3'] };
 const lookOf = (id) => EXPLORE_LOOK[id] || ['b', '#5B5F6B'];
@@ -475,15 +475,15 @@ function renderMore() {
   const pills = (DATA.meta.vocab?.explore || EXPLORE_FALLBACK).filter((x) => !HIDDEN_KINDS.includes(x.id) && !(x.id === 'holidays' && season === 'off'))
     .map((x) => (x.id === 'holidays' ? { ...x, soon: season === 'soon' } : x));
   const placesFor = (id) => filterPlaces(DATA.places, { explore: id, loc: S.loc }, c);
-  // Under Gymnastics: the PP&R class series that are gymnastics or tumbling.
-  const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c).filter((p) => /gymnast|tumbl|vault|acrobat/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
+  // Under Sports (id 'gymnastics'; owner renamed it Nov 2026): the PP&R class series for sports and movement.
+  const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c).filter((p) => /gymnast|tumbl|vault|acrobat|soccer|basketball|baseball|t-?ball|softball|lacrosse|hockey|skateboard|ollie|martial|karate|ninja|obstacle|sport/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
   const count = (id) => placesFor(id).length + (id === 'gymnastics' ? programs.length : 0);
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
   const items = placesFor(cur.id);
   const shown = items.slice(0, S.showN);
   let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
-  if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation gymnastics classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
+  if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation sports classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
   if (cur.soon) body = `<div class="soon">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 64)}<p>Coming soon</p><button class="btn-ink subcta" type="button" data-subscribe="holidays">Tell me when it’s live</button></div>`;
   else if (!items.length && !(cur.id === 'gymnastics' && programs.length)) body = `<div class="empty"><h3>Nothing under ${esc(cur.label)}${S.loc ? ` in ${esc(locPhrase(S.loc))}` : ''} yet.</h3>${S.loc ? '<div class="empty-actions"><button class="btn-ink" data-locany>See anywhere in Portland</button></div>' : ''}</div>`;
   $('#results-inner').innerHTML = `<div class="placesgrid">

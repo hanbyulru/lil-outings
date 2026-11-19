@@ -55,5 +55,11 @@
       "trains_planes",
       "history"
     ]
+  },
+  "osm-way-243022289": {
+    "_why": "North Clackamas Aquatic Park: indoor wave pool and slides, under Sports (owner asked for sports places, Nov 2026)",
+    "explore": [
+      "gymnastics"
+    ]
   }
 }

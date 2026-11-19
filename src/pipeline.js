@@ -38,14 +38,15 @@ export function samePlace(p, f) {
   return a.split(' ')[0] === b.split(' ')[0] || (Math.min(a.length, b.length) >= 8 && (a.includes(b) || b.includes(a)));
 }
 
-/** Interest tags the owner asked for on specific listings (event_overrides rules with add_interests), after the classifier.
+/** Interest tags the owner asked for on specific listings (event_overrides rules with only_interests / add_interests), after the classifier.
  *  Only known interest ids are added (model output and hand rules can't add vocabulary). */
 export function overrideInterests(e, interests, cfg) {
   const known = new Set(VOCAB.interests);
   let out = [...interests];
   for (const r of cfg?.rules || []) {
-    if (!r.add_interests || (e.source?.id || e.source_id) !== r.source || !new RegExp(r.title, 'i').test(e.title || '')) continue;
-    for (const t of r.add_interests) if (known.has(t) && !out.includes(t)) out.push(t);
+    if (!(r.add_interests || r.only_interests) || (e.source?.id || e.source_id) !== r.source || !new RegExp(r.title, 'i').test(e.title || '')) continue;
+    if (r.only_interests) out = r.only_interests.filter((t) => known.has(t));
+    for (const t of r.add_interests || []) if (known.has(t) && !out.includes(t)) out.push(t);
   }
   return out;
 }
