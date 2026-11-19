@@ -677,6 +677,28 @@
         }
       },
       "notes": "WordPress Events Manager iCal feed (owner's source list, Nov 2026). Events have no LOCATION; all at the arboretum."
+    },
+    {
+      "id": "downtown_beaverton",
+      "name": "Downtown Beaverton events",
+      "type": "tribe_events",
+      "enabled": true,
+      "trust": 6,
+      "status": "verified",
+      "homepage": "https://downtownbeaverton.org/events/",
+      "config": {
+        "site": "https://downtownbeaverton.org",
+        "include_categories": [
+          "Family & Kids",
+          "Seasonal & Holiday"
+        ],
+        "fallback_venue": {
+          "name": "Downtown Beaverton",
+          "lat": 45.4871,
+          "lon": -122.8037
+        }
+      },
+      "notes": "Downtown Beaverton Association's WordPress The Events Calendar API (Nov 2026). The City of Beaverton's own calendar is client-rendered with no public feed; this one carries the big community events (Picnic in the Park, markets, family concerts). Only Family & Kids and Seasonal & Holiday categories."
     }
   ],
   "places": [

@@ -31,6 +31,7 @@ The prototype was built in a sandbox with no internet access. So:
 | Oak Lodge & Gladstone libraries (Clackamas County events) | `clackamas_events` | verified; library department list, UTC times |
 | Happy Valley Library (LibCal iCal) | `ical` | verified Nov 2026; "CLOSED" entries dropped |
 | Hoyt Arboretum (WordPress Events Manager iCal, `/events.ics`) | `ical` | verified Nov 2026; no locations, so the visitor center; volunteer crews and adult series dropped by title |
+| Downtown Beaverton Association (WordPress The Events Calendar API) | `tribe_events` | verified Nov 2026; Family & Kids and Seasonal & Holiday categories. Stands in for the City of Beaverton, whose new CivicPlus calendar is client-rendered with no public feed |
 | Ledding Library, Milwaukie (Revize calendar JSON) | `revize_calendar` | verified; repeating events expanded from RRULE blocks |
 | Lake Oswego Parks & Recreation (city calendar groups 19, 14, 37273, 22) | `drupal_calendar` | verified; venue from the title ("Indoor Playground at LORAC"), else town center |
 | West Linn Parks & Recreation | `drupal_calendar` | verified; town-level pin |
@@ -47,7 +48,7 @@ The prototype was built in a sandbox with no internet access. So:
 | PP&R ActiveNet sessions (dates, times, prices) | none yet | TODO: needs a look at the registration site's search API from a networked machine |
 | Curated events (`config/events.seed.json`) | `manual` | works |
 | Places: curated seed + OpenStreetMap (Overpass) | `osm` | OSM live call unverified; seed coordinates are approximate, DiG PDX's address and coordinates are placeholders |
-| Tigard, Hillsboro (block automated requests), Tualatin, THPRD, NCPRD, Beaverton, Gresham, Vancouver parks calendars; venue JSON-LD | various | TODO |
+| Tigard, Hillsboro (Akamai blocks automated requests, checked again Nov 2026; their libraries come through WCCLS), Tualatin, THPRD, NCPRD, Beaverton, Gresham, Vancouver parks calendars; venue JSON-LD | various | TODO |
 
 First thing to do on your machine: `npm run refresh -- --no-llm` and look at `meta.json` source results and `data/cache`.
 

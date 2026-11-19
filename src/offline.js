@@ -160,6 +160,7 @@ export function buildOffline(today) {
     if (url.includes('westlinnoregon.gov/library/calendar/')) return ok(wlHtml);
     if (url.includes('westlinnoregon.gov/parksrec/calendar/')) return ok(drupalMonth([[d2, '10:00', '/parksrec/family-nature-walk', 'Family Nature Walk at Mary S. Young Park']]));
     if (url.includes('clackamas.us/events')) return ok(ccHtml);
+    if (url.includes('downtownbeaverton.org')) return ok(JSON.stringify({ total_pages: 1, events: [] }));
     if (url.includes('/wp-json/tribe/events/v1/events')) return ok(JSON.stringify({ total_pages: 1, events: url.includes('sherwood')
       ? [{ id: 501, title: 'Movies in the Park: Paddington', description: '<p>Free family movie night on the lawn. Bring a blanket.</p>', start_date: `${d2} 18:00:00`, end_date: `${d2} 20:00:00`, url: 'https://www.sherwoodoregon.gov/event/movie', categories: [{ name: 'Movies in the Parks' }], venue: { venue: 'Stella Olsen Park', geo_lat: '45.3535', geo_lng: '-122.8366' } },
          { id: 502, title: 'City Council Meeting', start_date: `${d1} 17:30:00`, categories: [{ name: 'City Council' }], venue: [] }]
