@@ -1962,5 +1962,68 @@
   "explore": [
    "gymnastics"
   ]
+ },
+ {
+  "id": "seed-circuit-tigard",
+  "name": "The Circuit Bouldering Gym Tigard",
+  "kind": "climbing gym",
+  "lat": 45.40292,
+  "lon": -122.75262,
+  "address": "16255 SW Upper Boones Ferry Rd, Tigard, OR 97224",
+  "url": "https://thecircuitboulderinggym.squarespace.com/tigard",
+  "hours_text": "Daily; check site for kids' classes and youth team",
+  "age_min": 5,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Bouldering gym (short walls, no ropes or harnesses), good for kids about 5 and up who can follow basic safety rules.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-circuit-sw",
+  "name": "The Circuit Bouldering Gym SW",
+  "kind": "climbing gym",
+  "lat": 45.48019,
+  "lon": -122.67244,
+  "address": "6050 S Macadam Ave, Portland, OR 97239",
+  "url": "https://thecircuitboulderinggym.squarespace.com",
+  "hours_text": "Daily; check site for kids' classes and youth team",
+  "age_min": 5,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Bouldering gym (short walls, no ropes or harnesses), good for kids about 5 and up who can follow basic safety rules.",
+  "explore": [
+   "gymnastics"
+  ]
+ },
+ {
+  "id": "seed-circuit-ne",
+  "name": "The Circuit Bouldering Gym NE",
+  "kind": "climbing gym",
+  "lat": 45.52586,
+  "lon": -122.6481,
+  "address": "410 NE 17th Ave, Portland, OR 97232",
+  "url": "https://thecircuitboulderinggym.squarespace.com",
+  "hours_text": "Daily; check site for kids' classes and youth team",
+  "age_min": 5,
+  "age_max": 12,
+  "interests": [
+   "play"
+  ],
+  "cost": "paid",
+  "setting": "indoor",
+  "note": "Bouldering gym (short walls, no ropes or harnesses), good for kids about 5 and up who can follow basic safety rules.",
+  "explore": [
+   "gymnastics"
+  ]
  }
 ]
