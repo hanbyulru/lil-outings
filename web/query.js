@@ -27,6 +27,8 @@ export function whenRange(when, today) {
   // "Next week" / "Next weekend" and hides the separate Next week option; owner, Nov 2026).
   if (when === 'week') return dow(today) === 0 ? [addDays(today, 1), addDays(today, 5)] : [today, addDays(today, (5 - dow(today) + 7) % 7)];
   // Next week: the whole Monday-to-Sunday week after this one (owner, Nov 2026); on a Sunday that's tomorrow onward.
+  // All upcoming days (owner, Nov 2026; offered only with the Holidays interest): everything from today on.
+  if (when === 'upcoming') return [today, addDays(today, 400)];
   if (when === 'nextweek') { const mon = addDays(today, (8 - dow(today)) % 7 || 7); return [mon, addDays(mon, 6)]; }
   if (when === 'weekend') {
     const d = dow(today);

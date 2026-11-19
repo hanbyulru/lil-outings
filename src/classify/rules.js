@@ -70,7 +70,10 @@ const TAG_RULES = [
   // Play (owner, Nov 2026): playgrounds and open play, movement and yoga, games, family movies and parties.
   ['play', /playground|play ?(group|date|time|space|room)|pop[- ]?up (&|and) play|\bplay\b|open gym|bounce|tumbl|yoga|dance party|\bgames?\b|chess|lego free play|movies?\b|film|cinema|dive-in|family (night|fun|day)|party|carnival|hangout|snacktivit/i],
   // Vehicles (owner, Nov 2026; the tag id stays 'trains'): trains, planes, cars, trucks, buses, boats, construction machines.
-  ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport|\bvehicles?\b|\btrucks?\b|fire ?engines?|\bcars?\b|\bbus(es)?\b|\bboats?\b|tractors?|diggers?|excavators?|construction (equipment|machines?|vehicles?)|helicopters?|rockets?|motorcycles?|race ?cars?|\bwheels\b/i]
+  ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport|\bvehicles?\b|\btrucks?\b|fire ?engines?|\bcars?\b|\bbus(es)?\b|\bboats?\b|tractors?|diggers?|excavators?|construction (equipment|machines?|vehicles?)|helicopters?|rockets?|motorcycles?|race ?cars?|\bwheels\b/i],
+  // Holidays (owner, Nov 2026): the winter holidays only (Christmas, Hanukkah, Kwanzaa, New Year's). Not Thanksgiving, Halloween,
+  // Lunar New Year or Diwali (those may get their own looks later).
+  ['holidays', /christmas|x-?mas|\bsanta\b|\bholidays?\b|hanuk+ah|chanuk+ah|menorah|dreidel|kwanzaa|new year'?s|noon year|gingerbread|nutcracker|ornaments?\b|winter wonderland|tree lighting|festival of lights|zoolights|\breindeer\b|\bsleigh\b|candy canes?|\bstockings?\b|\bcarol(s|ing|ers)?\b|\byule\b|las posadas|st\.? nicholas|north pole|\belf\b|\belves\b|snowman|snowmen/i]
 ];
 export function extraInterests(ev, interests = []) {
   // "song ngữ" is Vietnamese for bilingual, not a song
@@ -84,6 +87,9 @@ export function extraInterests(ev, interests = []) {
     const hay = tag === 'books' || tag === 'nature' ? text : title;
     if (!out.includes(tag) && re.test(hay)) out.push(tag);
   }
+  // Holidays means the winter holidays: a Thanksgiving, Halloween, Lunar New Year or Diwali event isn't one, unless the title also
+  // names a winter holiday ("Thanksgiving & Christmas Craft").
+  if (/thanksgiving|halloween|lunar new year|diwali|\btet\b/i.test(title) && !/christmas|x-?mas|santa|hanuk+ah|chanuk+ah|kwanzaa|new year'?s eve/i.test(title)) out = out.filter((t) => t !== 'holidays');
   // Dinners and fundraisers stay untagged ("Other"), whatever the classifier said (owner, Nov 2026).
   if (/dinner|fundrais/i.test(title)) out = out.filter((t) => t !== 'play');
   // Storytimes and play programs mention songs and music as a matter of course: that alone isn't Music & Art (owner, Nov 2026).
