@@ -502,7 +502,9 @@ function renderMore() {
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
   const items = groupChains(placesFor(cur.id));
   const shown = items.slice(0, S.showN);
-  let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}</div>` : '';
+  // Last card in each kind (owner, Nov 2026): a blank "Missing a spot?" card asking for suggestions, from parents or businesses.
+  const missing = items.length === shown.length ? missingCard(cur) : '';
+  let body = items.length ? `<div class="places">${shown.map((p) => renderPlace(p, cur.id)).join('')}${missing}</div>` : '';
   if (items.length > shown.length) body += `<button class="textbtn more-btn" data-showmore>Show ${Math.min(24, items.length - shown.length)} more of ${items.length - shown.length}</button>`;
   if (cur.id === 'gymnastics' && programs.length) body += `<h3 class="subhead">Portland Parks &amp; Recreation sports classes</h3><p class="notice" style="margin:4px 0 0">Dates, times and prices are in the registration system, so each card links there.</p><div class="places">${programs.map(renderProgram).join('')}</div>`;
   if (cur.soon) body = `<div class="soon">${tile(lookOf(cur.id)[0], lookOf(cur.id)[1], 64)}<p>Coming soon</p><button class="btn-ink subcta" type="button" data-subscribe="holidays">Tell me when it’s live</button></div>`;
@@ -513,11 +515,18 @@ function renderMore() {
   </div>`;
 }
 
+const CONTACT = 'hello@liloutings.com';
+const mailto = (subject) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}`;
+function missingCard(cur) {
+  const col = lookOf(cur.id)[1];
+  return `<div class="place missing" style="--c:${col}"><div class="plus" aria-hidden="true"></div><h3>Missing a spot?</h3><p>Know a place that belongs here, or run one? Tell us at <a href="${mailto(`Place suggestion: ${cur.label}`)}" data-contact="missing_place" data-kind="${esc(cur.id)}">${CONTACT}</a></p></div>`;
+}
+
 function renderFoot() {
   const m = DATA.meta;
   const when = new Date(m.generated_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Los_Angeles' });
   // Short footer (owner, Nov 2026): no per-source list; the sources are in the README.
-  $('#foot').innerHTML = `<p>Lil’ Outings gathers kids’ events from local libraries and parks &amp; rec calendars, updated every morning (last ${esc(when)}). Times and details can change, so check the event’s own page before you go.</p><p>We use Google Analytics to learn what’s helpful.</p>`;
+  $('#foot').innerHTML = `<p>Lil’ Outings gathers kids’ events from local libraries and parks &amp; rec calendars, updated every morning (last ${esc(when)}). Times and details can change, so check the event’s own page before you go.</p><p>We use Google Analytics to learn what’s helpful.</p><p class="partner">Run a kid-friendly business? <button class="textbtn" type="button" data-partner>Partner with us →</button></p>`;
   if (String(m.mode).startsWith('demo')) { const d = $('#demo'); d.hidden = false; d.textContent = 'Demo data: sample listings generated in the real feeds’ formats, not live Portland events. Run the refresh with network access for real data.'; }
 }
 
@@ -541,6 +550,21 @@ function setLoc(loc) { track('choose_area', { area: loc ? loc.region || loc.dist
  * Submissions go to SIGNUP_ENDPOINT (a form service URL that accepts a POST); until it is set they are not sent anywhere.
  */
 const SIGNUP_ENDPOINT = '';
+
+// "Partner with us" (owner, Nov 2026): footer link opens a short dialog for businesses; the counts are live.
+document.addEventListener('click', (ev) => {
+  const c = ev.target.closest('[data-contact]');
+  if (c) { track('contact', { from: c.dataset.contact, kind: c.dataset.kind || '' }); return; }
+  const d = $('#partner');
+  if (ev.target.closest('[data-partnerclose]')) { d.close(); return; }
+  if (!ev.target.closest('[data-partner]')) return;
+  // Only places in the kinds people can browse (Public Playgrounds are hidden), one per chain; rounded down ("160+").
+  const places = groupChains(DATA.places.filter((p) => (p.explore || []).some((k) => !HIDDEN_KINDS.includes(k) && k !== 'holidays'))).length, events = (DATA.events || []).length;
+  const n = (x) => { const r = x >= 1000 ? 100 : 10; return x >= r ? `${(Math.floor(x / r) * r).toLocaleString('en-US')}+` : String(x); };
+  $('#partner-stats').innerHTML = `<b>${n(places)}</b> places · <b>${n(events)}</b> upcoming events`;
+  $('#partner-mail').href = mailto('Partnering with Lil’ Outings');
+  d.showModal(); track('open_partner');
+});
 async function sendSignup(fields) {
   if (!SIGNUP_ENDPOINT) { console.warn('Lil\' Outings: SIGNUP_ENDPOINT is not set; not sent', fields); return; }
   const body = new FormData();
