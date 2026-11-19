@@ -569,7 +569,7 @@ const SIGNUP_ENDPOINT = '';
 // "Partner with us" (owner, Nov 2026): footer link opens a short pitch, then a form; "Missing a spot/event?" cards open
 // the suggestion form. Both POST to a Google Apps Script web app that adds a row to the owner's Sheet
 // (docs/forms-apps-script.gs). With no FORMS_ENDPOINT, Send opens an email to hello@ with the answers instead.
-const FORMS_ENDPOINT = '';
+const FORMS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxFaat8cJMdCbY5WrtfdQRWBU9D-NQCidv_BghP2N-jucUbE0UONSe1fX18Ce5VBlTfEg/exec';
 function formStep(d, name) {
   for (const el of d.querySelectorAll('.step')) el.hidden = el.dataset.step !== name;
   d.querySelector('.scroll').scrollTop = 0;
