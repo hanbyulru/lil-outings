@@ -261,7 +261,11 @@ export function markSeries(events) {
       if (r.length < 4) continue; // two or three dates stay as they are (owner, Nov 2026)
       const gaps = r.slice(1).map((d, i) => day(d) - day(r[i]));
       const weekday = (d) => { const w = new Date(day(d) * 864e5).getUTCDay(); return w > 0 && w < 6; };
-      const pattern = gaps.every((g) => g === 1) ? 'daily' : r.every(weekday) && gaps.every((g, i) => g === 1 || (g === 3 && new Date(day(r[i]) * 864e5).getUTCDay() === 5)) ? 'weekdays' : null;
+      // Weekdays: Mon-Fri only, skipping just the weekends. Daily allows the odd closure (Christmas Day, or Jan 1-2):
+      // gaps of at most three days, and no more than one in ten (at least one allowed) longer than a day.
+      const isWeekdays = r.every(weekday) && gaps.every((g, i) => g === 1 || (g === 3 && new Date(day(r[i]) * 864e5).getUTCDay() === 5)) && gaps.some((g) => g === 3);
+      const odd = gaps.filter((g) => g !== 1).length;
+      const pattern = isWeekdays ? 'weekdays' : gaps.every((g) => g <= 3) && odd <= Math.max(1, Math.floor(gaps.length / 10)) ? 'daily' : null;
       if (!pattern) continue; // a few set days a week (e.g. a Mon/Wed/Sat storytime) stays as separate listings
       const series = { key: `${k}|${r[0]}`, last: r.at(-1), pattern };
       for (const e of list) if (e.date >= r[0] && e.date <= series.last) e.series = series;

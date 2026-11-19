@@ -126,6 +126,8 @@ test('markSeries / collapseSeries: a weekday run shows once, labeled', async () 
   assert.equal(daily[0].series.pattern, 'daily');
   const three = markSeries(['2026-12-02', '2026-12-05', '2026-12-07'].map((d) => ev(d))); // e.g. Gingerbread House: stays as is
   assert.equal(three[0].series, undefined);
+  const closedXmas = markSeries(['2026-12-22', '2026-12-23', '2026-12-24', '2026-12-26', '2026-12-27', '2026-12-28'].map((d) => ev(d)));
+  assert.equal(closedXmas[0].series.pattern, 'daily');
   const mws = markSeries(['2026-11-30', '2026-12-02', '2026-12-05', '2026-12-07', '2026-12-09'].map((d) => ev(d))); // Mon/Wed/Sat storytime
   assert.equal(mws[0].series, undefined);
 });

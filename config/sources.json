@@ -630,13 +630,13 @@
     },
     {
       "id": "manual",
-      "name": "Submitted & curated",
+      "name": "Lil’ Outings curated",
       "type": "manual",
       "enabled": true,
       "trust": 10,
       "status": "verified",
       "config": {
-        "file": "data/manual/events.json"
+        "file": "config/events.seed.json"
       }
     },
     {

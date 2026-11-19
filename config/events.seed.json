@@ -1,0 +1,141 @@
+[
+  {
+    "id": "pcs-tree-lighting-2026",
+    "title": "Tree Lighting Ceremony at Pioneer Courthouse Square",
+    "venue_name": "Pioneer Courthouse Square",
+    "address": "701 SW 6th Ave, Portland, OR 97204",
+    "lat": 45.51893, "lon": -122.67926,
+    "url": "https://thesquarepdx.org/",
+    "description": "Portland's 42nd annual tree lighting: a community sing-along with Pink Martini's Thomas Lauderdale, and Santa flips the switch on the 75-foot tree.",
+    "price_text": "Free",
+    "interests": ["holidays"],
+    "runs": [{ "dates": ["2026-11-27"], "start": "17:30", "end": "18:45" }]
+  },
+  {
+    "id": "holiday-express-2026",
+    "title": "Holiday Express Train Rides",
+    "venue_name": "Oregon Rail Heritage Center",
+    "address": "2250 SE Water Ave, Portland, OR 97214",
+    "lat": 45.50727, "lon": -122.66162,
+    "url": "https://orhf.org/holiday-express/",
+    "description": "A 45-minute ride along the Willamette behind a historic steam or diesel locomotive, with Santa aboard. Departures run through the day; buy tickets ahead for a set time and arrive 20 minutes early. Admission to the Rail Heritage Center is included.",
+    "price_text": "$34 adults, $25 kids 3-13, lap infants free",
+    "interests": ["holidays", "trains"],
+    "runs": [{ "from": "2026-11-27", "to": "2026-12-27", "days": ["fri", "sat", "sun"], "except": ["2026-12-25"], "start": "10:00", "end": "19:45" }]
+  },
+  {
+    "id": "zoolights-2026",
+    "title": "ZooLights",
+    "venue_name": "Oregon Zoo",
+    "address": "4001 SW Canyon Rd, Portland, OR 97221",
+    "lat": 45.50981, "lon": -122.71269,
+    "url": "https://www.oregonzoo.org/lights",
+    "description": "More than a million lights across the zoo, with light tunnels and a lantern train ride (train and carousel tickets sold separately). Everyone needs a timed ticket bought online in advance, and it doubles as a TriMet pass that night. Most animals are not on view.",
+    "price_text": "$13-$35 by night; youth $13-$30",
+    "interests": ["holidays", "nature"],
+    "runs": [{ "from": "2026-11-20", "to": "2027-01-03", "except": ["2026-12-25", "2027-01-01", "2027-01-02"], "start": "16:30" }]
+  },
+  {
+    "id": "grotto-lights-2026",
+    "title": "Christmas Festival of Lights at The Grotto",
+    "venue_name": "The Grotto",
+    "address": "8840 NE Skidmore St, Portland, OR 97220",
+    "lat": 45.55323, "lon": -122.57087,
+    "url": "https://thegrotto.org/christmas/",
+    "description": "Lights across the Grotto's grounds, with carolers, puppet shows, and choir concerts in the chapel. Closed Christmas Day. Value nights are Mon-Thu, Nov 30-Dec 3 and Dec 7-10.",
+    "price_text": "$17.95 ages 12+, $8.95 ages 3-11 (online); more at the gate",
+    "interests": ["holidays"],
+    "runs": [{ "from": "2026-11-27", "to": "2026-12-30", "except": ["2026-12-25"], "start": "17:00", "end": "21:30" }]
+  },
+  {
+    "id": "peacock-lane-2026",
+    "title": "Peacock Lane Holiday Lights",
+    "venue_name": "Peacock Lane",
+    "address": "SE Peacock Ln between SE Belmont and SE Stark, Portland, OR 97214",
+    "lat": 45.51801, "lon": -122.62176,
+    "url": "https://www.peacocklane.org/",
+    "description": "A whole street of decorated houses, free to stroll. Free cocoa Dec 15-24 while it lasts.",
+    "price_text": "Free",
+    "interests": ["holidays"],
+    "runs": [
+      { "dates": ["2026-12-15", "2026-12-16"], "start": "18:00", "end": "22:00", "note": "Walk-only night: no cars on the Lane." },
+      { "from": "2026-12-17", "to": "2026-12-31", "start": "18:00", "end": "22:00" }
+    ]
+  },
+  {
+    "id": "pir-winter-wonderland-2026",
+    "title": "Winter Wonderland Drive-Through Lights",
+    "venue_name": "Portland International Raceway",
+    "address": "1940 N Victory Blvd, Portland, OR 97217",
+    "lat": 45.59593, "lon": -122.68617,
+    "url": "https://winterwonderlandportland.com/",
+    "description": "Drive the raceway through a big holiday light show from your car. Open 5-10pm Mon-Thu and 4:30-11pm Fri-Sun and Dec 16-25. No driving on Nov 29 (Bike the Lights) or Nov 30-Dec 1 (Lights & Leashes dog walks).",
+    "price_text": "From about $38 per car; more on weekends and Dec 16-25",
+    "interests": ["holidays"],
+    "runs": [{ "from": "2026-11-27", "to": "2026-12-31", "except": ["2026-11-29", "2026-11-30", "2026-12-01"], "start": "17:00", "end": "22:00" }]
+  },
+  {
+    "id": "pittock-holidays-2026",
+    "title": "Holidays Around the World at Pittock Mansion",
+    "venue_name": "Pittock Mansion",
+    "address": "3229 NW Pittock Dr, Portland, OR 97210",
+    "lat": 45.5252, "lon": -122.71624,
+    "url": "https://pittockmansion.org/visit/",
+    "description": "The mansion's 18 rooms and the Gate Lodge decorated with holiday traditions from around the world. Closed Thanksgiving, Christmas, and New Year's Day; check the mansion's site for hours.",
+    "price_text": "$14-$17; under 6 free",
+    "interests": ["holidays"],
+    "runs": [{ "from": "2026-11-16", "to": "2027-01-10", "except": ["2026-11-26", "2026-12-25", "2027-01-01"], "start": "10:00", "end": "16:00" }]
+  },
+  {
+    "id": "christmas-ships-johns-landing-2026",
+    "title": "Christmas Ships Parade: RiverPlace to Johns Landing",
+    "venue_name": "RiverPlace Marina",
+    "address": "0315 SW Montgomery St, Portland, OR 97201",
+    "lat": 45.5091, "lon": -122.6727,
+    "url": "https://www.christmasships.org/parade-schedule",
+    "description": "Lit-up boats leave RiverPlace Marina and parade along the Willamette toward Johns Landing and the Fremont Bridge; watch from the waterfront. The fleet takes a couple of hours, and exact passing times depend on the weather and the river.",
+    "price_text": "Free",
+    "interests": ["holidays"],
+    "runs": [{ "dates": ["2026-12-07", "2026-12-09", "2026-12-16", "2026-12-18"], "start": "19:00", "end": "21:00" }]
+  },
+  {
+    "id": "christmas-ships-milwaukie-2026",
+    "title": "Christmas Ships Parade: RiverPlace to Milwaukie",
+    "venue_name": "RiverPlace Marina",
+    "address": "0315 SW Montgomery St, Portland, OR 97201",
+    "lat": 45.5091, "lon": -122.6727,
+    "url": "https://www.christmasships.org/parade-schedule",
+    "description": "Lit-up boats leave RiverPlace Marina and parade up the Willamette to Milwaukie, reaching Milwaukie Bay Park around 8pm. Exact passing times depend on the weather and the river.",
+    "price_text": "Free",
+    "interests": ["holidays"],
+    "runs": [{ "dates": ["2026-12-08", "2026-12-11", "2026-12-15", "2026-12-17"], "start": "19:00", "end": "21:00" }]
+  },
+  {
+    "id": "christmas-ships-st-johns-2026",
+    "title": "Christmas Ships Parade: RiverPlace to St. Johns (both fleets)",
+    "venue_name": "RiverPlace Marina",
+    "address": "0315 SW Montgomery St, Portland, OR 97201",
+    "lat": 45.5091, "lon": -122.6727,
+    "url": "https://www.christmasships.org/parade-schedule",
+    "description": "The Willamette and Columbia fleets together, from RiverPlace Marina downriver to the St. Johns Bridge, arriving at Cathedral Park around 6:45pm.",
+    "price_text": "Free",
+    "interests": ["holidays"],
+    "runs": [{ "dates": ["2026-12-20"], "start": "17:00", "end": "19:00" }]
+  },
+  {
+    "id": "tinseltown-trolley-2026",
+    "title": "Tinseltown Trolley",
+    "venue_name": "Willamette Shore Trolley, Lake Oswego Depot",
+    "address": "311 N State St, Lake Oswego, OR 97034",
+    "lat": 45.41878, "lon": -122.66277,
+    "url": "https://www.ci.oswego.or.us/community/tinseltown-trolley",
+    "description": "A 45-minute holiday ride on the Willamette Shore Trolley with lights, carols, and a visit from the North Pole. Reserve a departure ahead; it often sells out.",
+    "price_text": "$20 kids, $25 adults",
+    "interests": ["holidays", "trains"],
+    "runs": [
+      { "dates": ["2026-12-11"], "start": "13:30", "end": "18:00" },
+      { "dates": ["2026-12-12"], "start": "11:00", "end": "19:15" },
+      { "dates": ["2026-12-13"], "start": "11:00", "end": "18:00" }
+    ]
+  }
+]

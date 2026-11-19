@@ -169,3 +169,20 @@ test('place overrides: valid JSON keyed by place id, https links only', () => {
     if (v.url) assert.match(v.url, /^https:\/\//, id);
   }
 });
+
+test('curated events seed: runs expand to one listing per day, in Portland time', async () => {
+  const { expandSeed, runDates, portlandOffset } = await import('../src/adapters/manual.js');
+  assert.equal(portlandOffset('2026-12-01'), '-08:00');
+  assert.equal(portlandOffset('2026-07-01'), '-07:00');
+  assert.deepEqual(runDates({ from: '2026-11-27', to: '2026-12-06', days: ['fri', 'sat', 'sun'], except: ['2026-11-28'] }), ['2026-11-27', '2026-11-29', '2026-12-04', '2026-12-05', '2026-12-06']);
+  const out = expandSeed([{ id: 'x', title: 'Lights', runs: [{ dates: ['2026-12-15'], start: '18:00', end: '22:00', note: 'Walk-only night.' }], interests: ['holidays'], description: 'A street.' }], 'manual');
+  assert.equal(out.length, 1);
+  assert.equal(out[0].start, '2026-12-15T18:00:00-08:00');
+  assert.equal(out[0].end, '2026-12-15T22:00:00-08:00');
+  assert.equal(out[0].description, 'Walk-only night. A street.');
+  assert.equal(out[0].source_event_id, 'x-2026-12-15');
+  assert.equal(out[0].interests, undefined);
+  // the real seed parses and every entry has a title, a place, and at least one date
+  const seed = JSON.parse(readFileSync('config/events.seed.json', 'utf8'));
+  for (const e of expandSeed(seed, 'manual')) { assert.ok(e.title && e.start && e.lat && e.lon, e.title); }
+});

@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { seedInterestRules } from './adapters/manual.js';
 import { EVENT_ADAPTERS, PLACE_ADAPTERS, PROGRAM_ADAPTERS } from './adapters/index.js';
 import { normalizeEvent, withinHorizon, normalizeVenueKey, guessVenue } from './normalize.js';
 import { dedupe } from './dedupe.js';
@@ -132,6 +133,8 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
 
   // Hand corrections (config/event_overrides.json): e.g. an off-site program the feed lists with no venue.
   const eventOverrides = readJson('config/event_overrides.json');
+  // Curated events (config/events.seed.json) set their own interest tags ("interests").
+  for (const src of sources.events.filter((x) => x.enabled && x.type === 'manual')) eventOverrides.rules = [...(eventOverrides.rules || []), ...seedInterestRules(src.config?.file || 'config/events.seed.json', src.id)];
   applyEventOverrides(raw.map((x) => x.r), eventOverrides);
 
   // Feeds with a street address but no coordinates (config.geocode): look them up, else a town-level pin.

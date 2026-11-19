@@ -44,7 +44,7 @@ The prototype was built in a sandbox with no internet access. So:
 | Portland Parks & Recreation `/parks/events` | `portland_gov` | list structure confirmed. Volunteer days and public meetings are excluded at the source (`exclude_labels`) |
 | PP&R class listings (`/parks/recreation/activities/sports`) | `portland_gov_programs` | experimental. Structure read from the live Sports page: region > age group > Class/Description/Location/Register tables. Adult and intergenerational sections skipped. These are *programs* (no dates/times/prices), shown on the Classes tab with a link to ActiveNet. Other category pages (Arts, Dance, Music, Swim Lessons, School Break Camps) need their URLs checked and added to `config/sources.json` |
 | PP&R ActiveNet sessions (dates, times, prices) | none yet | TODO: needs a look at the registration site's search API from a networked machine |
-| Manual / curated (`data/manual/*.json`) | `manual` | works |
+| Curated events (`config/events.seed.json`) | `manual` | works |
 | Places: curated seed + OpenStreetMap (Overpass) | `osm` | OSM live call unverified; seed coordinates are approximate, DiG PDX's address and coordinates are placeholders |
 | Tigard, Hillsboro (block automated requests), Tualatin, THPRD, NCPRD, Beaverton, Gresham, Vancouver parks calendars; venue JSON-LD | various | TODO |
 
@@ -64,7 +64,7 @@ source registry -> adapters -> normalize (Pacific time, DST) -> dedupe (title + 
 2. For a new format, add an adapter in `src/adapters/` returning raw events and register it in `adapters/index.js`.
 3. Add a parser test with a saved sample response.
 
-Manual events: JSON arrays in `data/manual/*.json` with `title, start, end, venue_name, lat, lon, url, description, price_text`.
+Curated events: `config/events.seed.json`, one entry per event with `title, venue_name, address, lat, lon, url, description, price_text`, `interests` (exact tags, first = card color) and `runs`, each a list of `dates` or a `from`/`to` range with optional `days` and `except`, plus Portland `start`/`end` times and an optional per-run `note`. The adapter expands each run into one listing per day. Entries with plain `start`/`end` ISO times still work.
 
 ## Scheduling
 
