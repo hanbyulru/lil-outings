@@ -519,7 +519,7 @@ const CONTACT = 'hello@liloutings.com';
 const mailto = (subject) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}`;
 function missingCard(cur) {
   const col = lookOf(cur.id)[1];
-  return `<div class="place missing" style="--c:${col}"><div class="plus" aria-hidden="true"></div><h3>Missing a spot?</h3><p>Know a place that belongs here, or run one? Tell us at <a href="${mailto(`Place suggestion: ${cur.label}`)}" data-contact="missing_place" data-kind="${esc(cur.id)}">${CONTACT}</a></p></div>`;
+  return `<div class="place missing" style="--c:${col}"><div class="plus" aria-hidden="true"></div><h3>Missing a spot?</h3><p>Know a place that belongs here, or run one?<br class="deskbr"> Tell us at <a href="${mailto(`Place suggestion: ${cur.label}`)}" data-contact="missing_place" data-kind="${esc(cur.id)}">${CONTACT}</a></p></div>`;
 }
 
 function renderFoot() {

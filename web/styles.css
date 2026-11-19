@@ -346,14 +346,17 @@ h1.pagehead{margin:0 0 60px}
 .place p.alert{color:var(--ink);font-weight:700} /* e.g. "Closed until Summer 2027" (seed `alert`, owner) */
 .notice{margin:24px 0 0;font-size:14px;color:var(--muted)}
 /* "Missing a spot?" last card (owner, Nov 2026): a blank, dashed card in the kind's color */
-.place.missing{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;background:transparent;border:2px dashed color-mix(in srgb,var(--c) 45%,var(--hair2));min-height:220px}
+.place.missing{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:transparent;border:2px dashed color-mix(in srgb,var(--c) 45%,var(--hair2));min-height:220px}
 .place.missing .plus{width:48px;height:48px;border-radius:14px 14px 14px 4px;background:color-mix(in srgb,var(--c) 18%,#fff);position:relative;margin-bottom:14px}
 .place.missing .plus::before,.place.missing .plus::after{content:'';position:absolute;left:50%;top:50%;width:20px;height:3px;border-radius:2px;background:var(--c);transform:translate(-50%,-50%)}
 .place.missing .plus::after{transform:translate(-50%,-50%) rotate(90deg)}
+.place.missing .deskbr{display:none}@media (min-width:701px){.place.missing .deskbr{display:inline}}
 .place.missing a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;word-break:break-word}
 /* "Partner with us" (owner, Nov 2026): footer link + dialog (reuses .cityask/.subscribe) */
 footer p.partner{margin-top:16px;color:var(--ink);font-weight:600}
 footer p.partner .textbtn{font:inherit;font-weight:600;color:var(--ink)}
+.partner .offers{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px;color:var(--ink);font-size:16px}
+.partner .offers li{padding-left:14px;border-left:3px solid var(--c)}
 .partner .stats{margin-top:16px;color:var(--ink)}
 .partner .partnercta{display:inline-flex;margin-top:20px;text-decoration:none}
 footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-size:15px}
