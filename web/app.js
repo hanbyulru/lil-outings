@@ -626,7 +626,8 @@ document.addEventListener('click', (ev) => {
   if (c) { track('contact', { from: c.dataset.contact, kind: c.dataset.kind || '' }); return; }
   const fd = ev.target.closest('dialog.formdlg');
   if (ev.target.closest('[data-formclose]')) { fd.close(); return; }
-  // No closing on a click outside (owner, Nov 2026): too easy to lose a half-typed answer. The × and Esc still close.
+  // A click outside closes only the "Thank you!" step (owner, Nov 2026): on a form it's too easy to lose a half-typed answer.
+  if (fd && ev.target === fd && !fd.querySelector('[data-step="done"]').hidden) { const r = fd.getBoundingClientRect(); if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) fd.close(); return; }
   const ps = ev.target.closest('[data-partnerstep]');
   if (ps) { formStep($('#partner'), ps.dataset.partnerstep); track('open_partner_form'); return; }
   const sg = ev.target.closest('[data-suggest]');
