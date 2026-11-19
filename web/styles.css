@@ -344,3 +344,35 @@ footer{border-top:1px solid var(--hair);padding:32px 0;color:var(--muted);font-s
 footer p{margin:0;max-width:720px}footer p+p{margin-top:8px}
 .demo{background:var(--sun);border-bottom:1px solid #E9D68A;font-size:14px;font-weight:600;padding:8px 0;text-align:center}
 @media (max-width:700px){.placesgrid{grid-template-columns:minmax(0,1fr);gap:28px}.placesgrid .explore-list{position:static}.hero.today h1,h1.pagehead{font-size:32px;line-height:1.72}h1.pagehead{margin-bottom:48px}.whenbtn .whentext{text-underline-offset:8px;text-decoration-thickness:4px}header.top{grid-template-columns:minmax(0,1fr) auto}.subbtn{padding:7px 12px;font-size:14px;gap:6px}body.cansub .brand .citypill{display:none}.logo{font-size:22px}.viewtoggle{position:fixed;z-index:50;left:50%;flex-wrap:nowrap;width:max-content;white-space:nowrap;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:5px;border-radius:999px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 24px rgba(22,24,29,.18)}.viewtoggle a{padding:10px 24px;font-size:16px}body{padding-bottom:84px}.maptoggle{display:inline-flex}.today-split .map{display:none}.today-split.showmap .map{display:block;order:-1}.explore-list{grid-template-columns:minmax(0,1fr)}.explore-list button{padding:11px 8px 11px 0;gap:12px}.explore-list button .ic{width:24px;height:24px}.explore-list button[data-explore="holidays"] .ic{width:30px;height:30px;margin:0 -3px}.explore-list button .nm{font-size:18px}.explore-list button:hover{padding-left:0}.explore-list button.on{padding-left:8px}.whenmenu,.locmenu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;min-width:0;width:auto;max-height:78vh;overflow:auto}.reg small{font-size:13px}.regmore .lbl{display:none}.regmore{font-size:18px;padding:10px 14px;margin-right:4px}.ev{grid-template-columns:4px minmax(0,1fr);column-gap:14px;row-gap:10px;padding-left:4px}.ev .time{grid-column:1/-1;display:flex;gap:10px;align-items:center;align-self:start}.map{position:static}.map .mapcard{position:static;margin-top:12px;box-shadow:none}}
+
+/* ---- Holiday theme (owner, Nov 2026): Events with Holidays picked, or Places → Holidays (body.holimode, applyTheme in app.js).
+   The page takes the launch splash's midnight, silver and gold; menus, the map card and dialogs keep their light look. ---- */
+body.holimode{--paper:#171C2D;--ink:#F6F1E4;--muted:#AEB6C2;--hair:rgba(246,241,228,.13);--hair2:rgba(246,241,228,.24);--sun:rgba(232,185,35,.2);
+  background:radial-gradient(1200px 600px at 50% -120px,#2C3550 0%,rgba(44,53,80,0) 70%),
+    radial-gradient(1.6px 1.6px at 12% 22%,#E8B923 50%,transparent 51%),radial-gradient(1.4px 1.4px at 78% 12%,#C9CFD6 50%,transparent 51%),
+    radial-gradient(1.8px 1.8px at 64% 34%,#F2D16B 50%,transparent 51%),radial-gradient(1.3px 1.3px at 30% 48%,#C9CFD6 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 90% 56%,#E8B923 50%,transparent 51%),radial-gradient(1.2px 1.2px at 6% 70%,#C9CFD6 50%,transparent 51%),
+    radial-gradient(1.6px 1.6px at 46% 84%,#F2D16B 50%,transparent 51%),#171C2D;
+  background-attachment:fixed;color:var(--ink);transition:background-color .3s}
+body.holimode :is(.whenmenu,.locmenu,.mapcard,.map,dialog:not(.holisplash),.menuhint){--paper:#FBF8F3;--ink:#16181D;--muted:#5B5F6B;--hair:#E3DED5;--hair2:#D9D3C7;--sun:#FFF0C2;color:var(--ink)}
+body.holimode .ribbon{background:linear-gradient(90deg,#8E97A3,#E8B923,#C9CFD6,#F2D16B,#8E97A3)}body.holimode .ribbon span{opacity:0}
+body.holimode .filler{color:#8E97A8}
+body.holimode .whenbtn{--ul:#5E6880}
+body.holimode :is(.btn-ink,.viewtoggle a[aria-selected="true"]){background:linear-gradient(135deg,#F2D16B,#E8B923 55%,#C9952A);color:#1B2033}
+body.holimode .viewtoggle a[aria-selected="false"]:hover{background:rgba(255,255,255,.08)}
+body.holimode .subbtn:hover,body.holimode .subbtn:focus-visible{background:#F6F1E4;color:#1B2033}
+body.holimode :is(.place,.soon){background:rgba(255,255,255,.05);border-color:var(--hair2)}
+body.holimode .place .banner{background:#232A40}
+body.holimode :is(.tog,.citypill){background:transparent;color:var(--ink);border-color:var(--hair2)}
+body.holimode .ev:hover,body.holimode .ev.sel{background:rgba(255,255,255,.04)}
+body.holimode .ev .meta .free{color:#7FD4A5}
+body.holimode .explore-list button.on{background:rgba(232,185,35,.12);box-shadow:inset 4px 0 0 #E8B923}
+body.holimode .todaybar{border-bottom-color:rgba(232,185,35,.55)}
+body.holimode .ev .tag{background:rgba(255,255,255,.1)}
+body.holimode .ev .tag[style*="--c:#9AA3AE"]{background:linear-gradient(135deg,rgba(242,209,107,.25),rgba(201,207,214,.2));color:#F2D16B}
+@media (max-width:700px){body.holimode .viewtoggle{background:rgba(23,28,45,.92)}}
+.whenmenu button.upcomingitem span{display:inline-flex;align-items:center}
+.whenmenu button.upcomingitem svg{margin-right:8px}
+.whenmenu button.upcomingitem small{font-style:italic}
+.whenmenu button.upcomingitem:disabled{cursor:default;opacity:.5}
+.whenmenu button.upcomingitem:disabled:hover{background:transparent}

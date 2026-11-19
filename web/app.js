@@ -9,7 +9,7 @@ const TEXT_COLORS = { books: '#9A6B00', holidays: '#5E6672' };
 const LABEL = { books: 'Storytime', art: 'Music & Art', nature: 'Animals & Nature', science: 'Science', trains: 'Vehicles', play: 'Play', holidays: 'Holidays' };
 
 // The headline's day picker. [value, phrase in the headline, menu label]
-const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend'], ['nextweek', 'next week', 'Next week']];
+const WHEN = [['today', 'today', 'Today'], ['tomorrow', 'tomorrow', 'Tomorrow'], ['week', 'this week', 'This week'], ['weekend', 'this weekend', 'This weekend'], ['nextweek', 'next week', 'Next week'], ['upcoming', 'all upcoming days', 'All upcoming days']];
 // The headline's "what" picker (owner, Nov 2026). [value, underlined phrase, words after it, menu label, interest tag or null]
 // Only the first part is the underlined menu; "to do" / "to go to" sit outside the underline. 'other' = no interest tag.
 const WHAT = [
@@ -26,8 +26,8 @@ const WHAT = [
 // Interests left out of the menu for now (owner, Nov 2026): Vehicles has no events at the moment. Its tag, colors and Places kind stay.
 const HIDDEN_WHAT = ['trains'];
 /**
- * The holiday guide's season (owner, Nov 2026; winter holidays only). 'soon' from Nov 1 through Thanksgiving Day ("Coming soon"
- * in the interest menu and on the Places tab), 'live' from the day after Thanksgiving through Jan 1, else 'off' (no Holidays
+ * The holiday guide's season (owner, Nov 2026; winter holidays only). 'soon' from Nov 1 to the day before Thanksgiving ("Coming soon"
+ * in the interest menu and on the Places tab), 'live' from Thanksgiving Day through Jan 1, else 'off' (no Holidays
  * anywhere). Preview any state with ?holidays=soon|live|off.
  */
 function holidaySeason(dateStr = NOW().date) {
@@ -36,9 +36,17 @@ function holidaySeason(dateStr = NOW().date) {
   const [y, m, d] = dateStr.split('-').map(Number);
   if (m === 1 && d === 1) return 'live';
   if (m < 11) return 'off';
-  return dateStr <= thanksgiving(y) ? 'soon' : 'live';
+  return dateStr < thanksgiving(y) ? 'soon' : 'live'; // live from Thanksgiving Day (owner: before the LO tree lighting on Friday)
 }
 const holidaysLive = () => holidaySeason() === 'live';
+/** Holiday mode: Holidays is the one interest picked. It unlocks "All upcoming days" and themes the Events page. */
+const holidayMode = () => holidaysLive() && S.whats.length === 1 && S.whats[0] === 'holidays';
+/** The page's holiday theme (owner, Nov 2026): midnight, silver and gold like the launch splash, on Events in holiday mode and on
+ *  Places when the Holidays kind is open. */
+function applyTheme() {
+  const v = document.body.dataset.view;
+  document.body.classList.toggle('holimode', holidaysLive() && (v === 'places' ? S.explore === 'holidays' : holidayMode()));
+}
 // "What" and "who" are multi-select (owner, Nov 2026): S.whats / S.ages hold the picks in menu order; empty = everything.
 const joinList = (xs) => (xs.length < 3 ? xs.join(' + ') : `${xs.slice(0, -1).join(', ')} + ${xs[xs.length - 1]}`);
 const pickedWhats = () => S.whats.map((v) => WHAT.find((w) => w[0] === v)).filter(Boolean);
@@ -183,6 +191,7 @@ const rangeHas = (when, day) => { const [a, b] = whenRange(when, NOW().date); re
 // A little autumn leaf tile for the Thanksgiving week option (the site's mosaic tile shape, in fall colors).
 const LEAF = '<svg class="leafic" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M3 12A9 9 0 0 1 12 3h9v9a9 9 0 0 1-9 9H3z" fill="#E8772E"/><path d="M12 3h9v9z" fill="#C8452F"/><path d="M3 21l9-9" stroke="#FBF8F3" stroke-width="1.6" stroke-linecap="round"/><circle cx="17" cy="16" r="2.2" fill="#F2B705"/></svg>';
 function rangeLabel(when) {
+  if (when === 'upcoming') return 'From today on';
   const [a, b] = whenRange(when, NOW().date);
   const one = (d) => fmtDay(d, { weekday: 'short', month: 'short', day: 'numeric' });
   return a === b ? one(a) : `${one(a)} – ${one(b)}`;
@@ -344,17 +353,20 @@ function renderProgram(p) {
  *  "This week" becomes "Next week" (Mon-Fri) and "This weekend" becomes "Next weekend" (Sat-Sun); the full Next week option is hidden. */
 function whenOptions() {
   const d = NOW().date;
-  let opts = WHEN;
+  let opts = holidaysLive() ? WHEN : WHEN.filter((w) => w[0] !== 'upcoming'); // All upcoming days is a holiday-season option
   if (isFriday(d) || isSaturday(d)) opts = WHEN.filter((w) => w[0] !== 'week'); // Fri: today ends the week; Sat: it's over
   else if (isSunday(d)) opts = WHEN.filter((w) => w[0] !== 'nextweek').map((w) => (w[0] === 'week' ? ['week', 'next week', 'Next week'] : w[0] === 'weekend' ? ['weekend', 'next weekend', 'Next weekend'] : w));
   // The week with Thanksgiving in it is "Thanksgiving week", with autumn colors (owner, Nov 2026).
   return opts.map((w) => (/week$/.test(w[0]) && rangeHas(w[0], thanksgiving(+d.slice(0, 4))) ? [w[0], 'Thanksgiving week', 'Thanksgiving week', 'autumn'] : w));
 }
 function renderHeadline() {
+  applyTheme();
   const whens = whenOptions();
   if (!whens.some((w) => w[0] === S.when)) S.when = 'today';
   const cur = whens.find((w) => w[0] === S.when);
-  const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${whens.map(([v, , label, special]) => `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}${special ? ` ${special}` : ''}" data-when="${v}"><span>${special === 'autumn' ? LEAF : ''}${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
+  const whenMenu = S.open === 'when' ? `<span class="whenmenu menu" role="menu">${whens.map(([v, , label, special]) => v === 'upcoming'
+    ? `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''} upcomingitem"${holidayMode() ? '' : ' disabled aria-disabled="true"'} data-when="${v}"><span>${tile('sparkle', '#8E97A3', 14)}${label}</span><small>(Holidays only)</small></button>`
+    : `<button role="menuitemradio" aria-checked="${v === S.when}" class="${v === S.when ? 'on' : ''}${special ? ` ${special}` : ''}" data-when="${v}"><span>${special === 'autumn' ? LEAF : ''}${label}</span><small>${esc(rangeLabel(v))}</small></button>`).join('')}</span>` : '';
   let locMenu = '';
   if (S.open === 'loc') {
     const isOn = (k, v) => (k === 'region' ? S.loc?.region === v : picksOf(S.loc).some((x) => x[k] === v));
@@ -389,7 +401,7 @@ function renderHeadline() {
   const wp = whatPhrase(), ws = pickedWhats();
   const whatLook = !ws.length ? null : ws.length > 1 ? 'mosaic' : ws[0][0] === 'holidays' ? 'festive' : ws[0][4] ? COLORS[ws[0][4]] : INK; // one interest keeps its color (owner)
   const hint = S.hint && !S.open ? `<span class="menuhint" aria-hidden="true">${hintText()}</span>` : '';
-  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', cur[3] === 'autumn' ? 'autumn' : 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
+  $('#headline').innerHTML = `<span class="whenwrap whatwrap">${hint}${trigger('what', wp.text, S.open === 'what', whatLook)}${whatMenu}</span> <span class="filler">${esc(wp.after)} with a</span> <span class="whenwrap">${trigger('age', agePhrase(), S.open === 'age', S.ages.length ? 'mosaic' : null)}${ageMenu}</span> <span class="whenwrap">${trigger('when', cur[1], S.open === 'when', cur[3] === 'autumn' ? 'autumn' : S.when === 'upcoming' ? 'festive' : 'mosaic')}${whenMenu}</span> <span class="filler">in</span> ${locTrigger}`;
   // Keep an open menu on screen (the phrase can sit near either edge).
   const m = $(`${onPlaces ? '#placeshead' : '#headline'} .menu`);
   if (m && getComputedStyle(m).position === 'absolute') {
@@ -403,6 +415,7 @@ function renderHeadline() {
 /** After a tap in the interest or age menu: the menu stays open (multi-select) and keeps focus; elsewhere (e.g. "See all happenings" on an empty day) it's a one-off. */
 function afterPick(t, kind, sel) {
   S.sel = null;
+  if (kind === 'what') { if (holidayMode()) S.when = 'upcoming'; else if (S.when === 'upcoming') S.when = DEFAULT_WHEN; } // owner, Nov 2026
   const inMenu = !!t.closest('.menu');
   if (!inMenu) S.open = null;
   renderHeadline(); renderToday();
@@ -418,7 +431,7 @@ function renderToday() {
   const events = filterEvents(DATA.events, opts, c).filter(fitsWhat).filter(fitsAge);
   const over = S.when === 'today' ? filterEvents(DATA.events, opts, { ...c, nowMin: null }).filter(fitsWhat).filter(fitsAge).length - events.length : 0;
   events.forEach((e, i) => { e._n = i + 1; });
-  const multiDay = S.when === 'weekend' || S.when === 'week' || S.when === 'nextweek';
+  const multiDay = S.when === 'weekend' || S.when === 'week' || S.when === 'nextweek' || S.when === 'upcoming';
   const bar = `<div class="todaybar"><span class="count">${events.length} ${events.length === 1 ? 'thing' : 'things'} to do</span><span class="muted">${esc(rangeLabel(S.when))}${over > 0 ? ` · ${over} earlier ${over === 1 ? 'one is' : 'ones are'} over` : ''}</span><button class="tog maptoggle ${S.showMap ? 'on' : ''}" data-showmap>${S.showMap ? 'Hide map' : 'Map'}</button></div>`;
   let body;
   if (!events.length) {
@@ -452,6 +465,7 @@ function renderToday() {
  *  left, the chosen kind's cards on the right (owner, Nov 2026). Public Playgrounds is left off the list for now. */
 const HIDDEN_KINDS = ['playgrounds'];
 function renderMore() {
+  applyTheme();
   const c = ctx();
   // Holidays places follow the holiday season: "Soon" before launch, hidden out of season (holidaySeason).
   const season = holidaySeason();
@@ -563,10 +577,7 @@ document.addEventListener('click', (ev) => {
     if (go.dataset.holigo === 'events') {
       S.whats = ['holidays']; S.sel = null;
       if (S.hint) { S.hint = false; markHintSeen(); } // they've used the menus now
-      // Land on the soonest day choice that has holiday events (today, else this week, the weekend, next week).
-      const c = ctx(), has = (w) => filterEvents(DATA.events, { when: w, loc: S.loc, age: null }, c).filter(fitsWhat).filter(fitsAge).length > 0;
-      const opts = whenOptions().map((w) => w[0]);
-      S.when = ['today', 'tomorrow', 'week', 'weekend', 'nextweek'].find((w) => opts.includes(w) && has(w)) || S.when;
+      S.when = 'upcoming'; // every holiday event from today on (owner, Nov 2026)
       if (location.hash === '#places') location.hash = '#events';
       renderHeadline(); renderToday();
     }
