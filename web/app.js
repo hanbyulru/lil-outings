@@ -113,6 +113,15 @@ function loadAges() {
     return AGE_IDS.filter((id) => v.includes(id));
   } catch { return []; }
 }
+// The chosen interest(s) are remembered too (owner, Nov 2026). Hidden interests, and Holidays out of season, are dropped.
+const WHAT_KEY = 'lilOutings.whats';
+function loadWhats() {
+  try {
+    const v = JSON.parse(localStorage.getItem(WHAT_KEY) || '[]');
+    return WHAT.slice(1).map((w) => w[0]).filter((id) => v.includes(id) && !HIDDEN_WHAT.includes(id) && (id !== 'holidays' || holidaysLive()));
+  } catch { return []; }
+}
+function saveWhats() { try { localStorage.setItem(WHAT_KEY, JSON.stringify(S.whats)); } catch { /* not critical */ } }
 function saveAges() { try { localStorage.setItem(AGE_KEY, JSON.stringify(S.ages)); } catch { /* not critical */ } }
 const pickedAges = () => S.ages.map((v) => AGE_GROUPS.find((a) => a[0] === v)).filter(Boolean);
 // Several groups: each starts with a capital ("Toddler + Preschooler", owner Nov 2026).
@@ -703,7 +712,7 @@ document.addEventListener('click', (ev) => {
   if (go) {
     closeHoliday(go.dataset.holigo);
     if (go.dataset.holigo === 'events') {
-      S.whats = ['holidays']; S.sel = null;
+      S.whats = ['holidays']; saveWhats(); S.sel = null;
       if (S.hint) { S.hint = false; markHintSeen(); } // they've used the menus now
       S.when = 'upcoming'; // every holiday event from today on (owner, Nov 2026)
       if (location.hash === '#places') location.hash = '#events';
@@ -791,7 +800,7 @@ document.addEventListener('click', (ev) => {
     btn?.closest('.regrow')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); // phones: the opened row may be below the fold
     return;
   }
-  if (d.what) { track('choose_interest', { interest: d.what }); S.whats = d.what === 'all' ? [] : togglePickIn(S.whats, d.what, WHAT.slice(1).map((w) => w[0])); return afterPick(t, 'what', `[data-what="${d.what}"]`); }
+  if (d.what) { track('choose_interest', { interest: d.what }); S.whats = d.what === 'all' ? [] : togglePickIn(S.whats, d.what, WHAT.slice(1).map((w) => w[0])); saveWhats(); return afterPick(t, 'what', `[data-what="${d.what}"]`); }
   if (d.agegroup) { track('choose_age', { age: d.agegroup }); S.ages = d.agegroup === 'all' ? [] : togglePickIn(S.ages, d.agegroup, AGE_IDS); saveAges(); return afterPick(t, 'age', `[data-agegroup="${d.agegroup}"]`); }
   if (d.menudone !== undefined) { const k = S.open; closeMenu(); $(`[data-menu="${k}"]`)?.focus(); return; }
   if (d.locany !== undefined) return setLoc(null);
@@ -856,7 +865,16 @@ function showView(v) {
   if (DATA) { S.open = null; renderHeadline(); }
   if (v === 'events' && DATA) renderToday(); // the map needs a visible container to size itself
 }
-addEventListener('hashchange', () => { const v = viewFromHash(); if (v !== document.body.dataset.view) { track('switch_tab', { tab: v }); showView(v); scrollTo(0, 0); } });
+addEventListener('hashchange', () => {
+  const v = viewFromHash(); if (v === document.body.dataset.view) return;
+  track('switch_tab', { tab: v });
+  // Places opens on the kind that matches the interest picked on Events, e.g. Holiday things -> Holidays (owner, Nov 2026).
+  if (v === 'places' && DATA) {
+    const kind = S.whats.map((w) => INTEREST_KIND[w]).find((k) => k && (k !== 'holidays' || holidaysLive()));
+    if (kind && kind !== S.explore) { S.explore = kind; S.showN = 24; renderMore(); }
+  }
+  showView(v); scrollTo(0, 0);
+});
 // Links out: an event's Details page, a place's own website.
 document.addEventListener('click', (ev) => {
   const a = ev.target.closest('a[target="_blank"]'); if (!a) return;
@@ -879,6 +897,8 @@ load().then((d) => {
   S.hint = !hintSeen();
   if (NOW().hour >= EVENING_HOUR) S.when = 'tomorrow';
   DEFAULT_WHEN = S.when;
+  S.whats = loadWhats();
+  if (holidayMode()) S.when = 'upcoming';
   renderHeadline(); renderToday(); renderMore(); renderFoot();
   maybeHolidaySplash();
 }).catch((e) => { $('#today-inner').innerHTML = `<p>Could not load data: ${esc(e.message)}. Run <code>npm run refresh:demo</code> then <code>npm run serve</code>.</p>`; });
