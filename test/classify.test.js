@@ -166,7 +166,8 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
   assert.ok(tags('Noon Year\'s Eve Party').includes('holidays'));
   assert.ok(tags('Tualatin Light Parades').includes('holidays'), 'a light parade is Holidays');
   assert.ok(tags('Lighted Boat Parade').includes('holidays'));
-  assert.ok(tags('Hot Cider & Cookies').includes('holidays'), 'cider is Holidays (owner)');
+  assert.ok(tags('Hot Cider & Cookies').includes('holidays'), 'hot cider is Holidays (owner)');
+  assert.ok(!tags('Cider Pressing at the Farm').includes('holidays'), 'plain cider is not');
   assert.ok(tags('Peppermint Bark Workshop').includes('holidays'), 'peppermint is Holidays (owner)');
   assert.ok(tags('Christmas Ships: Willamette Fleet, Riverplace Marina to Milwaukie').includes('trains'), 'ship parades are Vehicles (owner)');
   assert.ok(!tags('Friendships Craft').includes('trains'));
