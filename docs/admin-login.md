@@ -19,7 +19,7 @@ What changes for visitors: nothing. Same pages and address; GitHub still builds 
 
 ### 2. Put /admin behind a login
 1. In Cloudflare, open **Zero Trust** (left sidebar). The first time, pick a team name (e.g. `liloutings`) and the **Free** plan.
-2. **Settings → Authentication → Login methods**: make sure **One-time PIN** is listed (it is by default).
+2. Nothing to set up for the login itself: **One-time PIN** (an emailed code) is on by default when no other login provider is connected. (In the newer dashboard it's listed under **Integrations → Identity providers**; older ones had **Settings → Authentication → Login methods**.) When the application setup below asks about login methods, keep One-time PIN selected or leave "Accept all available identity providers" on.
 3. **Access → Applications → Add an application → Self-hosted**:
    - Application name: `Lil' Outings admin`
    - Session duration: `1 month` (how long before someone has to log in again)
