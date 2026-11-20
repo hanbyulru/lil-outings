@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Lil' Outings Admin</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Palette+Mosaic&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<!-- Internal dashboard (owner, Nov 2026): pipeline sources, run log, and event coverage. Not linked from the site;
+     Cloudflare Access puts it behind a login (docs/admin-login.md). It reads only the published JSON. -->
+<header class="top">
+  <div class="wrap bar">
+    <a class="logo" href="../">Lil' Outings <span>Admin</span></a>
+    <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+      <a href="#sources" data-tab="sources" role="tab">Sources</a>
+      <a href="#activity" data-tab="activity" role="tab">Activity</a>
+      <a href="#events" data-tab="events" role="tab">Events &amp; coverage</a>
+    </nav>
+    <span class="stamp" id="stamp"></span>
+  </div>
+</header>
+<main class="wrap">
+  <section id="tab-sources" data-panel="sources"></section>
+  <section id="tab-activity" data-panel="activity" hidden></section>
+  <section id="tab-events" data-panel="events" hidden></section>
+  <p class="loading" id="loading">Loading pipeline data…</p>
+</main>
+<script type="module" src="admin.js"></script>
+</body>
+</html>

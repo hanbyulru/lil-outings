@@ -1,6 +1,7 @@
 // Builds _site/: the static site for GitHub Pages (or any static host that supports HTTP Range requests).
 // The browser does all filtering (web/query.js), so the site is just web/ plus the published JSON.
-// review.json is internal (the moderation queue) and is not published.
+// Admin dashboard data (run log, configured sources, the review queue) goes to admin/data/, which Cloudflare Access
+// keeps behind a login (docs/admin-login.md); it is not linked from the site and robots.txt keeps crawlers out.
 import { cpSync, mkdirSync, rmSync, existsSync, writeFileSync } from 'node:fs';
 
 const OUT = '_site';
@@ -15,5 +16,10 @@ cpSync('web', OUT, { recursive: true });
 mkdirSync(`${OUT}/data`, { recursive: true });
 for (const f of ['events.json', 'places.json', 'programs.json', 'meta.json']) cpSync(`${DATA}/${f}`, `${OUT}/data/${f}`);
 cpSync('config/geo.json', `${OUT}/data/geo.json`);
+mkdirSync(`${OUT}/admin/data`, { recursive: true });
+for (const [f, empty] of [['runs.json', '[]'], ['sources.json', '{}'], ['review.json', '[]']]) {
+  if (existsSync(`${DATA}/${f}`)) cpSync(`${DATA}/${f}`, `${OUT}/admin/data/${f}`); else writeFileSync(`${OUT}/admin/data/${f}`, empty);
+}
+writeFileSync(`${OUT}/robots.txt`, 'User-agent: *\nDisallow: /admin/\n');
 writeFileSync(`${OUT}/.nojekyll`, ''); // serve files as-is (no Jekyll processing)
 console.log(`${OUT}/ ready`);

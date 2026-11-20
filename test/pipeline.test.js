@@ -105,3 +105,17 @@ test('event overrides: only_interests replaces the tags (tabletop RPG = Play onl
   const cfg = JSON.parse(readFileSync('config/event_overrides.json', 'utf8'));
   assert.deepEqual(overrideInterests({ source: { id: 'fvrl' }, title: 'Tween and Teen Tabletop Role-Playing Game Adventure' }, ['books', 'play'], cfg), ['play']);
 });
+
+test('run log: newest first, capped, and each source keeps its result', async () => {
+  const { appendRun, runSummary } = await import('../src/runlog.js');
+  const meta = { mode: 'live', counts: { kid_events: 3 }, sources: [{ id: 'a', name: 'A', ok: true, fetched: 10, published: 3, ms: 5 }, { id: 'b', name: 'B', ok: false, error: 'HTTP 403' }], place_sources: [], program_sources: [] };
+  const run = runSummary({ meta, startedAt: new Date('2026-11-20T12:00:00Z'), finishedAt: new Date('2026-11-20T12:05:00Z'), env: { GITHUB_EVENT_NAME: 'schedule', GITHUB_REPOSITORY: 'o/r', GITHUB_RUN_ID: '9', GITHUB_SHA: 'abcdef123' } });
+  assert.equal(run.duration_ms, 300000);
+  assert.equal(run.trigger, 'schedule');
+  assert.equal(run.run_url, 'https://github.com/o/r/actions/runs/9');
+  assert.equal(run.sources[1].error, 'HTTP 403');
+  assert.equal(run.sources[0].error, undefined);
+  let h = [];
+  for (let i = 0; i < 5; i++) h = appendRun(h, { at: String(i) }, 3);
+  assert.deepEqual(h.map((r) => r.at), ['4', '3', '2']);
+});

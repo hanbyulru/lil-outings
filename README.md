@@ -78,6 +78,10 @@ Run `npm run refresh` daily (cron, or a scheduled GitHub Action that commits `da
 - Dedupe is conservative; cross-source near-duplicates with different titles will remain.
 - Items at the same spot share one pin with a "+N" badge; tapping it lists them (first four, the rest are in the list).
 
+## Admin dashboard
+
+`/admin/` (from `web/admin/`) shows source health, the pipeline's run log and event coverage. The pipeline writes `runs.json` (one summary per run, `src/runlog.js`), `sources.json` and `review.json`; the build copies them to `_site/admin/data/`. It sits behind Cloudflare Access: setup and adding people in `docs/admin-login.md`.
+
 ## Deploy (GitHub Pages)
 
 `.github/workflows/deploy.yml` runs daily at 12:17 UTC (and on every push to `main`, and on demand): tests, live refresh, map tiles (cached, rebuilt monthly), `npm run build:site`, then publishes `_site/` to GitHub Pages. Nothing generated is committed.
