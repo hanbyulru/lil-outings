@@ -212,6 +212,7 @@ test('Play: playgrounds, yoga, games, movies, tours, celebrations, dinners and f
   for (const t of ['Indoor Playground at LORAC', 'Pop Up & Play', 'Kids Yoga', 'Family Movie Night', 'Chess Club', 'Toddler Open Gym', 'Casual Chess']) assert.ok(has(t), t);
   // Owner, Nov 2026 (Other is hidden now): these go to Play.
   for (const t of ['Thanksgiving Dinner Fundraiser', 'Central Library Tour', 'Family Dinovember Celebration', 'Glow Pickleball Night']) assert.ok(has(t), t);
+  for (const t of ['Baby Gym', 'Baby Sign Language', 'Pokemon Club: Card Trading', 'East Portland Tabletop Arcade', 'Minecraft Club', 'Puzzle Dash - Family Puzzle Challenge', 'Family Trivia Night', 'FLIP Museum', 'Magic-o Fantastic-o Show!', 'Mexican Popsicles', 'Noche de Lotería', 'Bingo', 'Toddler Fun', 'Homeschool Club: Meet Up!']) assert.ok(has(t), t);
   assert.ok(!has('Baby Storytime'), 'a plain storytime is not Play');
   assert.ok(!extraInterests({ title: 'Wednesday Wigglers', categories: ['storytime'] }, ['play']).includes('play'), 'a storytime without play in the title is not Play');
   assert.ok(extraInterests({ title: 'Spanish Language Story and Play' }, []).includes('play'), 'story and play is Play');
