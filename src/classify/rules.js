@@ -73,7 +73,7 @@ const TAG_RULES = [
   ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport|\bvehicles?\b|\btrucks?\b|fire ?engines?|\bcars?\b|\bbus(es)?\b|\bboats?\b|tractors?|diggers?|excavators?|construction (equipment|machines?|vehicles?)|helicopters?|rockets?|motorcycles?|race ?cars?|\bwheels\b/i],
   // Holidays (owner, Nov 2026): the winter holidays only (Christmas, Hanukkah, Kwanzaa, New Year's). Not Thanksgiving, Halloween,
   // Lunar New Year or Diwali (those may get their own looks later).
-  ['holidays', /christmas|x-?mas|\bsanta\b|\bholidays?\b|hanuk+ah|chanuk+ah|menorah|dreidel|kwanzaa|new year'?s|noon year|gingerbread|nutcracker|ornaments?\b|winter wonderland|tree lighting|festival of lights|zoolights|\breindeer\b|\bsleigh\b|candy canes?|\bstockings?\b|\bcarol(s|ing|ers)?\b|\byule\b|las posadas|st\.? nicholas|north pole|\belf\b|\belves\b|snowman|snowmen/i]
+  ['holidays', /christmas|x-?mas|\bsanta\b|\bholidays?\b|hanuk+ah|chanuk+ah|menorah|dreidel|kwanzaa|new year'?s|noon year|gingerbread|nutcracker|ornaments?\b|winter wonderland|tree lighting|\blights? parades?\b|lighted (boats?|ships?|tractors?|trucks?)|festival of lights|zoolights|\breindeer\b|\bsleigh\b|candy canes?|\bstockings?\b|\bcarol(s|ing|ers)?\b|\byule\b|las posadas|st\.? nicholas|north pole|\belf\b|\belves\b|snowman|snowmen/i]
 ];
 export function extraInterests(ev, interests = []) {
   // "song ngữ" is Vietnamese for bilingual, not a song

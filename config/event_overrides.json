@@ -2,6 +2,16 @@
   "_about": "Hand corrections for event listings (src/pipeline.js). Each rule matches by source id and a title regex (case-insensitive). \"set\" fills listing fields before geocoding (e.g. a missing venue); \"add_interests\" adds interest tags after the classifier, \"only_interests\" replaces them (known ids only: books, art, nature, science, trains, play).",
   "rules": [
     {
+      "_why": "The city's listing has no description or place, and its link (/recreation/tualatin-light-parades) is a dead page from the old site (checked Nov 2026). Facts from the city's past parade pages and local press; check the routes each December.",
+      "source": "tualatin_parks",
+      "title": "^Tualatin Light Parades$",
+      "set": {
+        "venue_name": "Tualatin neighborhoods (route changes each night)",
+        "url": "https://tualatinoregon.gov/events/",
+        "description": "Lit-up floats, trucks and cars wind through a different part of Tualatin each night to kick off the holidays. Parades start at 6pm and take about 1½-2 hours; watch from the curb along the route. Free. Routes and a live tracker are posted on the City of Tualatin website."
+      }
+    },
+    {
       "_why": "WCCLS lists this off-site storytime with no venue; the description says Sherwood School District Office, small gym (owner, Nov 2026)",
       "source": "wccls",
       "title": "^Storytime On Location$",

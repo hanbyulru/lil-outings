@@ -164,6 +164,8 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
   assert.ok(tags('Storytime with Santa', ['books']).includes('holidays'), 'Santa is Holidays');
   assert.ok(tags('Hanukkah Crafts').includes('holidays'));
   assert.ok(tags('Noon Year\'s Eve Party').includes('holidays'));
+  assert.ok(tags('Tualatin Light Parades').includes('holidays'), 'a light parade is Holidays');
+  assert.ok(tags('Lighted Boat Parade').includes('holidays'));
   assert.ok(!tags('Thanksgiving Holiday Craft').includes('holidays'), 'Thanksgiving is not the winter holidays');
   assert.ok(!tags('Lunar New Year Celebration', ['holidays']).includes('holidays'), 'nor is Lunar New Year, even if the model says so');
   assert.ok(!tags('Elfin Forest Walk').includes('holidays'));
