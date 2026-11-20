@@ -195,6 +195,7 @@ export function buildOffline(today) {
   ] });
   const fetchImpl = async (url, init = {}) => {
     if (url.startsWith('https://www.christmasships.org/parade-schedule?format=json')) return ok(ships);
+    if (url.includes('?format=json')) return ok(JSON.stringify({ upcoming: [] })); // other Squarespace calendars: nothing on in the demo
     if (url.startsWith('https://www.downtownhillsboro.org/community-calendar/')) return ok(url.includes('?page=') ? '' : hb.list);
     if (url.startsWith('https://www.downtownhillsboro.org/connections/')) return ok(hb.pages[new URL(url).pathname] || '');
     if (url.includes('capturepoint.com/reg/cat_program_list.cfm')) return ok(cp.page);
