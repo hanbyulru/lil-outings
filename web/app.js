@@ -23,8 +23,9 @@ const WHAT = [
   ['holidays', 'Holiday things', 'to do', 'Holidays', 'holidays'], // only while the holiday guide is live (holidaySeason)
   ['other', 'Other things', 'to do', 'Other', null]
 ];
-// Interests left out of the menu for now (owner, Nov 2026): Vehicles has no events at the moment. Its tag, colors and Places kind stay.
-const HIDDEN_WHAT = ['trains'];
+// Interests left out of the menu (none now). Vehicles was hidden while it had no events and came back with the Christmas Ships,
+// Holiday Express and trolley rides (owner, Nov 2026).
+const HIDDEN_WHAT = [];
 /**
  * The holiday guide's season (owner, Nov 2026; winter holidays only). 'soon' from Nov 1 to the day before Thanksgiving ("Coming soon"
  * in the interest menu and on the Places tab), 'live' from Thanksgiving Day through Jan 1, else 'off' (no Holidays
