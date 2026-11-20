@@ -2153,5 +2153,119 @@
    "indoor_play",
    "science"
   ]
+ },
+ {
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-fremontgarage",
+  "name": "Fremont Garage",
+  "kind": "food cart pod",
+  "lat": 45.54863,
+  "lon": -122.61811,
+  "address": "4403 NE Fremont St, Portland, OR 97213",
+  "url": "https://www.fremontgarage.com/",
+  "cost": "varies",
+  "setting": "both",
+  "note": "Food cart pod and bar in a former auto shop at NE Fremont & 44th (opened May 2026), with an indoor kids' play area.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-brooklyncarreta",
+  "name": "Brooklyn Carreta",
+  "kind": "food cart pod",
+  "lat": 45.49013,
+  "lon": -122.6535,
+  "address": "4534 SE McLoughlin Blvd, Portland, OR 97202",
+  "url": "https://brooklyncarreta.com/",
+  "cost": "varies",
+  "setting": "both",
+  "note": "Food cart pod with a covered seating hall, full bar, game room and a kids' area.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-levelbeer",
+  "name": "Level Beer",
+  "kind": "brewpub",
+  "lat": 45.56051,
+  "lon": -122.51103,
+  "address": "5211 NE 148th Ave, Portland, OR 97230",
+  "url": "https://www.levelbeer.com/",
+  "cost": "varies",
+  "setting": "both",
+  "note": "Outer NE brewery with food carts and an indoor and outdoor kids' play area (a playhouse, a kid-sized play food cart and toy kitchen).",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-lazydays",
+  "name": "Lazy Days Brewing",
+  "kind": "brewpub",
+  "lat": 45.54002,
+  "lon": -122.66841,
+  "address": "2326 N Flint Ave, Portland, OR 97227",
+  "url": "https://www.lazydaysbrewing.com/",
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Neighborhood brewpub near the Rose Quarter with an upstairs kids' play area.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-deschutespdx",
+  "name": "Deschutes Brewery Portland Public House",
+  "kind": "brewpub",
+  "lat": 45.52468,
+  "lon": -122.68188,
+  "address": "210 NW 11th Ave, Portland, OR 97209",
+  "url": "https://www.deschutesbrewery.com/",
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Pearl District brewpub with a kids' menu and a play space in the back.",
+  "explore": [
+   "eateries"
+  ]
+ },
+ {
+  "age_min": 0,
+  "age_max": 8,
+  "interests": [],
+  "hours_text": "Check site for current hours",
+  "id": "seed-jamonhawthorne",
+  "name": "Jam on Hawthorne",
+  "kind": "restaurant",
+  "lat": 45.51227,
+  "lon": -122.64278,
+  "address": "2239 SE Hawthorne Blvd, Portland, OR 97214",
+  "url": "https://www.jamonhawthorne.com/",
+  "cost": "varies",
+  "setting": "indoor",
+  "note": "Breakfast and brunch spot on Hawthorne with a play area for kids.",
+  "explore": [
+   "eateries"
+  ]
  }
 ]
