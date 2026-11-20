@@ -4,6 +4,7 @@
     {
       "id": "mcl",
       "name": "Multnomah County Library",
+      "category": "library",
       "type": "multcolib",
       "enabled": true,
       "trust": 9,
@@ -37,6 +38,7 @@
     {
       "id": "wccls",
       "name": "Washington County Cooperative Library Services",
+      "category": "library",
       "type": "bibliocommons",
       "enabled": true,
       "trust": 8,
@@ -64,6 +66,7 @@
     {
       "id": "pdx_parks",
       "name": "Portland Parks & Recreation",
+      "category": "parks",
       "type": "portland_gov",
       "enabled": true,
       "trust": 7,
@@ -84,6 +87,7 @@
     {
       "id": "fvrl",
       "name": "Fort Vancouver Regional Libraries",
+      "category": "library",
       "type": "bibliocommons",
       "enabled": true,
       "trust": 8,
@@ -115,6 +119,7 @@
     {
       "id": "oregon_city_library",
       "name": "Oregon City Public Library",
+      "category": "library",
       "type": "ical",
       "enabled": true,
       "trust": 8,
@@ -145,6 +150,7 @@
     {
       "id": "wilsonville_library",
       "name": "Wilsonville Public Library",
+      "category": "library",
       "type": "ical",
       "enabled": true,
       "trust": 8,
@@ -173,6 +179,7 @@
     {
       "id": "lake_oswego_library",
       "name": "Lake Oswego Public Library",
+      "category": "library",
       "type": "drupal_calendar",
       "enabled": true,
       "trust": 8,
@@ -196,6 +203,7 @@
     {
       "id": "lake_oswego_parks",
       "name": "Lake Oswego Parks & Recreation",
+      "category": "parks",
       "type": "drupal_calendar",
       "enabled": true,
       "trust": 8,
@@ -264,6 +272,7 @@
     {
       "id": "west_linn_library",
       "name": "West Linn Public Library",
+      "category": "library",
       "type": "drupal_calendar",
       "enabled": true,
       "trust": 8,
@@ -287,6 +296,7 @@
     {
       "id": "clackamas_libraries",
       "name": "Oak Lodge & Gladstone Libraries",
+      "category": "library",
       "type": "clackamas_events",
       "enabled": true,
       "trust": 8,
@@ -320,6 +330,7 @@
     {
       "id": "happy_valley_library",
       "name": "Happy Valley Library",
+      "category": "library",
       "type": "ical",
       "enabled": true,
       "trust": 8,
@@ -345,6 +356,7 @@
     {
       "id": "ledding_library",
       "name": "Ledding Library (Milwaukie)",
+      "category": "library",
       "type": "revize_calendar",
       "enabled": true,
       "trust": 8,
@@ -370,6 +382,7 @@
     {
       "id": "west_linn_parks",
       "name": "West Linn Parks & Recreation",
+      "category": "parks",
       "type": "drupal_calendar",
       "enabled": true,
       "trust": 8,
@@ -389,6 +402,7 @@
     {
       "id": "milwaukie_community",
       "name": "Milwaukie Community Events",
+      "category": "city",
       "type": "revize_calendar",
       "enabled": true,
       "trust": 7,
@@ -409,6 +423,7 @@
     {
       "id": "wilsonville_parks",
       "name": "Wilsonville Parks & Recreation",
+      "category": "parks",
       "type": "ical",
       "enabled": true,
       "trust": 7,
@@ -432,6 +447,7 @@
     {
       "id": "sherwood_city",
       "name": "City of Sherwood events",
+      "category": "city",
       "type": "tribe_events",
       "enabled": true,
       "trust": 7,
@@ -460,6 +476,7 @@
     {
       "id": "happy_valley_city",
       "name": "City of Happy Valley events",
+      "category": "city",
       "type": "tribe_events",
       "enabled": true,
       "trust": 7,
@@ -481,6 +498,7 @@
     {
       "id": "thprd",
       "name": "Tualatin Hills Park & Recreation District (THPRD)",
+      "category": "parks",
       "type": "ical",
       "enabled": true,
       "trust": 7,
@@ -512,6 +530,7 @@
     {
       "id": "tualatin_parks",
       "name": "Tualatin Parks & Recreation",
+      "category": "parks",
       "type": "juicebox_events",
       "enabled": true,
       "trust": 7,
@@ -539,6 +558,7 @@
     {
       "id": "ncprd",
       "name": "North Clackamas Parks & Recreation (NCPRD)",
+      "category": "parks",
       "type": "nuxt_strapi_events",
       "enabled": true,
       "trust": 7,
@@ -562,6 +582,7 @@
     {
       "id": "gresham_city",
       "name": "City of Gresham events",
+      "category": "city",
       "type": "gresham_events",
       "enabled": true,
       "trust": 7,
@@ -605,6 +626,7 @@
     {
       "id": "vancouver_city",
       "name": "City of Vancouver, WA events",
+      "category": "city",
       "type": "vancouver_events",
       "enabled": true,
       "trust": 7,
@@ -631,6 +653,7 @@
     {
       "id": "manual",
       "name": "Lil’ Outings curated",
+      "category": "curated",
       "type": "manual",
       "enabled": true,
       "trust": 10,
@@ -642,6 +665,7 @@
     {
       "id": "venues_jsonld",
       "name": "Venue sites with schema.org Event markup",
+      "category": "attraction",
       "type": "jsonld",
       "enabled": false,
       "trust": 6,
@@ -654,6 +678,7 @@
     {
       "id": "hoyt_arboretum",
       "name": "Hoyt Arboretum",
+      "category": "attraction",
       "type": "ical",
       "enabled": true,
       "trust": 8,
@@ -681,6 +706,7 @@
     {
       "id": "downtown_beaverton",
       "name": "Downtown Beaverton events",
+      "category": "community",
       "type": "tribe_events",
       "enabled": true,
       "trust": 6,

@@ -38,6 +38,10 @@ async function load() {
 }
 
 // ---------- source health ----------
+// Event source categories (config/sources.json "category"; owner, Nov 2026).
+const CATS = [['library', 'Libraries'], ['parks', 'Parks & Rec'], ['city', 'City websites'], ['attraction', 'Attractions & venues'], ['community', 'Community groups'], ['curated', 'Hand-entered']];
+const catLabel = (c) => CATS.find((x) => x[0] === c)?.[1] || 'Other';
+const catOfSource = (id) => (D.sources.events || []).find((s) => s.id === id)?.category || null;
 const GROUPS = [['events', 'sources', 'Event sources'], ['places', 'place_sources', 'Place sources'], ['programs', 'program_sources', 'Class series sources']];
 
 /** Health of one source from its latest result and its history (newest first). */
@@ -133,7 +137,8 @@ function renderSources() {
     const rows = sourceRows(g, k);
     if (!rows.length) continue;
     const isEv = g === 'events';
-    html += `<h2>${esc(title)}</h2><div class="tablewrap"><table><thead><tr><th>Source</th><th>Status</th><th class="n">Found</th>${isEv ? '<th class="n">On site</th>' : ''}<th>Last ${Math.min(30, Math.max(D.runs.length, 1))} runs</th><th class="n">OK (14)</th><th>Last success</th><th>Note</th></tr></thead><tbody>${rows.map((r) => {
+    const cols = isEv ? 8 : 7;
+    const row = (r) => {
       const vals = r.series.slice(0, 30).reverse().map((s) => (s && s.ok ? (isEv ? s.published ?? s.fetched : s.fetched) : s ? 0 : null));
       if (r.cfg?.type === 'manual' && D.curated?.length) r.cfg = { ...r.cfg, status: `${D.curated.length} hand-entered entries, listed below` };
       const note = r.latest && !r.latest.ok ? `<td class="err">${esc(r.latest.error)}</td>` : `<td class="note">${esc(r.cfg?.status || '')}${r.cfg?.type ? ` · ${esc(r.cfg.type)}` : ''}</td>`;
@@ -142,7 +147,16 @@ function renderSources() {
         <td class="n">${n(r.latest?.fetched)}</td>${isEv ? `<td class="n">${n(r.latest?.published)}</td>` : ''}
         <td>${sparkline(vals)}</td><td class="n">${r.okRate}</td>
         <td>${r.lastOk ? `${esc(fmt(r.lastOk.at, { month: 'short', day: 'numeric' }))}<span class="sub">${esc(ago(r.lastOk.at))}</span>` : r.latest?.ok ? esc(fmt(D.meta.generated_at, { month: 'short', day: 'numeric' })) : '—'}</td>${note}</tr>`;
-    }).join('')}</tbody></table></div>`;
+    };
+    // Event sources are grouped by category, each with its own count and events on the site.
+    const body = !isEv ? rows.map(row).join('') : [...CATS, ['_other', 'Other']].map(([c, label]) => {
+      const rs = rows.filter((r) => (r.cfg?.category || '_other') === c);
+      if (!rs.length) return '';
+      const on = rs.reduce((a, r) => a + (r.latest?.published || 0), 0);
+      const bad = rs.filter((r) => r.h.cls === 'bad').length;
+      return `<tr class="group"><td colspan="${cols}">${esc(label)} · ${rs.length} source${rs.length === 1 ? '' : 's'} · ${n(on)} events on site${bad ? ` · <span style="color:var(--bad)">${bad} failed</span>` : ''}</td></tr>${rs.map(row).join('')}`;
+    }).join('');
+    html += `<h2>${esc(title)}</h2><div class="tablewrap"><table><thead><tr><th>Source</th><th>Status</th><th class="n">Found</th>${isEv ? '<th class="n">On site</th>' : ''}<th>Last ${Math.min(30, Math.max(D.runs.length, 1))} runs</th><th class="n">OK (14)</th><th>Last success</th><th>Note</th></tr></thead><tbody>${body}</tbody></table></div>`;
     if (g === 'events') html += renderCurated();
   }
   if (!D.runs.length) html += `<p class="note">The run history starts with the next pipeline run, so trends and success rates fill in from there.</p>`;
@@ -183,7 +197,7 @@ function renderActivity() {
 }
 
 // ---------- events & coverage ----------
-const F = { q: '', days: '30', region: '', district: '', interest: '', source: '', age: '', cost: '', review: false, dim: 'interest', shown: 100 };
+const F = { q: '', days: '30', region: '', district: '', interest: '', srctype: '', source: '', age: '', cost: '', review: false, dim: 'interest', shown: 100 };
 
 const DIMS = {
   interest: { label: 'Interest', values: () => [...['books', 'art', 'science', 'nature', 'play', 'trains', 'holidays'].map((v) => [v, LABEL[v]]), ['_none', 'Other (no tag)']], /* the site's interests (vocab.json also lists old aliases) */ of: (e) => (e.interests?.length ? e.interests : ['_none']) },
@@ -200,6 +214,7 @@ function filtered() {
     && (!F.region || D.regionOf[e.district] === F.region)
     && (!F.district || e.district === F.district)
     && (!F.interest || (F.interest === '_none' ? !e.interests?.length : e.interests?.includes(F.interest)))
+    && (!F.srctype || catOfSource(e.source?.id) === F.srctype)
     && (!F.source || e.source?.id === F.source)
     && (!F.age || e.age_bands?.includes(F.age))
     && (!F.cost || DIMS.cost.of(e)[0] === F.cost)
@@ -221,7 +236,8 @@ function renderEventsShell() {
     <label>Interest<select id="f-interest">${options(DIMS.interest.values(), F.interest, 'All interests')}</select></label>
     <label>Age<select id="f-age">${options(DIMS.age.values(), F.age, 'All ages')}</select></label>
     <label>Cost<select id="f-cost">${options(DIMS.cost.values(), F.cost, 'Any cost')}</select></label>
-    <label>Source<select id="f-source">${options(srcs, F.source, 'All sources')}</select></label>
+    <label>Source type<select id="f-srctype">${options(CATS, F.srctype, 'All types')}</select></label>
+    <label>Source<select id="f-source">${options(srcs.filter(([id]) => !F.srctype || catOfSource(id) === F.srctype), F.source, 'All sources')}</select></label>
     <label class="checks"><input id="f-review" type="checkbox" ${F.review ? 'checked' : ''}> Flagged for review only</label>
   </form>
   <div class="actions"><button type="button" id="f-reset">Clear filters</button><button type="button" id="f-csv">Download CSV</button><span class="note" id="f-count"></span></div>
@@ -297,7 +313,7 @@ function renderEventsBody() {
     <div class="card"><h3>Thinnest areas <small>events per week in this view</small></h3><ul class="gaps">${thin.map(([d, v]) => `<li><b>${esc(D.district[d]?.name || d)}</b> <span class="note">${esc(D.region[D.regionOf[d]]?.short || '')}</span>: ${v.toFixed(1)}/week</li>`).join('')}</ul><p class="note">Candidates for new sources or curated events.</p></div>
   </div>
   <div class="grid2" style="margin-top:20px">
-    <div class="card"><h3>By source</h3>${barList(bySrc)}</div>
+    <div class="card"><h3>By source type</h3>${barList(Object.fromEntries(Object.entries(list.reduce((a, e) => { const c = catLabel(catOfSource(e.source?.id)); a[c] = (a[c] || 0) + 1; return a; }, {}))))}<h3 style="margin-top:16px">By source</h3>${barList(bySrc)}</div>
     <div class="card"><h3>By interest</h3>${barList(intLabeled, colorOfLabel)}</div>
   </div>
   <h2>Events <small class="note">${list.length > F.shown ? `first ${F.shown} of ${n(list.length)}` : `${n(list.length)}`}</small></h2>
@@ -306,9 +322,9 @@ function renderEventsBody() {
 }
 
 function csv(list) {
-  const cols = ['date', 'start', 'title', 'venue', 'district', 'region', 'neighborhood', 'interests', 'categories', 'age_min', 'age_max', 'cost', 'source', 'needs_review', 'url'];
+  const cols = ['date', 'start', 'title', 'venue', 'district', 'region', 'neighborhood', 'interests', 'categories', 'age_min', 'age_max', 'cost', 'source', 'source_type', 'needs_review', 'url'];
   const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const lines = list.map((e) => [e.date, e.start_min == null ? '' : `${String(Math.floor(e.start_min / 60)).padStart(2, '0')}:${String(e.start_min % 60).padStart(2, '0')}`, e.title, e.venue_name, D.district[e.district]?.name, D.region[D.regionOf[e.district]]?.name, e.neighborhood, (e.interests || []).map((i) => LABEL[i] || i).join('; '), (e.categories || []).join('; '), e.age_min, e.age_max, DIMS.cost.of(e)[0], e.source?.name, e.needs_review ? 'yes' : '', e.url].map(q).join(','));
+  const lines = list.map((e) => [e.date, e.start_min == null ? '' : `${String(Math.floor(e.start_min / 60)).padStart(2, '0')}:${String(e.start_min % 60).padStart(2, '0')}`, e.title, e.venue_name, D.district[e.district]?.name, D.region[D.regionOf[e.district]]?.name, e.neighborhood, (e.interests || []).map((i) => LABEL[i] || i).join('; '), (e.categories || []).join('; '), e.age_min, e.age_max, DIMS.cost.of(e)[0], e.source?.name, catLabel(catOfSource(e.source?.id)), e.needs_review ? 'yes' : '', e.url].map(q).join(','));
   const blob = new Blob([[cols.join(','), ...lines].join('\n')], { type: 'text/csv' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `lil-outings-events-${portlandToday()}.csv`; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
@@ -322,13 +338,14 @@ function wireEvents() {
     if (k === 'review') F.review = ev.target.checked; else F[k] = ev.target.value;
     F.shown = 100;
     if (k === 'region') { F.district = ''; renderEventsShell(); }
+    if (k === 'srctype') { F.source = ''; renderEventsShell(); }
     renderEventsBody();
   });
   panel.addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.dim) { F.dim = b.dataset.dim; renderEventsBody(); }
     else if (b.id === 'f-more') { F.shown += 100; renderEventsBody(); }
-    else if (b.id === 'f-reset') { Object.assign(F, { q: '', days: '30', region: '', district: '', interest: '', source: '', age: '', cost: '', review: false, shown: 100 }); renderEventsShell(); renderEventsBody(); }
+    else if (b.id === 'f-reset') { Object.assign(F, { q: '', days: '30', region: '', district: '', interest: '', srctype: '', source: '', age: '', cost: '', review: false, shown: 100 }); renderEventsShell(); renderEventsBody(); }
     else if (b.id === 'f-csv') csv(filtered());
   });
 }

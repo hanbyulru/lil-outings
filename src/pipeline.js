@@ -200,7 +200,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   writeFileSync(`${outDir}/meta.json`, JSON.stringify(meta, null, 1));
   writeFileSync(`${outDir}/review.json`, JSON.stringify(kept.filter((e) => e.needs_review).map((e) => ({ id: e.id, title: e.title, source: e.source.name, url: e.url, confidence: e.confidence, ages: [e.age_min, e.age_max], tag_source: e.tag_source })), null, 1));
   // Admin dashboard: the configured sources (enabled or not) and the run log, kept across runs in the cache.
-  writeFileSync(`${outDir}/sources.json`, JSON.stringify(Object.fromEntries(['events', 'places', 'programs'].map((k) => [k, (sources[k] || []).map(({ id, name, type, enabled, trust, status: st, homepage, notes }) => ({ id, name, type, enabled, trust, status: st, homepage: homepage || null, notes: notes || null }))])), null, 1));
+  writeFileSync(`${outDir}/sources.json`, JSON.stringify(Object.fromEntries(['events', 'places', 'programs'].map((k) => [k, (sources[k] || []).map(({ id, name, category, type, enabled, trust, status: st, homepage, notes }) => ({ id, name, category: category || null, type, enabled, trust, status: st, homepage: homepage || null, notes: notes || null }))])), null, 1));
   const history = recordRun(`${cacheDir}/runs${off ? '.demo' : ''}.json`, runSummary({ meta, curated, startedAt, finishedAt: new Date() }));
   writeFileSync(`${outDir}/runs.json`, JSON.stringify(history));
   writeFileSync(`${outDir}/curated.json`, JSON.stringify(curated, null, 1));

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseDrupalCalendarMonth } from '../src/adapters/drupal_calendar.js';
@@ -273,4 +273,10 @@ test('geocoder: tidy queries, opt-in per source, town fallback on a miss', async
   assert.deepEqual([raws[1].r.lat, raws[1].r.geo_source], [1, 'town']);
   assert.equal(raws[2].r.lat, null); // source didn't opt in
   assert.ok(calls.every((u) => u.includes('nominatim.openstreetmap.org') && u.includes('bounded=1')));
+});
+
+test('every event source has a category (admin dashboard groups by it)', () => {
+  const cfg = JSON.parse(readFileSync('config/sources.json', 'utf8'));
+  const ok = ['library', 'parks', 'city', 'attraction', 'community', 'curated'];
+  for (const s of cfg.events) assert.ok(ok.includes(s.category), `${s.id}: category ${s.category}`);
 });
