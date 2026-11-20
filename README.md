@@ -32,6 +32,7 @@ The prototype was built in a sandbox with no internet access. So:
 | Happy Valley Library (LibCal iCal) | `ical` | verified Nov 2026; "CLOSED" entries dropped |
 | Hoyt Arboretum (WordPress Events Manager iCal, `/events.ics`) | `ical` | verified Nov 2026; no locations, so the visitor center; volunteer crews and adult series dropped by title |
 | Downtown Beaverton Association (WordPress The Events Calendar API) | `tribe_events` | verified Nov 2026; Family & Kids and Seasonal & Holiday categories. Stands in for the City of Beaverton, whose new CivicPlus calendar is client-rendered with no public feed |
+| Portland and Lake Oswego Parks & Rec registration (ActiveNet activity search, JSON) | `activenet` | verified Nov 2026; **classes**, admin dashboard only for now; in progress or future, 1+ open spots, ages 0-12 |
 | Ledding Library, Milwaukie (Revize calendar JSON) | `revize_calendar` | verified; repeating events expanded from RRULE blocks |
 | Lake Oswego Parks & Recreation (city calendar groups 19, 14, 37273, 22) | `drupal_calendar` | verified; venue from the title ("Indoor Playground at LORAC"), else town center |
 | West Linn Parks & Recreation | `drupal_calendar` | verified; town-level pin |

@@ -202,8 +202,8 @@
     },
     {
       "id": "lake_oswego_parks",
-      "name": "Lake Oswego Parks & Recreation",
-      "category": "parks",
+      "name": "City of Lake Oswego events",
+      "category": "city",
       "type": "drupal_calendar",
       "enabled": true,
       "trust": 8,
@@ -267,7 +267,7 @@
           "lon": -122.6706
         }
       },
-      "notes": "City calendar groups: 19 Parks & Recreation, 14 Kids, 37273 LORAC, 22 Luscher Farm. Venue from the title (\"Indoor Playground at LORAC\"), else town center."
+      "notes": "City calendar groups: 19 Parks & Recreation, 14 Kids, 37273 LORAC, 22 Luscher Farm. Venue from the title (\"Indoor Playground at LORAC\"), else town center. Renamed Nov 2026 (owner): this is the city website's events calendar (Parks & Rec groups), not the registration system; Lake Oswego's classes come from its ActiveNet search (classes: lake_oswego_activenet)."
     },
     {
       "id": "west_linn_library",
@@ -759,6 +759,50 @@
         ]
       },
       "notes": "Sports page structure verified (region > age group > Class/Description/Location/Register tables). No dates, times or prices: those live in ActiveNet. Other category pages (Arts, Dance, Music, Swim Lessons, School Break Camps) exist on the Activities menu; add their URLs after checking each page's structure. A dated-session adapter for ActiveNet is a TODO."
+    }
+  ],
+  "classes": [
+    {
+      "id": "pdx_parks_activenet",
+      "name": "Portland Parks & Recreation (registration)",
+      "category": "parks",
+      "type": "activenet",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://anc.apm.activecommunities.com/portlandparks/activity/search?activity_select_param=2&min_age=0&max_age=12&viewMode=list",
+      "config": {
+        "site": "portlandparks",
+        "min_age": 0,
+        "max_age": 12,
+        "open_spots": 1,
+        "provider": "Portland Parks & Recreation",
+        "venue_town": "Portland, OR"
+      },
+      "notes": "ActiveNet activity search with the owner's filters (in progress or future, 1+ open spots, ages 0-12), Nov 2026. Classes go to the admin dashboard only for now (admin/data/classes.json); where and how to show them on the site is being planned (a Classes tab)."
+    },
+    {
+      "id": "lake_oswego_activenet",
+      "name": "Lake Oswego Parks & Recreation (registration)",
+      "category": "parks",
+      "type": "activenet",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://anc.apm.activecommunities.com/lakeoswegoparks/activity/search?onlineSiteId=0&locale=en-US&activity_select_param=2&max_age=12&viewMode=list",
+      "config": {
+        "site": "lakeoswegoparks",
+        "min_age": 0,
+        "max_age": 12,
+        "open_spots": 1,
+        "provider": "Lake Oswego Parks & Recreation",
+        "venue_town": "Lake Oswego, OR",
+        "venue_aliases": {
+          "Lake Oswego Recreation & Aquatic Center": "17525 Stafford Rd",
+          "Indoor Tennis Center": "2900 SW Diane Dr"
+        }
+      },
+      "notes": "ActiveNet activity search (owner's link, Nov 2026). Adult Community Center and 'any age' adult programs are dropped (isAdultOnly)."
     }
   ]
 }

@@ -2,7 +2,8 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { seedInterestRules } from './adapters/manual.js';
 import { runSummary, recordRun } from './runlog.js';
 import { checkCurated } from './curated.js';
-import { EVENT_ADAPTERS, PLACE_ADAPTERS, PROGRAM_ADAPTERS } from './adapters/index.js';
+import { venueQuery } from './adapters/activenet.js';
+import { EVENT_ADAPTERS, PLACE_ADAPTERS, PROGRAM_ADAPTERS, CLASS_ADAPTERS } from './adapters/index.js';
 import { normalizeEvent, withinHorizon, normalizeVenueKey, guessVenue } from './normalize.js';
 import { dedupe } from './dedupe.js';
 import { classifyAll } from './classify/index.js';
@@ -114,6 +115,32 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
     }
   }
 
+  // ---- classes (sign-up classes and series with dates, e.g. Parks & Rec registration; admin dashboard only for now) ----
+  let classes = [];
+  const classStatus = [];
+  for (const src of (sources.classes || []).filter((s) => s.enabled)) {
+    const t0 = Date.now();
+    try {
+      const found = await CLASS_ADAPTERS[src.type](src, { ...ctx, log });
+      classes.push(...found);
+      classStatus.push({ id: src.id, name: src.name, ok: true, fetched: found.length, published: found.length, ms: Date.now() - t0, status: src.status });
+      log(`  ${src.name}: ${found.length} classes`);
+    } catch (err) {
+      classStatus.push({ id: src.id, name: src.name, ok: false, error: String(err.message || err), ms: Date.now() - t0, status: src.status });
+      log(`  ${src.name} classes: FAILED (${err.message})`);
+    }
+  }
+  // Place each venue once (geocoded and cached like event addresses), then give classes their district.
+  const venueSrc = new Map((sources.classes || []).map((s) => [s.id, s]));
+  const venues = new Map();
+  for (const c of classes) { const q = venueQuery(c.venue, venueSrc.get(c.source.id)?.config?.venue_aliases); if (q && !venues.has(`${c.source.id}|${c.venue}`)) venues.set(`${c.source.id}|${c.venue}`, { r: { address: `${q}, ${venueSrc.get(c.source.id)?.config?.venue_town || 'Portland, OR'}`, lat: null, lon: null }, src: { config: { geocode: true } } }); }
+  if (!off && venues.size) await geocodeEvents([...venues.values()], ctx.http, { log });
+  classes = classes.map((c) => {
+    const v = venues.get(`${c.source.id}|${c.venue}`)?.r;
+    const l = v?.lat != null ? locate(v.lat, v.lon) : null;
+    return { ...c, lat: v?.lat ?? null, lon: v?.lon ?? null, neighborhood: l?.neighborhood || null, district: l?.district || null };
+  });
+
   // ---- events ----
   let raw = [];
   for (const src of sources.events.filter((s) => s.enabled)) {
@@ -191,7 +218,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   const meta = {
     generated_at: now.toISOString(), today, mode: offline ? 'demo (sample feeds)' : 'live',
     counts: { raw: raw.length, normalized: beforeDedupe, after_dedupe: events.length, kid_events: kept.length, dropped_not_for_kids: notKids, dropped, places: places.length, programs: programs.length, needs_review: kept.filter((e) => e.needs_review).length },
-    sources: status, place_sources: placeStatus, program_sources: programStatus,
+    sources: status, place_sources: placeStatus, program_sources: programStatus, class_sources: classStatus,
     vocab: { age_bands: VOCAB.age_bands, interests: VOCAB.interests, categories: VOCAB.categories, explore: VOCAB.explore }
   };
   writeFileSync(`${outDir}/events.json`, JSON.stringify(kept, null, 1));
@@ -200,10 +227,11 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   writeFileSync(`${outDir}/meta.json`, JSON.stringify(meta, null, 1));
   writeFileSync(`${outDir}/review.json`, JSON.stringify(kept.filter((e) => e.needs_review).map((e) => ({ id: e.id, title: e.title, source: e.source.name, url: e.url, confidence: e.confidence, ages: [e.age_min, e.age_max], tag_source: e.tag_source })), null, 1));
   // Admin dashboard: the configured sources (enabled or not) and the run log, kept across runs in the cache.
-  writeFileSync(`${outDir}/sources.json`, JSON.stringify(Object.fromEntries(['events', 'places', 'programs'].map((k) => [k, (sources[k] || []).map(({ id, name, category, type, enabled, trust, status: st, homepage, notes }) => ({ id, name, category: category || null, type, enabled, trust, status: st, homepage: homepage || null, notes: notes || null }))])), null, 1));
+  writeFileSync(`${outDir}/sources.json`, JSON.stringify(Object.fromEntries(['events', 'places', 'programs', 'classes'].map((k) => [k, (sources[k] || []).map(({ id, name, category, type, enabled, trust, status: st, homepage, notes }) => ({ id, name, category: category || null, type, enabled, trust, status: st, homepage: homepage || null, notes: notes || null }))])), null, 1));
   const history = recordRun(`${cacheDir}/runs${off ? '.demo' : ''}.json`, runSummary({ meta, curated, startedAt, finishedAt: new Date() }));
   writeFileSync(`${outDir}/runs.json`, JSON.stringify(history));
   writeFileSync(`${outDir}/curated.json`, JSON.stringify(curated, null, 1));
+  writeFileSync(`${outDir}/classes.json`, JSON.stringify(classes));
   log(`published ${kept.length} events, ${programs.length} programs, ${places.length} places -> ${outDir}`);
   return { events: kept, places, programs, meta };
 }

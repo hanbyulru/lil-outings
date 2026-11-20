@@ -186,3 +186,36 @@ test('curated events seed: runs expand to one listing per day, in Portland time'
   const seed = JSON.parse(readFileSync('config/events.seed.json', 'utf8'));
   for (const e of expandSeed(seed, 'manual')) { assert.ok(e.title && e.start && e.lat && e.lon, e.title); }
 });
+
+test('ActiveNet (PP&R registration) classes: ages, days, times, fee, openings, kind', async () => {
+  const { parseActiveNet, parseTimeRange, kindOf } = await import('../src/adapters/activenet.js');
+  const item = (o) => ({ id: 1, name: 'X', ages: '', age_min_year: 0, age_min_month: 0, age_max_year: 0, age_max_month: 0, date_range: '', date_range_start: '2026-11-03', date_range_end: '2026-12-10', time_range: '', days_of_week: '', location: { label: 'N/A' }, fee: { label: '' }, total_open: 10, openings: '5', already_enrolled: 5, allow_drop_in_reg: false, only_one_day: false, detail_url: 'https://apm.activecommunities.com/x', enroll_now: { href: 'https://anc.apm.activecommunities.com/e' }, desc: '<p>Hi</p>', ...o });
+  const json = { headers: { response_code: '0000', page_info: { total_page: 1 } }, body: { activity_items: [
+    item({ id: 1, name: 'MDCC - Starfish', ages: 'At least 1&#189; but less than 3', age_min_year: 1, age_min_month: 6, age_max_year: 3, time_range: '9:25 AM - 9:55 AM', days_of_week: 'Tue,Thu', location: { label: 'Matt Dishman Indoor Pool' }, fee: { label: 'View fee details' } }),
+    item({ id: 2, name: 'Dance - Movement Explorations', ages: 'At least 6 but less than 10', age_min_year: 6, age_max_year: 10, time_range: '5:15 PM - 6:00 PM', days_of_week: 'Mon', location: { label: 'Multnomah Arts Ctr' }, fee: { label: '$121.00' }, openings: '1' }),
+    item({ id: 3, name: 'Music - School Year Private Lessons', ages: '5 and up', age_min_year: 5, total_open: -1, openings: 'Unlimited', fee: { label: 'Free' } })
+  ] } };
+  const [swim, dance, lessons] = parseActiveNet(json, { id: 'pp', name: 'PP&R', config: {} });
+  assert.equal(swim.name, 'Starfish');
+  assert.equal(swim.kind, 'swim', 'a class at a pool is swim');
+  assert.equal(swim.ages_text, 'At least 1½ but less than 3');
+  assert.equal(swim.age_min, 1.5); assert.equal(swim.age_max, 2);
+  assert.deepEqual(swim.days, ['Tue', 'Thu']);
+  assert.equal(swim.start_min, 565); assert.equal(swim.end_min, 595);
+  assert.equal(swim.price, null);
+  assert.equal(dance.venue, 'Multnomah Arts Center');
+  assert.equal(dance.price, 121); assert.equal(dance.openings, 1); assert.equal(dance.kind, 'dance');
+  assert.equal(lessons.unlimited, true); assert.equal(lessons.openings, null); assert.equal(lessons.free, true); assert.equal(lessons.age_max, null);
+  assert.deepEqual(parseTimeRange('12:00 PM - 12:30 AM'), [720, 30]);
+  assert.equal(kindOf('Tae Kwon Do - Beginning'), 'sports');
+  assert.equal(kindOf('PreBallet'), 'dance');
+  const { venueQuery } = await import('../src/adapters/activenet.js');
+  assert.equal(venueQuery('Mt Scott Indoor Pool'), 'Mt Scott Community Center');
+  assert.equal(venueQuery('Roller Rink'), null);
+  assert.equal(venueQuery('Academy of Ballet & Dance Arts, 311 B Avenue, Suite Z, Lake Oswego, OR 97034'), '311 B Avenue');
+  assert.equal(venueQuery('Lake Oswego Recreation & Aquatic Center Gymnasium', { 'Lake Oswego Recreation & Aquatic Center': '17525 Stafford Rd' }), '17525 Stafford Rd');
+  const { isAdultOnly } = await import('../src/adapters/activenet.js');
+  assert.equal(isAdultOnly({ full_name: 'Independent Workout Time; ACC', age_min: 12, age_max: null }), true);
+  assert.equal(isAdultOnly({ full_name: 'Mah-Jongg Tuesday; ACC', age_min: 0, age_max: null, venue: 'Adult Community Center' }), true);
+  assert.equal(isAdultOnly({ full_name: 'Parent & Me Art', age_min: 2, age_max: 5 }), false);
+});

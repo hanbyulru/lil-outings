@@ -153,6 +153,9 @@ export function buildOffline(today) {
     .map(([date, utc, slug, title, addr]) => `<div class="views-row"><a href="/event/${date}/${slug}" hreflang="en">${title}</a><time datetime="${date}T${utc}:00Z">x</time><time datetime="${date}T${utc.replace(/^(\d\d)/, (h) => String(+h + 1).padStart(2, '0'))}:00Z">x</time><div class="views-field views-field-field-ccts-map-link"><div class="field-content"><a href="https://maps.example/x">${addr}</a></div></div></div>`).join('');
 
   const fetchImpl = async (url) => {
+    if (url.includes('activecommunities.com/') && url.includes('/rest/activities/list')) return ok(JSON.stringify({ headers: { response_code: '0000', page_info: { total_page: 1 } }, body: { activity_items: [
+      { id: 9001, name: 'KidSpace - Discover & Explore', ages: 'At least 3 but less than 6', age_min_year: 3, age_min_month: 0, age_max_year: 6, age_max_month: 0, date_range_start: d1, date_range_end: d2, time_range: '11:30 AM - 1:30 PM', days_of_week: 'Mon', location: { label: 'East Portland Cmty Ctr' }, fee: { label: '$40.00' }, total_open: 10, openings: '6', already_enrolled: 4, detail_url: 'https://apm.activecommunities.com/portlandparks/Activity_Search/9001', enroll_now: { href: 'https://anc.apm.activecommunities.com/portlandparks/activity/search/enroll/9001' }, desc: '<p>Hands-on play for preschoolers.</p>' }
+    ] } }));
     if (url.includes('/libraries/fvrlibraries/')) return ok(fvrlJson);
     if (url.includes('orcity-library.libcal.com')) return ok(ocIcs);
     if (url.includes('wilsonvillelibrary.org')) return ok(url.includes('catID=29') ? wvIcs : url.includes('catID=25') ? icsOf([['wp1', d2, '09:30', 60, 'Parent & Tot Open Gym', ' - Wilsonville Community Center 7965 SW Wilsonville Road Wilsonville', null]]) : icsOf([]));

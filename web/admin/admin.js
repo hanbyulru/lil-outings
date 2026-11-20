@@ -28,13 +28,13 @@ let D; // all data
 
 async function load() {
   const get = (p, fallback) => fetch(p, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : fallback)).catch(() => fallback);
-  const [events, meta, geo, places, runs, sources, review, curated] = await Promise.all([
+  const [events, meta, geo, places, runs, sources, review, curated, classes] = await Promise.all([
     get('../data/events.json', []), get('../data/meta.json', {}), get('../data/geo.json', { regions: [], districts: [] }), get('../data/places.json', []),
-    get('data/runs.json', []), get('data/sources.json', {}), get('data/review.json', []), get('data/curated.json', [])
+    get('data/runs.json', []), get('data/sources.json', {}), get('data/review.json', []), get('data/curated.json', []), get('data/classes.json', [])
   ]);
   const regionOf = {};
   for (const r of geo.regions) for (const d of r.districts) regionOf[d] ??= r.id;
-  return { events, meta, geo, places, runs, sources, review, curated, regionOf, district: Object.fromEntries(geo.districts.map((d) => [d.id, d])), region: Object.fromEntries(geo.regions.map((r) => [r.id, r])) };
+  return { events, meta, geo, places, runs, sources, review, curated, classes, regionOf, district: Object.fromEntries(geo.districts.map((d) => [d.id, d])), region: Object.fromEntries(geo.regions.map((r) => [r.id, r])) };
 }
 
 // ---------- source health ----------
@@ -42,7 +42,7 @@ async function load() {
 const CATS = [['library', 'Libraries'], ['parks', 'Parks & Rec'], ['city', 'City websites'], ['attraction', 'Attractions & venues'], ['community', 'Community groups'], ['curated', 'Hand-entered']];
 const catLabel = (c) => CATS.find((x) => x[0] === c)?.[1] || 'Other';
 const catOfSource = (id) => (D.sources.events || []).find((s) => s.id === id)?.category || null;
-const GROUPS = [['events', 'sources', 'Event sources'], ['places', 'place_sources', 'Place sources'], ['programs', 'program_sources', 'Class series sources']];
+const GROUPS = [['events', 'sources', 'Event sources'], ['classes', 'class_sources', 'Class sources (admin only for now)'], ['places', 'place_sources', 'Place sources'], ['programs', 'program_sources', 'Class series sources (hidden on the site)']];
 
 /** Health of one source from its latest result and its history (newest first). */
 export function health(cfg, latest, series) {
@@ -350,9 +350,132 @@ function wireEvents() {
   });
 }
 
+// ---------- classes (sign-up classes from Parks & Rec registration systems; admin only for now) ----------
+// Read from admin/data/classes.json (src/adapters/activenet.js). The site doesn't show these yet: this tab is for sizing
+// them up before designing the public Classes tab (owner, Nov 2026).
+const KIND_LABEL = { swim: 'Swim', sports: 'Sports & movement', art: 'Art', music: 'Music', dance: 'Dance', theater: 'Theater', science: 'Science & STEM', camp: 'Camps & day-off', cooking: 'Cooking', early: 'Early childhood', other: 'Other' };
+const AGE_BANDS = [['baby', 'Baby (0-1)', 0, 0.99], ['toddler', 'Toddler (1-2)', 1, 2.99], ['preschool', 'Preschool (3-5)', 3, 5.99], ['school', 'School age (6-12)', 6, 12.99]];
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const C = { q: '', provider: '', kind: '', region: '', district: '', age: '', day: '', time: '', starts: '', cost: '', dim: 'kind', shown: 100 };
+const bandsOfClass = (c) => AGE_BANDS.filter(([, , lo, hi]) => (c.age_min ?? 0) <= hi && (c.age_max ?? 99) >= lo).map((b) => b[0]);
+const timeOfClass = (c) => (c.start_min == null ? 'any' : c.start_min < 720 ? 'am' : c.start_min < 1020 ? 'pm' : 'eve');
+const startOfClass = (c) => { const t = portlandToday(); return !c.start_date ? 'unknown' : c.start_date <= t ? 'running' : c.start_date <= addDays(t, 30) ? 'soon' : 'later'; };
+const costOfClass = (c) => (c.free ? 'free' : c.price != null ? 'priced' : 'details');
+const CDIMS = {
+  kind: { label: 'Kind', values: () => Object.entries(KIND_LABEL), of: (c) => [c.kind] },
+  age: { label: 'Age', values: () => AGE_BANDS.map(([k, l]) => [k, l]), of: bandsOfClass },
+  day: { label: 'Day', values: () => DAYS.map((d) => [d, d]), of: (c) => c.days || [] },
+  time: { label: 'Time of day', values: () => [['am', 'Morning'], ['pm', 'Afternoon'], ['eve', 'Evening'], ['any', 'Varies']], of: (c) => [timeOfClass(c)] },
+  starts: { label: 'Starts', values: () => [['running', 'Already running'], ['soon', 'Within 30 days'], ['later', 'Later'], ['unknown', 'No date']], of: (c) => [startOfClass(c)] },
+  cost: { label: 'Cost', values: () => [['free', 'Free'], ['priced', 'Price listed'], ['details', 'Fee on detail page']], of: (c) => [costOfClass(c)] }
+};
+function classesFiltered() {
+  const q = C.q.trim().toLowerCase();
+  return (D.classes || []).filter((c) => (!C.provider || c.source?.id === C.provider)
+    && (!C.kind || c.kind === C.kind)
+    && (!C.region || D.regionOf[c.district] === C.region) && (!C.district || c.district === C.district)
+    && (!C.age || bandsOfClass(c).includes(C.age)) && (!C.day || c.days?.includes(C.day)) && (!C.time || timeOfClass(c) === C.time)
+    && (!C.starts || startOfClass(c) === C.starts) && (!C.cost || costOfClass(c) === C.cost)
+    && (!q || `${c.name} ${c.full_name || ''} ${c.venue || ''} ${c.description || ''}`.toLowerCase().includes(q)));
+}
+function renderClassesShell() {
+  const provs = [...new Map((D.classes || []).map((c) => [c.source?.id, c.source?.name])).entries()];
+  const districts = C.region ? (D.region[C.region]?.districts || []).map((d) => [d, D.district[d]?.name || d]) : D.geo.districts.map((d) => [d.id, d.name]).sort((a, b) => a[1].localeCompare(b[1]));
+  $('#tab-classes').innerHTML = `<h1>Classes</h1><p class="lede">Sign-up classes and series from Parks &amp; Rec registration systems (in progress or upcoming, at least one open spot, ages 0-12). Not on the public site yet: this is for sizing them up before designing a Classes tab.</p>
+  ${(D.classes || []).length ? '' : '<p class="note">No classes yet: they arrive with the next pipeline run.</p>'}
+  <form class="filters" onsubmit="return false">
+    <label class="search">Search<input id="c-q" type="search" placeholder="Class, venue, description…" value="${esc(C.q)}"></label>
+    <label>Kind<select id="c-kind">${options(Object.entries(KIND_LABEL), C.kind, 'All kinds')}</select></label>
+    <label>Age<select id="c-age">${options(AGE_BANDS.map(([k, l]) => [k, l]), C.age, 'All ages')}</select></label>
+    <label>Day<select id="c-day">${options(DAYS.map((d) => [d, d]), C.day, 'Any day')}</select></label>
+    <label>Time of day<select id="c-time">${options(CDIMS.time.values(), C.time, 'Any time')}</select></label>
+    <label>Starts<select id="c-starts">${options(CDIMS.starts.values(), C.starts, 'Any start')}</select></label>
+    <label>Cost<select id="c-cost">${options(CDIMS.cost.values(), C.cost, 'Any cost')}</select></label>
+    <label>Region<select id="c-region">${options(D.geo.regions.map((r) => [r.id, r.name]), C.region, 'All regions')}</select></label>
+    <label>District<select id="c-district">${options(districts, C.district, 'All districts')}</select></label>
+    ${provs.length > 1 ? `<label>Provider<select id="c-provider">${options(provs, C.provider, 'All providers')}</select></label>` : ''}
+  </form>
+  <div class="actions"><button type="button" id="c-reset">Clear filters</button><button type="button" id="c-csv">Download CSV</button><span class="note" id="c-count"></span></div>
+  <div id="cl-body"></div>`;
+}
+function renderClassesBody() {
+  const list = classesFiltered();
+  $('#c-count').textContent = `${list.length.toLocaleString('en-US')} classes match`;
+  const venues = new Set(list.map((c) => c.venue).filter(Boolean));
+  const prices = list.map((c) => c.price).filter((p) => p != null).sort((a, b) => a - b);
+  const median = prices.length ? prices[Math.floor(prices.length / 2)] : null;
+  const spots = list.reduce((a, c) => a + (c.openings || 0), 0);
+  const weekend = list.filter((c) => c.days?.some((d) => d === 'Sat' || d === 'Sun')).length;
+  const pct = (x) => (list.length ? `${Math.round((x / list.length) * 100)}%` : '—');
+  // area x chosen dimension
+  const dim = CDIMS[C.dim], cols = dim.values();
+  const count = {}, rowTot = {}, colTot = {};
+  for (const c of list) { const d = c.district || '_unplaced'; rowTot[d] = (rowTot[d] || 0) + 1; for (const v of dim.of(c)) { (count[d] ||= {})[v] = (count[d][v] || 0) + 1; colTot[v] = (colTot[v] || 0) + 1; } }
+  const max = Math.max(1, ...Object.values(count).flatMap((r) => Object.values(r)));
+  const shade = (v) => (v ? `background:color-mix(in srgb,#2E9E6B ${Math.round(8 + (v / max) * 52)}%,#fff)${v / max > 0.55 ? ';color:#fff' : ''}` : '');
+  const rows = D.geo.regions.filter((r) => !C.region || r.id === C.region).map((r) => {
+    const ds = r.districts.filter((d) => (!C.district || d === C.district) && (rowTot[d] || !C.region));
+    const rt = ds.reduce((a, d) => a + (rowTot[d] || 0), 0);
+    return `<tr class="region"><td>${esc(r.name)}</td>${cols.map(([v]) => `<td>${ds.reduce((a, d) => a + (count[d]?.[v] || 0), 0) || '·'}</td>`).join('')}<td class="tot">${rt}</td></tr>` + ds.map((d) => `<tr><td>${esc(D.district[d]?.name || d)}</td>${cols.map(([v]) => { const k = count[d]?.[v] || 0; return `<td class="cell ${k ? '' : 'zero'}" style="${shade(k)}">${k}</td>`; }).join('')}<td class="tot">${rowTot[d] || 0}</td></tr>`).join('');
+  }).join('') + (rowTot._unplaced ? `<tr><td>No location (online, by arrangement, or not placed yet)</td>${cols.map(([v]) => `<td>${count._unplaced?.[v] || 0}</td>`).join('')}<td class="tot">${rowTot._unplaced}</td></tr>` : '');
+  const tally = (f) => list.reduce((a, c) => { for (const k of [].concat(f(c))) if (k) a[k] = (a[k] || 0) + 1; return a; }, {});
+  const bars = (obj, color = '#2E9E6B', limit = 20) => { const ent = Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, limit); const m = Math.max(1, ...ent.map((x) => x[1])); return `<div class="bars">${ent.map(([k, v]) => `<div class="barrow"><span class="lbl" title="${esc(k)}">${esc(k)}</span><span class="track"><span class="fill" style="width:${(v / m) * 100}%;background:${color}"></span></span><span class="v">${v}</span></div>`).join('') || '<p class="note">None.</p>'}</div>`; };
+  const fmtD = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '?');
+  const table = list.slice().sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)) || a.name.localeCompare(b.name)).slice(0, C.shown).map((c) => `<tr>
+    <td>${c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}</a>` : esc(c.name)}<span class="sub">${esc(KIND_LABEL[c.kind] || c.kind)}${c.one_day ? ' · one day' : ''}</span></td>
+    <td>${esc(c.ages_text || '')}</td>
+    <td>${esc((c.days || []).join(', '))}<span class="sub">${esc(c.time_text || '')}</span></td>
+    <td class="num">${esc(fmtD(c.start_date))} – ${esc(fmtD(c.end_date))}</td>
+    <td>${esc(c.venue || '—')}<span class="sub">${esc(D.district[c.district]?.name || '')}</span></td>
+    <td>${esc(c.free ? 'Free' : c.price != null ? `$${c.price}` : 'See details')}</td>
+    <td class="n">${c.unlimited ? 'Open' : n(c.openings)}${c.capacity ? `<span class="sub">of ${c.capacity}</span>` : ''}</td></tr>`).join('');
+  $('#cl-body').innerHTML = `
+  <div class="tiles">
+    <div class="tile"><b>${n(list.length)}</b><small>classes</small></div>
+    <div class="tile"><b>${n(venues.size)}</b><small>venues</small></div>
+    <div class="tile"><b>${n(spots)}</b><small>open spots listed</small></div>
+    <div class="tile"><b>${pct(weekend)}</b><small>meet on a weekend</small></div>
+    <div class="tile"><b>${median != null ? `$${median}` : '—'}</b><small>median listed price (${n(prices.length)} with a price)</small></div>
+  </div>
+  <h2>Coverage by area</h2>
+  <div class="card"><h3><span class="seg" role="group" aria-label="Break down by">${Object.entries(CDIMS).map(([k, d]) => `<button type="button" data-cdim="${k}" aria-pressed="${k === C.dim}">${esc(d.label)}</button>`).join('')}</span><small>Classes per district, placed by venue; a class on two days counts in both.</small></h3>
+    <div class="tablewrap" style="border:0"><table class="matrix"><thead><tr><th>Area</th>${cols.map(([, l]) => `<th>${esc(l)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${rows}<tr class="region"><td>All</td>${cols.map(([v]) => `<td>${colTot[v] || 0}</td>`).join('')}<td class="tot">${list.length}</td></tr></tbody></table></div></div>
+  <div class="grid2" style="margin-top:20px">
+    <div class="card"><h3>By venue <small>top 20</small></h3>${bars(tally((c) => c.venue || 'No location'))}</div>
+    <div class="card"><h3>By kind</h3>${bars(Object.fromEntries(Object.entries(tally((c) => c.kind)).map(([k, v]) => [KIND_LABEL[k] || k, v])))}<h3 style="margin-top:16px">By start month</h3>${bars(Object.fromEntries(Object.entries(tally((c) => (c.start_date ? new Date(`${c.start_date}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'No date'))).sort()), '#3B6FE0')}</div>
+  </div>
+  <h2>Classes <small class="note">${list.length > C.shown ? `first ${C.shown} of ${n(list.length)}, by start date` : `${n(list.length)}, by start date`}</small></h2>
+  <div class="tablewrap"><table><thead><tr><th>Class</th><th>Ages</th><th>When</th><th>Dates</th><th>Where</th><th>Cost</th><th class="n">Spots</th></tr></thead><tbody>${table || '<tr><td colspan="7" class="note">No classes match these filters.</td></tr>'}</tbody></table></div>
+  ${list.length > C.shown ? '<div class="actions"><button type="button" id="c-more">Show 100 more</button></div>' : ''}`;
+}
+function classesCsv(list) {
+  const cols = ['name', 'kind', 'ages', 'age_min', 'age_max', 'days', 'time', 'start_date', 'end_date', 'venue', 'district', 'region', 'fee', 'price', 'open_spots', 'capacity', 'provider', 'url', 'register_url'];
+  const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const lines = list.map((c) => [c.name, KIND_LABEL[c.kind] || c.kind, c.ages_text, c.age_min, c.age_max, (c.days || []).join(' '), c.time_text, c.start_date, c.end_date, c.venue, D.district[c.district]?.name, D.region[D.regionOf[c.district]]?.name, c.fee_text, c.price, c.unlimited ? 'unlimited' : c.openings, c.capacity, c.provider, c.url, c.register_url].map(q).join(','));
+  const blob = new Blob([[cols.join(','), ...lines].join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `lil-outings-classes-${portlandToday()}.csv`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function wireClasses() {
+  const panel = $('#tab-classes');
+  panel.addEventListener('input', (ev) => {
+    const id = ev.target.id; if (!id?.startsWith('c-')) return;
+    const k = id.slice(2); C[k] = ev.target.value; C.shown = 100;
+    if (k === 'region') { C.district = ''; renderClassesShell(); }
+    renderClassesBody();
+  });
+  panel.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.cdim) { C.dim = b.dataset.cdim; renderClassesBody(); }
+    else if (b.id === 'c-more') { C.shown += 100; renderClassesBody(); }
+    else if (b.id === 'c-reset') { Object.assign(C, { q: '', provider: '', kind: '', region: '', district: '', age: '', day: '', time: '', starts: '', cost: '', shown: 100 }); renderClassesShell(); renderClassesBody(); }
+    else if (b.id === 'c-csv') classesCsv(classesFiltered());
+  });
+}
+
 // ---------- tabs ----------
 function show() {
-  const tab = ['sources', 'activity', 'events'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'sources';
+  const tab = ['sources', 'activity', 'events', 'classes'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'sources';
   for (const p of document.querySelectorAll('[data-panel]')) p.hidden = p.dataset.panel !== tab;
   for (const a of document.querySelectorAll('[data-tab]')) a.setAttribute('aria-selected', String(a.dataset.tab === tab));
 }
@@ -361,6 +484,6 @@ load().then((data) => {
   D = data;
   $('#loading').hidden = true;
   $('#stamp').textContent = D.meta.generated_at ? `Data from ${fmt(D.meta.generated_at)}` : '';
-  renderSources(); renderActivity(); renderEventsShell(); renderEventsBody(); wireEvents(); show();
+  renderSources(); renderActivity(); renderEventsShell(); renderEventsBody(); wireEvents(); renderClassesShell(); renderClassesBody(); wireClasses(); show();
   addEventListener('hashchange', show);
 }).catch((e) => { $('#loading').textContent = `Could not load the pipeline data: ${e.message}`; });

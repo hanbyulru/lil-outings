@@ -22,6 +22,7 @@ export function runSummary({ meta, curated = [], startedAt, finishedAt, env = pr
     sources: meta.sources.map(pick),
     place_sources: meta.place_sources.map(pick),
     program_sources: (meta.program_sources || []).map(pick),
+    class_sources: (meta.class_sources || []).map(pick),
     // Curated entries: each organizer page's check this run (see src/curated.js).
     curated: curated.map((c) => ({ id: c.id, title: c.title, page: c.page?.status || null, changed: !!c.page?.changed_now, state: c.state, published: c.published }))
   };
