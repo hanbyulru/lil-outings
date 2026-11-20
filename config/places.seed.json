@@ -2118,5 +2118,29 @@
   "explore": [
    "art"
   ]
+ },
+ {
+  "id": "seed-flip-museum",
+  "name": "The FLIP Museum",
+  "kind": "children's museum",
+  "lat": 45.52219,
+  "lon": -122.98605,
+  "address": "136 SE 3rd Ave, Suite 200, Hillsboro, OR 97123",
+  "url": "https://www.flipmuseum.org/",
+  "hours_text": "Weekdays 9:30am-1:30pm, weekends 9:30am-5pm, but often adjusted for parties and field trips: check the week's hours on the site",
+  "age_min": 0,
+  "age_max": 10,
+  "interests": [
+   "play",
+   "science"
+  ],
+  "cost": "paid",
+  "price": "$10; under 2 free; 50% off with SNAP or WIC",
+  "setting": "indoor",
+  "note": "Hands-on children's museum in downtown Hillsboro, a block from the MAX Blue Line, with pretend-play exhibits like a revolving sushi restaurant, plus kids' cooking classes and camps. Planning a downtown Portland location for 2027.",
+  "explore": [
+   "indoor_play",
+   "science"
+  ]
  }
 ]
