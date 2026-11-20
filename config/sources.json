@@ -716,15 +716,21 @@
         "site": "https://downtownbeaverton.org",
         "include_categories": [
           "Family & Kids",
-          "Seasonal & Holiday"
+          "Seasonal & Holiday",
+          "Community",
+          "Arts & Culture",
+          "Free Event",
+          "Markets & Shopping"
         ],
+        "include_uncategorized": true,
+        "exclude_titles": ["beer", "wine", "brew", "saloon", "21\\+", "trivia"],
         "fallback_venue": {
           "name": "Downtown Beaverton",
           "lat": 45.4871,
           "lon": -122.8037
         }
       },
-      "notes": "Downtown Beaverton Association's WordPress The Events Calendar API (Nov 2026). The City of Beaverton's own calendar is client-rendered with no public feed; this one carries the big community events (Picnic in the Park, markets, family concerts). Only Family & Kids and Seasonal & Holiday categories."
+      "notes": "Downtown Beaverton Association's WordPress The Events Calendar API (Nov 2026). The City of Beaverton's own calendar is client-rendered with no public feed; this one carries the big community events (Picnic in the Park, markets, family concerts). Family & Kids, Seasonal & Holiday, Community, Arts & Culture, Free Event and Markets categories plus uncategorized events (owner, Nov 2026: pull in more; the Christmas Sweater Family Social had no category). Live-music-only listings (bar shows) stay out; beer/wine/21+ titles are dropped."
     },
     {
       "id": "downtown_hillsboro",

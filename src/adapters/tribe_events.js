@@ -7,7 +7,7 @@ import { withOffset, portlandDate, addDays } from '../lib/time.js';
  *   GET <site>/wp-json/tribe/events/v1/events?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&per_page=50&page=N
  * -> { events: [{ id, title, description, url, start_date: 'YYYY-MM-DD HH:MM:SS' (site time), end_date, all_day,
  *      cost, categories: [{ name, slug }], venue: { venue, address, city, geo_lat, geo_lng } | [] }], total_pages }
- * config: { site, include_categories?: [names], exclude_categories?: [names], fallback_venue?: { name, lat, lon } }
+ * config: { site, include_categories?: [names], include_uncategorized?: bool, exclude_categories?: [names], fallback_venue?: { name, lat, lon } }
  */
 const num = (v) => (v == null || v === '' || !Number.isFinite(+v) ? null : +v);
 
@@ -19,7 +19,8 @@ export function parseTribeEvents(json, source) {
   for (const e of json?.events || []) {
     const cats = (e.categories || []).map((c) => decodeEntities(c.name || ''));
     const lc = cats.map((c) => c.toLowerCase());
-    if (inc.length && !lc.some((c) => inc.includes(c))) continue;
+    // An uncategorized event passes an include list only with include_uncategorized (the classifier is the backstop).
+    if (inc.length && !lc.some((c) => inc.includes(c)) && !(source.config.include_uncategorized && !lc.length)) continue;
     if (lc.some((c) => exc.includes(c))) continue;
     const v = e.venue && !Array.isArray(e.venue) ? e.venue : null;
     const lat = num(v?.geo_lat), lon = num(v?.geo_lng);

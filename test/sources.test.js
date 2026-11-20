@@ -175,6 +175,9 @@ test('The Events Calendar API: category include/exclude, venue geo, fallback ven
   assert.equal(ev[0].price_text, 'Free');
   assert.equal(ev[1].venue_name, 'Sherwood');
   assert.equal(ev[1].lat, 45.357);
+  const json2 = { events: [{ id: 4, title: 'Christmas Sweater Family Social', start_date: '2026-12-05 14:00:00', categories: [], venue: [] }, { id: 5, title: 'Blues Night', start_date: '2026-12-05 21:00:00', categories: [{ name: 'Live Music' }], venue: [] }] };
+  assert.deepEqual(parseTribeEvents(json2, { id: 's', config: { include_categories: ['Family & Kids'], include_uncategorized: true } }).map((e) => e.title), ['Christmas Sweater Family Social'], 'uncategorized passes with include_uncategorized');
+  assert.equal(parseTribeEvents(json2, src).length, 0);
 });
 
 import { parseGreshamEvents, parseTimeRange } from '../src/adapters/gresham_events.js';
