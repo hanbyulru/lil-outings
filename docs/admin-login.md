@@ -19,12 +19,13 @@ What changes for visitors: nothing. Same pages and address; GitHub still builds 
 
 ### 2. Put /admin behind a login
 1. In Cloudflare, open **Zero Trust** (left sidebar). The first time, pick a team name (e.g. `liloutings`) and the **Free** plan.
-2. Nothing to set up for the login itself: **One-time PIN** (an emailed code) is on by default when no other login provider is connected. (In the newer dashboard it's listed under **Integrations → Identity providers**; older ones had **Settings → Authentication → Login methods**.) When the application setup below asks about login methods, keep One-time PIN selected or leave "Accept all available identity providers" on.
+2. Turn on the emailed-code login: **Integrations → Identity providers** (older menus: **Settings → Authentication → Login methods**) **→ Add new → One-time PIN**, save. Some accounts have it already, but newer ones may only offer "Sign in with Cloudflare", which only works for Cloudflare account holders.
 3. **Access → Applications → Add an application → Self-hosted**:
    - Application name: `Lil' Outings admin`
    - Session duration: `1 month` (how long before someone has to log in again)
    - Destination: a **Public hostname** (not a private hostname, which is for internal networks reached through Cloudflare's device app and leaves the website open)
    - Domain `liloutings.com`, path `admin` (no slash, so it covers both `/admin` and `/admin/`)
+   - Login methods: tick **One-time PIN** only (untick **Cloudflare**), and turn on **Instant Auth** if offered, so people go straight to the email box.
 4. Add a policy: name `Team`, action **Allow**, rule **Include → Emails** and list each email address that should get in (yours first).
 5. Save. Open liloutings.com/admin/ in a private window: you should see a Cloudflare login page asking for your email, then a code.
 
