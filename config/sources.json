@@ -749,6 +749,31 @@
         }
       },
       "notes": "Downtown Hillsboro Partnership's community calendar (owner, Nov 2026: Hillsboro's city-website source; the City of Hillsboro's own site blocks bots). Locable platform, server-rendered list pages plus each event's page for venue, address, end time and price (src/adapters/locable_events.js). Carries Holly Days (Santa @ HART and the tree lighting), so the curated Holly Days entry was retired. Mostly adult events (theater, business forum); the classifier filters, and exclude_titles drops the obvious ones."
+    },
+    {
+      "id": "christmas_ships",
+      "name": "Christmas Ships Parade",
+      "category": "attraction",
+      "type": "squarespace_events",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://www.christmasships.org/parade-schedule",
+      "config": {
+        "site": "https://www.christmasships.org",
+        "path": "/parade-schedule",
+        "title_prefix": "Christmas Ships: ",
+        "title_replace": [["^(Combined|Willamette|Columbia) Fleet: ", "$1 Fleet, "]],
+        "geocode": true,
+        "price_text": "Free to watch",
+        "exclude_titles": ["boat show"],
+        "fallback_venue": {
+          "name": "Riverplace Marina",
+          "lat": 45.5094,
+          "lon": -122.6728
+        }
+      },
+      "notes": "Squarespace events collection read as ?format=json (owner, Nov 2026: replaces the hand-entered Christmas Ships entries). One listing per parade night and fleet, with its own page, times, the assembly point as the pin, and the viewing spots in the description. Items with no location borrow one from a place named in the title."
     }
   ],
   "places": [

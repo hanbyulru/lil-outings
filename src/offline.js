@@ -189,7 +189,12 @@ export function buildOffline(today) {
     { id: 7002, title: 'Soccer Shots Mini | Ages 2-3', desc: 'Parent participation is required.', event: [d1, d2], website: 'https://www.soccershots.com/' }
   ]);
   const hb = locableFixture([{ id: 8001, title: 'Hillsboro Holly Days Celebration - Santa @ HART', date: d2, start: '2:00 PM', end: '7:00 PM', venue: "Hillsboro Artists' Regional Theatre (HART)", address: '185 SE Washington St., Hillsboro, OR 97123', price: 'Free', desc: 'Free photos with Santa from 2-5pm, then parade with us to the Civic Center for the holiday tree lighting at 6pm.' }]);
+  const atMs = (d, hh) => Date.parse(`${d}T${hh}:00-08:00`);
+  const ships = JSON.stringify({ upcoming: [
+    { id: 's1', title: 'Willamette Fleet: Riverplace Marina to Milwaukie ', fullUrl: '/parade-schedule/riverplace-milwaukie', startDate: atMs(d2, '19:00'), endDate: atMs(d2, '21:00'), tags: ['Willamette Fleet'], body: '<p>7:00PM - The fleet assembles in front of Riverplace Marina.</p><p>Outdoor viewing: Milwaukie Bay Park</p>', location: { addressTitle: 'Riverplace Marina', addressLine1: '0315 Southwest Montgomery Street', addressLine2: 'Portland, OR, 97201', mapLat: 45.5094, mapLng: -122.6728 } }
+  ] });
   const fetchImpl = async (url, init = {}) => {
+    if (url.startsWith('https://www.christmasships.org/parade-schedule?format=json')) return ok(ships);
     if (url.startsWith('https://www.downtownhillsboro.org/community-calendar/')) return ok(url.includes('?page=') ? '' : hb.list);
     if (url.startsWith('https://www.downtownhillsboro.org/connections/')) return ok(hb.pages[new URL(url).pathname] || '');
     if (url.includes('capturepoint.com/reg/cat_program_list.cfm')) return ok(cp.page);

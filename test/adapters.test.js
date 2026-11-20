@@ -291,3 +291,27 @@ test('Locable calendar (Downtown Hillsboro): list cards + event microdata (venue
   assert.equal(holly.source_event_id, '620146');
   assert.equal(walk.start, '2026-12-01T17:00:00-08:00', 'a wrong PDT label is read as Portland time');
 });
+
+test('Squarespace events (Christmas Ships): Portland times, body text, borrowed and doubtful locations', async () => {
+  const { parseSquarespaceEvents, portlandIso } = await import('../src/adapters/squarespace_events.js');
+  assert.equal(portlandIso(Date.parse('2026-12-09T03:00:00Z')), '2026-12-08T19:00:00-08:00');
+  const loc = (addressTitle, mapLat, mapLng, addressLine1 = '1 Main St') => ({ addressTitle, addressLine1, addressLine2: 'Portland, OR, 97201', mapLat, mapLng });
+  const json = { upcoming: [
+    { id: 'a', title: 'Willamette Fleet: Riverplace Marina to Milwaukie ', fullUrl: '/parade-schedule/a', startDate: Date.parse('2026-12-09T03:00:00Z'), endDate: Date.parse('2026-12-09T05:00:00Z'), body: '<p>7:00PM - Fleet assembles.</p><style>.x{}</style><p>Outdoor viewing:</p><p>Milwaukie Bay Park</p>#block-abc { --x: 1 }', location: loc('Riverplace Marina', 45.5094, -122.6728) },
+    { id: 'b', title: 'Willamette Fleet: Riverplace Marina to Johns Landing', fullUrl: '/parade-schedule/b', startDate: Date.parse('2026-12-10T03:00:00Z'), body: '', location: { addressTitle: '', mapLat: 40.7207559, mapLng: -74.0007613 } },
+    { id: 'c', title: 'Santa Escort to Vancouver Waterfront', fullUrl: '/parade-schedule/c', startDate: Date.parse('2026-11-28T00:00:00Z'), body: '', location: loc('Grant Street Pier', 45.5988, -122.6132, '115 SE Columbia Way') },
+    { id: 'd', title: 'Gleason Boat Ramp to Vancouver', fullUrl: '/parade-schedule/d', startDate: Date.parse('2026-12-04T03:00:00Z'), body: '', location: loc('M. James Gleason Boat Ramp', 45.5988, -122.6132, '4325 NE Marine Dr') }
+  ] };
+  const src = { id: 'cs', config: { site: 'https://www.christmasships.org', title_prefix: 'Christmas Ships: ', title_replace: [['^(Willamette) Fleet: ', '$1 Fleet, ']] } };
+  const [a, b, c, d] = parseSquarespaceEvents(json, src);
+  assert.equal(a.title, 'Christmas Ships: Willamette Fleet, Riverplace Marina to Milwaukie');
+  assert.equal(a.start, '2026-12-08T19:00:00-08:00'); assert.equal(a.end, '2026-12-08T21:00:00-08:00');
+  assert.equal(a.description, '7:00PM - Fleet assembles. · Outdoor viewing: · Milwaukie Bay Park');
+  assert.equal(a.url, 'https://www.christmasships.org/parade-schedule/a');
+  assert.equal(a.lat, 45.5094);
+  assert.equal(b.venue_name, 'Riverplace Marina', 'no location: borrowed from the place named in the title');
+  assert.equal(b.lat, 45.5094);
+  assert.equal(c.lat, null, 'two places sharing one map point: geocode the address instead');
+  assert.equal(c.address, '115 SE Columbia Way, Portland, OR, 97201');
+  assert.equal(d.lat, null);
+});

@@ -87,42 +87,6 @@
     "runs": [{ "from": "2026-11-16", "to": "2027-01-10", "except": ["2026-11-26", "2026-12-25", "2027-01-01"], "start": "10:00", "end": "16:00" }]
   },
   {
-    "id": "christmas-ships-johns-landing-2026",
-    "title": "Christmas Ships Parade: RiverPlace to Johns Landing",
-    "venue_name": "RiverPlace Marina",
-    "address": "0315 SW Montgomery St, Portland, OR 97201",
-    "lat": 45.5091, "lon": -122.6727,
-    "url": "https://www.christmasships.org/parade-schedule",
-    "description": "Lit-up boats leave RiverPlace Marina and parade along the Willamette toward Johns Landing and the Fremont Bridge; watch from the waterfront. The fleet takes a couple of hours, and exact passing times depend on the weather and the river.",
-    "price_text": "Free",
-    "interests": ["holidays"],
-    "runs": [{ "dates": ["2026-12-07", "2026-12-09", "2026-12-16", "2026-12-18"], "start": "19:00", "end": "21:00" }]
-  },
-  {
-    "id": "christmas-ships-milwaukie-2026",
-    "title": "Christmas Ships Parade: RiverPlace to Milwaukie",
-    "venue_name": "RiverPlace Marina",
-    "address": "0315 SW Montgomery St, Portland, OR 97201",
-    "lat": 45.5091, "lon": -122.6727,
-    "url": "https://www.christmasships.org/parade-schedule",
-    "description": "Lit-up boats leave RiverPlace Marina and parade up the Willamette to Milwaukie, reaching Milwaukie Bay Park around 8pm. Exact passing times depend on the weather and the river.",
-    "price_text": "Free",
-    "interests": ["holidays"],
-    "runs": [{ "dates": ["2026-12-08", "2026-12-11", "2026-12-15", "2026-12-17"], "start": "19:00", "end": "21:00" }]
-  },
-  {
-    "id": "christmas-ships-st-johns-2026",
-    "title": "Christmas Ships Parade: RiverPlace to St. Johns (both fleets)",
-    "venue_name": "RiverPlace Marina",
-    "address": "0315 SW Montgomery St, Portland, OR 97201",
-    "lat": 45.5091, "lon": -122.6727,
-    "url": "https://www.christmasships.org/parade-schedule",
-    "description": "The Willamette and Columbia fleets together, from RiverPlace Marina downriver to the St. Johns Bridge, arriving at Cathedral Park around 6:45pm.",
-    "price_text": "Free",
-    "interests": ["holidays"],
-    "runs": [{ "dates": ["2026-12-20"], "start": "17:00", "end": "19:00" }]
-  },
-  {
     "id": "tinseltown-trolley-2026",
     "title": "Tinseltown Trolley",
     "venue_name": "Willamette Shore Trolley, Lake Oswego Depot",
