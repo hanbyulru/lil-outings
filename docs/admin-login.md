@@ -12,7 +12,10 @@ Until this is set up, the page is reachable by anyone who knows the address. It 
 3. Make sure the A and CNAME records show an **orange cloud (Proxied)**. Access only works on proxied records. Leave the MX records as they are (they can't be proxied).
 4. Cloudflare shows two nameservers. In GoDaddy: **My Products → liloutings.com → DNS → Nameservers → Change → Enter my own nameservers**, and paste Cloudflare's two. It can take a few minutes to a few hours to switch over; Cloudflare emails you when it's active.
 5. In Cloudflare: **SSL/TLS → Overview → Full**. (Not "Flexible", which causes a redirect loop with GitHub Pages; not "Full (strict)".)
-6. Check that liloutings.com still loads and that a test email to hello@liloutings.com still arrives.
+6. **Security → Settings → Scrape Shield → Email Address Obfuscation: Off.** It's on by default and rewrites email addresses in the pages with a script; turning it off keeps the site exactly as built. Leave Bot Fight Mode, Rocket Loader and other optional speed/security extras off too.
+7. Check that liloutings.com still loads and that a test email to hello@liloutings.com still arrives. If the email doesn't arrive, compare the MX and TXT (SPF) records in Cloudflare against the ones GoDaddy had and add any that are missing.
+
+What changes for visitors: nothing. Same pages and address; GitHub still builds and serves the site, and Cloudflare passes it through. After a deploy, changes can take up to about 10 minutes to show, as before. GitHub's Pages settings may later warn that it can't renew its own HTTPS certificate for the domain; that's expected with Cloudflare in front (visitors get Cloudflare's certificate) and can be ignored.
 
 ### 2. Put /admin behind a login
 1. In Cloudflare, open **Zero Trust** (left sidebar). The first time, pick a team name (e.g. `liloutings`) and the **Free** plan.
