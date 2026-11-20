@@ -1013,6 +1013,7 @@
   ],
   "hours_text": "Check site for current hours",
   "id": "seed-musictogether",
+  "class_provider": true,
   "name": "Music Together of Portland",
   "kind": "class",
   "lat": 45.54802,
@@ -1028,6 +1029,7 @@
  },
  {
   "id": "seed-wrmusictogether",
+  "class_provider": true,
   "name": "Willamette River Music Together",
   "kind": "class",
   "lat": 45.42,
@@ -1049,6 +1051,7 @@
  },
  {
   "id": "seed-pdxchildart",
+  "class_provider": true,
   "name": "Portland Child Art Studio",
   "kind": "studio",
   "lat": 45.53448,
@@ -1070,6 +1073,7 @@
  },
  {
   "id": "seed-whimsywees",
+  "class_provider": true,
   "name": "Whimsy Wees",
   "kind": "studio",
   "lat": 45.55382,
@@ -1091,6 +1095,7 @@
  },
  {
   "id": "seed-smartypants",
+  "class_provider": true,
   "name": "Smartypants PDX",
   "kind": "studio",
   "lat": 45.56323,
@@ -1131,6 +1136,7 @@
  },
  {
   "id": "seed-oneriver",
+  "class_provider": true,
   "name": "One River School of Art + Design",
   "kind": "studio",
   "lat": 45.41438,
@@ -1152,6 +1158,7 @@
  },
  {
   "id": "seed-dripdrop",
+  "closed": "Permanently closed (owner, Nov 2026)",
   "name": "Drip Drop Art Studio",
   "kind": "studio",
   "lat": 45.62735,
@@ -1550,6 +1557,7 @@
  },
  {
   "id": "seed-canvascode",
+  "class_provider": true,
   "name": "Canvas & Code",
   "kind": "STEAM studio",
   "lat": 45.4869,
@@ -1572,6 +1580,7 @@
  },
  {
   "id": "seed-codeninjas-bethany",
+  "class_provider": true,
   "name": "Code Ninjas Bethany",
   "kind": "STEM center",
   "lat": 45.52506,
@@ -1593,6 +1602,7 @@
  },
  {
   "id": "seed-codeninjas-bridgeport",
+  "class_provider": true,
   "name": "Code Ninjas Bridgeport",
   "kind": "STEM center",
   "lat": 45.39069,

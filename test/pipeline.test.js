@@ -28,6 +28,10 @@ test('offline refresh: runs every adapter, drops non-kid events, tags and locate
   assert.ok(inMetro.length >= events.length - 2, 'nearly every demo event lands in a district');
   assert.ok(new Set(inMetro.map((e) => e.district)).size >= 8, 'events spread across many districts');
   assert.ok(places.some((p) => p.source === 'osm') && places.some((p) => p.source === 'curated'));
+  // Owner, Nov 2026: class providers wait for the Classes tab (admin file), closed places are gone.
+  assert.ok(!places.some((p) => p.class_provider || p.closed), 'no class providers or closed places on the site');
+  const providers = JSON.parse(readFileSync(join(out, 'class_providers.json'), 'utf8'));
+  assert.ok(providers.some((p) => p.name === 'Canvas & Code') && !providers.some((p) => /Drip Drop/.test(p.name)));
   const written = JSON.parse(readFileSync(join(out, 'events.json'), 'utf8'));
   assert.equal(written.length, events.length);
 });

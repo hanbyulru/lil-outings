@@ -91,6 +91,10 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   // Hand corrections on top of OSM (dead links etc.): config/place_overrides.json, keyed by place id.
   const overrides = readJson('config/place_overrides.json');
   places = places.map((p) => (overrides[p.id] ? { ...p, ...Object.fromEntries(Object.entries(overrides[p.id]).filter(([k]) => !k.startsWith('_'))) } : p));
+  // Closed places stay in the seed (so an OSM copy can't come back) but leave the site. Class providers (studios and schools
+  // whose offer is sign-up classes: Code Ninjas, Music Together...) are set aside for the planned Classes tab (owner, Nov 2026).
+  const classProviders = places.filter((p) => p.class_provider && !p.closed);
+  places = places.filter((p) => !p.closed && !p.class_provider);
   if (!offline) await addPlaceImages(places, ctx.http, log); // the demo has no photo fixtures: cards show their mosaic banner
   else for (const p of places) delete p.commons;
   places = places.map((p) => { const l = locate(p.lat, p.lon); return { ...p, interests: canonicalInterests(p.interests), age_bands: bandsFor(p.age_min, p.age_max), neighborhood: l?.neighborhood || null, district: l?.district || null }; });
@@ -232,6 +236,7 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   writeFileSync(`${outDir}/runs.json`, JSON.stringify(history));
   writeFileSync(`${outDir}/curated.json`, JSON.stringify(curated, null, 1));
   writeFileSync(`${outDir}/classes.json`, JSON.stringify(classes));
+  writeFileSync(`${outDir}/class_providers.json`, JSON.stringify(classProviders.map(({ id, name, kind, explore, address, url, lat, lon, chain, note }) => ({ id, name, kind, explore, address, url, lat, lon, chain: chain || null, note: note || '' })), null, 1));
   log(`published ${kept.length} events, ${programs.length} programs, ${places.length} places -> ${outDir}`);
   return { events: kept, places, programs, meta };
 }

@@ -17,7 +17,7 @@ mkdirSync(`${OUT}/data`, { recursive: true });
 for (const f of ['events.json', 'places.json', 'programs.json', 'meta.json']) cpSync(`${DATA}/${f}`, `${OUT}/data/${f}`);
 cpSync('config/geo.json', `${OUT}/data/geo.json`);
 mkdirSync(`${OUT}/admin/data`, { recursive: true });
-for (const [f, empty] of [['runs.json', '[]'], ['sources.json', '{}'], ['review.json', '[]'], ['curated.json', '[]'], ['classes.json', '[]']]) {
+for (const [f, empty] of [['runs.json', '[]'], ['sources.json', '{}'], ['review.json', '[]'], ['curated.json', '[]'], ['classes.json', '[]'], ['class_providers.json', '[]']]) {
   if (existsSync(`${DATA}/${f}`)) cpSync(`${DATA}/${f}`, `${OUT}/admin/data/${f}`); else writeFileSync(`${OUT}/admin/data/${f}`, empty);
 }
 writeFileSync(`${OUT}/robots.txt`, 'User-agent: *\nDisallow: /admin/\n');
