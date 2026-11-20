@@ -33,6 +33,7 @@ The prototype was built in a sandbox with no internet access. So:
 | Hoyt Arboretum (WordPress Events Manager iCal, `/events.ics`) | `ical` | verified Nov 2026; no locations, so the visitor center; volunteer crews and adult series dropped by title |
 | Downtown Beaverton Association (WordPress The Events Calendar API) | `tribe_events` | verified Nov 2026; Family & Kids and Seasonal & Holiday categories. Stands in for the City of Beaverton, whose new CivicPlus calendar is client-rendered with no public feed |
 | Portland and Lake Oswego Parks & Rec registration (ActiveNet activity search, JSON) | `activenet` | verified Nov 2026; **classes**, admin dashboard only for now; in progress or future, 1+ open spots, ages 0-12 |
+| Tualatin Parks & Rec registration (CapturePoint Community Pass catalog, `season_ids` in config) | `capturepoint` | verified Nov 2026; **classes**, admin dashboard only; kids' and family program groups (adult/teen groups dropped by name), full and past programs dropped; partner programs (Play-Well, Soccer Shots) link to their own sign-up. Add the next season's id when Tualatin publishes it |
 | Ledding Library, Milwaukie (Revize calendar JSON) | `revize_calendar` | verified; repeating events expanded from RRULE blocks |
 | Lake Oswego Parks & Recreation (city calendar groups 19, 14, 37273, 22) | `drupal_calendar` | verified; venue from the title ("Indoor Playground at LORAC"), else town center |
 | West Linn Parks & Recreation | `drupal_calendar` | verified; town-level pin |
@@ -40,7 +41,7 @@ The prototype was built in a sandbox with no internet access. So:
 | Wilsonville Parks & Recreation (CivicPlus categories 25, 27) | `ical` | verified |
 | City of Sherwood and City of Happy Valley events (WordPress The Events Calendar API) | `tribe_events` | verified; Sherwood library and meetings left out |
 | THPRD (Beaverton/Aloha; CivicPlus categories 24 Events, 35 Nature Center) | `ical` + geocoding | verified; venue split from LOCATION and geocoded |
-| Tualatin Parks & Recreation (WordPress/Juicebox; audiences Babies-Preschool and Kids) | `juicebox_events` | verified; list has no dates, so one detail call per event (cached a day) |
+| City of Tualatin events (tualatinoregon.gov; WordPress/Juicebox; audiences Babies-Preschool and Kids) | `juicebox_events` | verified; list has no dates, so one detail call per event (cached a day) |
 | North Clackamas Parks & Recreation, ncprd.org/events (Nuxt/Strapi `__NUXT_DATA__`) | `nuxt_strapi_events` | verified; Indoor Playground Tue/Thu occurrences |
 | City of Gresham events (`/webservices/events/` JSON; Arts, Community, Parks & Rec, Youth) | `gresham_events` | verified; addresses geocoded |
 | City of Vancouver, WA calendar (Events tab) | `vancouver_events` | verified; addresses geocoded |

@@ -529,8 +529,8 @@
     },
     {
       "id": "tualatin_parks",
-      "name": "Tualatin Parks & Recreation",
-      "category": "parks",
+      "name": "City of Tualatin events",
+      "category": "city",
       "type": "juicebox_events",
       "enabled": true,
       "trust": 7,
@@ -553,7 +553,7 @@
           "lon": -122.7625
         }
       },
-      "notes": "WordPress (Juicebox) events: the list API filters by audience (125 Babies/Toddlers/Preschool, 130 Kids) and category (93 Parks & Recreation) but has no dates, so each event's detail is fetched. Tualatin Library events come through WCCLS."
+      "notes": "WordPress (Juicebox) events: the list API filters by audience (125 Babies/Toddlers/Preschool, 130 Kids) and category (93 Parks & Recreation) but has no dates, so each event's detail is fetched. Tualatin Library events come through WCCLS. Renamed Nov 2026 (owner): this is the city website's events calendar, not the registration system; Tualatin Parks & Rec's programs come from its CapturePoint catalog (classes: tualatin_capturepoint)."
     },
     {
       "id": "ncprd",
@@ -803,6 +803,23 @@
         }
       },
       "notes": "ActiveNet activity search (owner's link, Nov 2026). Adult Community Center and 'any age' adult programs are dropped (isAdultOnly)."
+    },
+    {
+      "id": "tualatin_capturepoint",
+      "name": "Tualatin Parks & Recreation (registration)",
+      "category": "parks",
+      "type": "capturepoint",
+      "enabled": true,
+      "trust": 8,
+      "status": "verified",
+      "homepage": "https://register.capturepoint.com/reg/cat_program_list.cfm?season_id=39745",
+      "config": {
+        "base": "https://register.capturepoint.com/reg",
+        "season_ids": [39745],
+        "provider": "Tualatin Parks & Recreation",
+        "venue_town": "Tualatin, OR"
+      },
+      "notes": "CapturePoint Community Pass catalog (owner's link, Nov 2026), Winter 2026-27 season. Kids' and family program groups only (adult, teen, Juanita Pohl Center and Active Aging groups are dropped by name); full and past programs dropped. A new season gets a new season_id: add it here when Tualatin publishes the next catalog."
     }
   ]
 }

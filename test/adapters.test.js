@@ -219,3 +219,47 @@ test('ActiveNet (PP&R registration) classes: ages, days, times, fee, openings, k
   assert.equal(isAdultOnly({ full_name: 'Mah-Jongg Tuesday; ACC', age_min: 0, age_max: null, venue: 'Adult Community Center' }), true);
   assert.equal(isAdultOnly({ full_name: 'Parent & Me Art', age_min: 2, age_max: 5 }), false);
 });
+
+test('CapturePoint (Tualatin Parks & Rec) catalog: kids groups only, ages, dates, venue, partner programs, full/past/teen dropped', async () => {
+  const { fetchCapturePoint, parseGroups } = await import('../src/adapters/capturepoint.js');
+  const { capturePointFixture } = await import('../src/offline.js');
+  const { mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const future = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+  const venue = { loc: 'Van Raden Community Center/Main Room', addr: '8509 SW Tualatin Rd, Tualatin , OR 97062' };
+  const cp = capturePointFixture([
+    { id: 1, title: 'Winter Break Camp I', desc: 'Games and crafts.', ...venue, ages: [5, 11], days: 'Mon Tue Wed', hours: '8:00 AM-4:00 PM', event: [future(10), future(12)], price: '$225.00', spots: 12 },
+    { id: 2, title: 'Boots and Bowties Family Dance', desc: 'Live DJ.', loc: 'Juanita Pohl Center/Full Dining Room', addr: '8513 SW Tualatin Rd, Tualatin , OR 97062', ages: [1, 100], days: 'Sat', hours: '6:30 PM-8:30 PM', event: future(20), price: '$20.00', spots: 112 },
+    { id: 3, title: 'Play-Well LEGO Challenge', desc: 'Fri. 1/15 | 9am-12pm | Van Raden Community Center | Ages 7-12 | $40', event: future(30), website: 'https://play-well.example/reg/1' },
+    { id: 4, title: 'Full Class', desc: 'x', ...venue, ages: [3, 5], days: 'Tue', hours: '9:00 AM-10:00 AM', event: [future(5), future(40)], price: '$90.00', full: true },
+    { id: 5, title: 'Last Season Class', desc: 'x', ...venue, ages: [3, 5], days: 'Tue', hours: '9:00 AM-10:00 AM', event: [future(-60), future(-2)], price: '$90.00' },
+    { id: 6, title: 'Junk Journal Club', desc: 'Teen class.', ...venue, ages: [13, 18], days: 'Fri', hours: '10:00 AM-1:00 PM', event: future(9), price: '$45.00' }
+  ]);
+  assert.deepEqual(parseGroups(cp.page).map((g) => g.name), ['Adult Trips & Travel', "Children's Activities", 'Teen Program', 'Family Activities']);
+  const posts = [];
+  const fetchImpl = async (url, init = {}) => {
+    if (init.method === 'POST') posts.push({ url, body: init.body, xhr: init.headers['x-requested-with'] });
+    const text = url.includes('cat_program_list.cfm') ? cp.page : url.includes('get_program_filtered_id_list') ? cp.ids : cp.list;
+    return { ok: true, status: 200, text: async () => text };
+  };
+  const src = { id: 'tu', name: 'Tualatin', config: { season_ids: [1], provider: 'Tualatin Parks & Recreation' } };
+  const out = await fetchCapturePoint(src, { http: { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'cp-')), minGapMs: 0 } });
+  const groups = JSON.parse(posts[0].body).filter((f) => f.name === 'program_group').map((f) => f.value);
+  assert.deepEqual(groups, ['2811', '2829'], 'adult and teen groups are left out');
+  assert.ok(posts.every((p) => p.xhr === 'XMLHttpRequest'));
+  assert.deepEqual(out.map((c) => c.name), ['Winter Break Camp I', 'Boots and Bowties Family Dance', 'Play-Well LEGO Challenge']);
+  const [camp, dance, lego] = out;
+  assert.equal(camp.venue, 'Van Raden Community Center, 8509 SW Tualatin Rd');
+  assert.equal(camp.venue_short, 'Van Raden Community Center');
+  assert.deepEqual(camp.days, ['Mon', 'Tue', 'Wed']);
+  assert.equal(camp.start_min, 480); assert.equal(camp.end_min, 960);
+  assert.equal(camp.price, 225); assert.equal(camp.openings, 12); assert.equal(camp.kind, 'camp');
+  assert.equal(camp.age_min, 5); assert.equal(camp.age_max, 11);
+  assert.equal(dance.age_max, null, '1-100 means all ages'); assert.equal(dance.one_day, true); assert.equal(dance.days.length, 1);
+  assert.equal(lego.venue, 'Van Raden Community Center', 'partner programs name the venue in their text');
+  assert.equal(lego.age_min, 7); assert.equal(lego.age_max, 12);
+  assert.equal(lego.start_min, 540); assert.equal(lego.price, 40);
+  assert.equal(lego.register_url, 'https://play-well.example/reg/1');
+  assert.match(lego.url, /cat_program_list_detail\.cfm\?season_id=1&program_id=3/);
+});

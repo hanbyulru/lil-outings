@@ -79,6 +79,29 @@ const mclBranchMap = () => '<script>{"features":[' + Object.entries(BRANCH).map(
   `{"type":"point","lat":${lat},"lon":${lon},"entity_id":"${i}","weight":0,"popup":{"value":"\\u003Ca href=\\u0022\\/hours-and-locations\\/x\\u0022 hreflang=\\u0022en\\u0022\\u003E${name}\\u003C\\/a\\u003E"}}`).join(',') + ']}</script>';
 
 
+/**
+ * A CapturePoint catalog (Tualatin Parks & Rec), shaped like the live pages: the season page's sidebar, the id list and
+ * the program list. Programs: [{ id, title, desc, loc, addr, ages: [lo, hi] | null, days: 'Mon' | null, hours, event | [start, end], price, spots, full, website }].
+ */
+export function capturePointFixture(programs) {
+  const groups = [['2745', 'Adult Trips &amp; Travel'], ['2811', 'Children&#39;s Activities'], ['2812', 'Teen Program'], ['2829', 'Family Activities']];
+  const page = `<ul><li><a href="cat_facility_list.cfm?season_id=1&facility_id=3936">Van Raden Community Center</a></li></ul><input type="hidden" id="season_id" value="1">` +
+    groups.map(([v, n]) => `<label class="chkbx-label"><input type="checkbox" name="program_group" data-program-group="${v}"  class="chkbx" value="${v}" >\n<span class="label-text" data-parent-group="${v}">${n}</span></label>`).join('');
+  const us = (d) => d.replace(/(\d{4})-(\d\d)-(\d\d)/, '$2/$3/$1');
+  const week = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const list = programs.map((p) => `<section class="program" data-eligible-mbr-str=""><div class="container"><div class="program-content"><h2 class="program-title"><a id="Session_Detail" href="cat_program_list_detail.cfm?s=&t=&season_id=1&program_id=${p.id}" class="code_link" data-id="${p.id}">\n ${p.title} \n</a></h2>
+<div class="program-excerpt"><div class="readmore"><div class="inner-wrap"><p>${p.desc}</p></div></div></div>
+<div class="program-details-wrapper is-hidden">${p.loc ? `<ul class="program-loc"><li class="program-loc-full"><span class="program-loc-name">${p.loc}</span><span class="program-loc-address">${p.addr}</span></li></ul>` : ''}
+${p.ages ? `<ul class="program-reqs"><li class="age"><strong>Age:</strong> ${p.ages[0]} \n &dash;${p.ages[1]} </li></ul>` : ''}
+${p.days ? `<ul class="program-days">${week.map((d) => (p.days.includes(d) ? `<li class="active-day">${d[0]}<span class="visually-hidden-text">${d.slice(1)}</span></li>` : '<li class="inactive-day">&nbsp;&nbsp;</li>')).join('')}<li class="program-hours">${p.hours}</li></ul>` : ''}
+${p.spots != null ? `<strong>Spots Open:</strong> <ul class="program-availability">\n<li>${p.spots}</li>\n</ul>` : ''}</div></div>
+<aside class="program-sidebar">${typeof p.event === 'string' ? `<ul class="date event-date" title="Event Date: ${us(p.event)}"></ul>` : `<ul class="date start-date" title="Start Date: ${us(p.event[0])}"></ul><ul class="date end-date" title="End Date: ${us(p.event[1])}"></ul>`}
+${p.price ? `<div class="program-fees"><span class="program-fees-price">${p.price}</span></div>` : ''}</aside></div>
+<footer class="program-cta"><div class="btn-wrap">${p.website ? `<a class="cat-btn cat-btn-orange" title="opens in new tab" name="program_id_${p.id}" href="${p.website}" target="_blank">Visit Website</a>` : p.full ? `<span class="cat-btn cat-btn-add-to-waitlist" data-program-id="${p.id}">Add to Waitlist</span>` : `<span class="cat-btn cat-btn-orange cat-btn-add-to-cart" data-program-id="${p.id}">Add to Cart</span>`}</div></footer></section>`).join('\n');
+  const ids = JSON.stringify({ DETAIL_PROGRAM_ID_STR: programs.map((p) => p.id).join(','), FILTERS: '{"AGE_LO":""}' });
+  return { page, ids, list };
+}
+
 export function buildOffline(today) {
   const days = Array.from({ length: 14 }, (_, i) => addDays(today, i));
   const mclEvents = [];
@@ -152,7 +175,14 @@ export function buildOffline(today) {
   const ccHtml = [[d1, '18:00', 'baby-storytime-oak-lodge-public-library', 'Baby Storytime – Oak Lodge Public Library', 'Oak Lodge Library, 16201 SE McLoughlin Blvd'], [d2, '19:00', 'read-to-the-dog-gladstone-library', 'Read to the Dog – Gladstone Library', 'Gladstone Library, 525 Portland Avenue Gladstone, OR 97027']]
     .map(([date, utc, slug, title, addr]) => `<div class="views-row"><a href="/event/${date}/${slug}" hreflang="en">${title}</a><time datetime="${date}T${utc}:00Z">x</time><time datetime="${date}T${utc.replace(/^(\d\d)/, (h) => String(+h + 1).padStart(2, '0'))}:00Z">x</time><div class="views-field views-field-field-ccts-map-link"><div class="field-content"><a href="https://maps.example/x">${addr}</a></div></div></div>`).join('');
 
-  const fetchImpl = async (url) => {
+  const cp = capturePointFixture([
+    { id: 7001, title: 'Kids Night Out (Parents Night Off)', desc: 'Pajama party night for ages 4-10. Dinner provided.', loc: 'Van Raden Community Center/Main Room', addr: '8509 SW Tualatin Rd, Tualatin , OR 97062', ages: [4, 10], days: 'Fri', hours: '5:30 PM-8:30 PM', event: d2, price: '$40.00' },
+    { id: 7002, title: 'Soccer Shots Mini | Ages 2-3', desc: 'Parent participation is required.', event: [d1, d2], website: 'https://www.soccershots.com/' }
+  ]);
+  const fetchImpl = async (url, init = {}) => {
+    if (url.includes('capturepoint.com/reg/cat_program_list.cfm')) return ok(cp.page);
+    if (url.includes('capturepoint.com/reg/get_program_filtered_id_list.cfm')) return ok(init.headers?.['x-requested-with'] ? cp.ids : '');
+    if (url.includes('capturepoint.com/reg/includes/catalog/program-list.cfm')) return ok(cp.list);
     if (url.includes('activecommunities.com/') && url.includes('/rest/activities/list')) return ok(JSON.stringify({ headers: { response_code: '0000', page_info: { total_page: 1 } }, body: { activity_items: [
       { id: 9001, name: 'KidSpace - Discover & Explore', ages: 'At least 3 but less than 6', age_min_year: 3, age_min_month: 0, age_max_year: 6, age_max_month: 0, date_range_start: d1, date_range_end: d2, time_range: '11:30 AM - 1:30 PM', days_of_week: 'Mon', location: { label: 'East Portland Cmty Ctr' }, fee: { label: '$40.00' }, total_open: 10, openings: '6', already_enrolled: 4, detail_url: 'https://apm.activecommunities.com/portlandparks/Activity_Search/9001', enroll_now: { href: 'https://anc.apm.activecommunities.com/portlandparks/activity/search/enroll/9001' }, desc: '<p>Hands-on play for preschoolers.</p>' }
     ] } }));
