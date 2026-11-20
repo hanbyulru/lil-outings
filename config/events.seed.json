@@ -1,17 +1,5 @@
 [
   {
-    "id": "pcs-tree-lighting-2026",
-    "title": "Tree Lighting Ceremony at Pioneer Courthouse Square",
-    "venue_name": "Pioneer Courthouse Square",
-    "address": "701 SW 6th Ave, Portland, OR 97204",
-    "lat": 45.51893, "lon": -122.67926,
-    "url": "https://thesquarepdx.org/",
-    "description": "Portland's 42nd annual tree lighting: a community sing-along with Pink Martini's Thomas Lauderdale, and Santa flips the switch on the 75-foot tree.",
-    "price_text": "Free",
-    "interests": ["holidays"],
-    "runs": [{ "dates": ["2026-11-27"], "start": "17:30", "end": "18:45" }]
-  },
-  {
     "id": "holiday-express-2026",
     "title": "Holiday Express Train Rides",
     "venue_name": "Oregon Rail Heritage Center",

@@ -24,6 +24,7 @@ export function parseTribeEvents(json, source) {
     if (lc.some((c) => exc.includes(c))) continue;
     const v = e.venue && !Array.isArray(e.venue) ? e.venue : null;
     const lat = num(v?.geo_lat), lon = num(v?.geo_lng);
+    const geocodable = !!(source.config.geocode && v?.address && /\d/.test(v.address));
     const iso = (s) => (s ? withOffset(s.replace(' ', 'T')) : null);
     out.push({
       source_id: source.id,
@@ -36,8 +37,10 @@ export function parseTribeEvents(json, source) {
       url: e.url || null,
       venue_name: v?.venue ? decodeEntities(v.venue) : fb?.name || null,
       address: v ? [v.address, v.city].filter(Boolean).join(', ') || null : null,
-      lat: lat ?? fb?.lat ?? null,
-      lon: lon ?? fb?.lon ?? null,
+      // With config.geocode, a venue with a street address but no map point is looked up (geo_fallback if that fails).
+      lat: lat ?? (geocodable ? null : fb?.lat ?? null),
+      lon: lon ?? (geocodable ? null : fb?.lon ?? null),
+      geo_fallback: fb ? { lat: fb.lat, lon: fb.lon } : null,
       raw_categories: cats,
       raw_audience: [],
       price_text: e.cost ? htmlToText(String(e.cost)) : null,

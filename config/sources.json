@@ -780,6 +780,140 @@
         }
       },
       "notes": "Squarespace events collection read as ?format=json (owner, Nov 2026: replaces the hand-entered Christmas Ships entries). One listing per parade night and fleet, with its own page, times, the assembly point as the pin, and the viewing spots in the description. Items with no location borrow one from a place named in the title."
+    },
+    {
+      "id": "pioneer_square",
+      "name": "Pioneer Courthouse Square events",
+      "category": "community",
+      "type": "tribe_events",
+      "enabled": true,
+      "trust": 6,
+      "status": "verified",
+      "homepage": "https://www.thesquarepdx.org/events/",
+      "config": {
+        "site": "https://www.thesquarepdx.org",
+        "geocode": true,
+        "exclude_titles": [
+          "brew ?fest",
+          "mach[- ]?e tour",
+          "beer",
+          "wine"
+        ],
+        "fallback_venue": {
+          "name": "Pioneer Courthouse Square",
+          "lat": 45.5189,
+          "lon": -122.6793
+        }
+      },
+      "notes": "Portland's living room (WordPress The Events Calendar, Nov 2026): tree lighting, the public menorah, holiday performances, Tuba Christmas, Downtown's Transit Mall carolers. No categories. Replaces the curated Pioneer Square tree lighting entry."
+    },
+    {
+      "id": "vancouver_downtown",
+      "name": "Vancouver's Downtown Association events",
+      "category": "community",
+      "type": "tribe_events",
+      "enabled": true,
+      "trust": 6,
+      "status": "verified",
+      "homepage": "https://vdausa.org/events/",
+      "config": {
+        "site": "https://vdausa.org",
+        "geocode": true,
+        "exclude_titles": [
+          "\\bpub\\b",
+          "karaoke",
+          "trivia",
+          "happy hour",
+          "batching",
+          "boxing",
+          "clean ?up",
+          "clean & green",
+          "stewardship",
+          "book signing",
+          "\\bbar\\b"
+        ],
+        "fallback_venue": {
+          "name": "Downtown Vancouver (Esther Short Park)",
+          "lat": 45.6253,
+          "lon": -122.6738
+        }
+      },
+      "notes": "Vancouver's Downtown Association, WA (WordPress The Events Calendar, Nov 2026). Mixes members' bar nights with family things (Columbia Springs nature days, Nutcrackers); bar/cleanup titles are dropped, the classifier does the rest. Columbia Springs events have no venue: event_overrides places them."
+    },
+    {
+      "id": "downtown_camas",
+      "name": "Downtown Camas Association events",
+      "category": "community",
+      "type": "tribe_events",
+      "enabled": true,
+      "trust": 6,
+      "status": "verified",
+      "homepage": "https://downtowncamas.com/events/",
+      "config": {
+        "site": "https://downtowncamas.com",
+        "geocode": true,
+        "exclude_titles": [
+          "sip & shop",
+          "sip and shop",
+          "volunteer",
+          "late night",
+          "golden ticket",
+          "little box",
+          "\\bsale\\b"
+        ],
+        "fallback_venue": {
+          "name": "Downtown Camas",
+          "lat": 45.5871,
+          "lon": -122.4002
+        }
+      },
+      "notes": "Downtown Camas Association, WA (WordPress The Events Calendar, Nov 2026): Hometown Holidays, First Fridays. Shopping promotions and volunteer listings dropped."
+    },
+    {
+      "id": "central_eastside",
+      "name": "Central Eastside Industrial Council events",
+      "category": "community",
+      "type": "squarespace_events",
+      "enabled": true,
+      "trust": 6,
+      "status": "verified",
+      "homepage": "https://centraleastside.biz/events",
+      "config": {
+        "site": "https://centraleastside.biz",
+        "path": "/events",
+        "geocode": true,
+        "exclude_titles": [
+          "district celebration",
+          "annual meeting"
+        ],
+        "fallback_venue": {
+          "name": "Central Eastside, Portland",
+          "lat": 45.516,
+          "lon": -122.6585
+        }
+      },
+      "notes": "Central Eastside district calendar (Squarespace ?format=json, Nov 2026): Portland Night Market, First Friday art market, OMSI events. Small."
+    },
+    {
+      "id": "downtown_oregon_city",
+      "name": "Downtown Oregon City Association events",
+      "category": "community",
+      "type": "squarespace_events",
+      "enabled": true,
+      "trust": 6,
+      "status": "verified",
+      "homepage": "https://www.downtownoregoncity.org/event",
+      "config": {
+        "site": "https://www.downtownoregoncity.org",
+        "path": "/event",
+        "geocode": true,
+        "fallback_venue": {
+          "name": "Downtown Oregon City",
+          "lat": 45.3573,
+          "lon": -122.6068
+        }
+      },
+      "notes": "Downtown Oregon City Association (Squarespace ?format=json, Nov 2026): Holiday Tree Lighting, Trick or Treat Main Street, First City Arts. Small but the big downtown events."
     }
   ],
   "places": [
