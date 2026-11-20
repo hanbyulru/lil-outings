@@ -96,11 +96,6 @@
      "name": "Goose Hollow",
      "lat": 45.518,
      "lon": -122.695
-    },
-    {
-     "name": "South Waterfront",
-     "lat": 45.499,
-     "lon": -122.671
     }
    ]
   },
@@ -153,8 +148,23 @@
   },
   {
    "id": "sw-portland",
-   "name": "SW Portland",
+   "name": "S & SW Portland",
    "places": [
+    {
+     "name": "South Portland",
+     "lat": 45.503,
+     "lon": -122.676
+    },
+    {
+     "name": "South Waterfront",
+     "lat": 45.499,
+     "lon": -122.671
+    },
+    {
+     "name": "Johns Landing",
+     "lat": 45.478,
+     "lon": -122.672
+    },
     {
      "name": "Multnomah Village",
      "lat": 45.467,
@@ -175,7 +185,8 @@
      "lat": 45.509,
      "lon": -122.742
     }
-   ]
+   ],
+   "_note": "South Portland (RiverPlace, Lair Hill, Corbett), South Waterfront and Johns Landing moved here from Downtown & Pearl District (owner, Nov 2026): RiverPlace Marina events showed only under Downtown."
   },
   {
    "id": "beaverton-cedar-mill",

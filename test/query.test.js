@@ -131,3 +131,13 @@ test('markSeries / collapseSeries: a weekday run shows once, labeled', async () 
   const mws = markSeries(['2026-11-30', '2026-12-02', '2026-12-05', '2026-12-07', '2026-12-09'].map((d) => ev(d))); // Mon/Wed/Sat storytime
   assert.equal(mws[0].series, undefined);
 });
+
+test('South Portland is in S & SW Portland, not Downtown (owner, Nov 2026)', async () => {
+  const { nearestPlace } = await import('../web/query.js');
+  assert.equal(nearestPlace(45.5094, -122.6728, geo).district, 'sw-portland', 'RiverPlace Marina');
+  assert.equal(nearestPlace(45.4985, -122.6713, geo).district, 'sw-portland', 'South Waterfront');
+  assert.equal(nearestPlace(45.4776, -122.6724, geo).district, 'sw-portland', 'Johns Landing');
+  assert.equal(nearestPlace(45.5189, -122.6793, geo).district, 'downtown-pearl', 'Pioneer Courthouse Square');
+  assert.equal(nearestPlace(45.5115, -122.6835, geo).district, 'downtown-pearl', 'Portland State');
+  assert.equal(geo.districts.find((d) => d.id === 'sw-portland').name, 'S & SW Portland');
+});
