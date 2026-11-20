@@ -119,3 +119,26 @@ test('run log: newest first, capped, and each source keeps its result', async ()
   for (let i = 0; i < 5; i++) h = appendRun(h, { at: String(i) }, 3);
   assert.deepEqual(h.map((r) => r.at), ['4', '3', '2']);
 });
+
+test('curated monitor: page fingerprint, change tracking, and entry dates', async () => {
+  const { textFingerprint, entryDates, mergeCheck } = await import('../src/curated.js');
+  const a = textFingerprint('<html><nav>Menu</nav><p>Holiday Express  runs Fri-Sun</p><script>var t=1</script></html>');
+  const b = textFingerprint('<html><nav>Other menu</nav><p>Holiday Express runs Fri-Sun</p><script>var t=2</script></html>');
+  const c = textFingerprint('<p>Holiday Express runs Sat-Sun</p>');
+  assert.equal(a.hash, b.hash, 'menus, scripts and spacing do not count');
+  assert.notEqual(a.hash, c.hash);
+  const e = { runs: [{ from: '2026-11-27', to: '2026-12-27', days: ['fri', 'sat', 'sun'] }] };
+  assert.equal(entryDates(e, '2026-11-20').state, 'upcoming');
+  assert.equal(entryDates(e, '2026-12-01').state, 'running');
+  assert.equal(entryDates(e, '2026-12-22').state, 'ending_soon');
+  assert.equal(entryDates(e, '2027-01-02').state, 'ended');
+  assert.equal(entryDates({ runs: [{ dates: ['2026-11-21'] }] }, '2026-11-20').state, 'upcoming', 'a one-off date is not "ending soon"');
+  const first = mergeCheck(null, { ok: true, status: 'ok', hash: 'x' }, 't1');
+  assert.equal(first.changed_now, false);
+  const same = mergeCheck(first, { ok: true, status: 'ok', hash: 'x' }, 't2');
+  assert.equal(same.changed_at, null);
+  const changed = mergeCheck(same, { ok: true, status: 'ok', hash: 'y' }, 't3');
+  assert.equal(changed.changed_now, true); assert.equal(changed.changed_at, 't3');
+  const down = mergeCheck(changed, { ok: false, status: 'blocked', http: 403 }, 't4');
+  assert.equal(down.last_ok_at, 't3'); assert.equal(down.hash, 'y', 'a failed check keeps the last good fingerprint');
+});

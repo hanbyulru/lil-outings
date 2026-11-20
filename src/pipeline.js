@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { seedInterestRules } from './adapters/manual.js';
 import { runSummary, recordRun } from './runlog.js';
+import { checkCurated } from './curated.js';
 import { EVENT_ADAPTERS, PLACE_ADAPTERS, PROGRAM_ADAPTERS } from './adapters/index.js';
 import { normalizeEvent, withinHorizon, normalizeVenueKey, guessVenue } from './normalize.js';
 import { dedupe } from './dedupe.js';
@@ -182,6 +183,10 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   for (const e of kept) perSource[e.source.id] = (perSource[e.source.id] || 0) + 1;
   for (const st of status) if (st.ok) st.published = perSource[st.id] || 0;
 
+  // Curated (hand-entered) events: check each organizer's page and the entries' dates (admin dashboard).
+  const manualSrc = sources.events.find((x) => x.type === 'manual' && x.enabled);
+  const curated = manualSrc ? await checkCurated({ seedFile: manualSrc.config?.file || 'config/events.seed.json', statePath: `${cacheDir}/curated-state.json`, http: ctx.http, today, kept, sourceId: manualSrc.id, offline: !!off, log }) : [];
+
   mkdirSync(outDir, { recursive: true });
   const meta = {
     generated_at: now.toISOString(), today, mode: offline ? 'demo (sample feeds)' : 'live',
@@ -196,8 +201,9 @@ export async function refresh({ offline = false, now = new Date(), useLLM = true
   writeFileSync(`${outDir}/review.json`, JSON.stringify(kept.filter((e) => e.needs_review).map((e) => ({ id: e.id, title: e.title, source: e.source.name, url: e.url, confidence: e.confidence, ages: [e.age_min, e.age_max], tag_source: e.tag_source })), null, 1));
   // Admin dashboard: the configured sources (enabled or not) and the run log, kept across runs in the cache.
   writeFileSync(`${outDir}/sources.json`, JSON.stringify(Object.fromEntries(['events', 'places', 'programs'].map((k) => [k, (sources[k] || []).map(({ id, name, type, enabled, trust, status: st, homepage, notes }) => ({ id, name, type, enabled, trust, status: st, homepage: homepage || null, notes: notes || null }))])), null, 1));
-  const history = recordRun(`${cacheDir}/runs${off ? '.demo' : ''}.json`, runSummary({ meta, startedAt, finishedAt: new Date() }));
+  const history = recordRun(`${cacheDir}/runs${off ? '.demo' : ''}.json`, runSummary({ meta, curated, startedAt, finishedAt: new Date() }));
   writeFileSync(`${outDir}/runs.json`, JSON.stringify(history));
+  writeFileSync(`${outDir}/curated.json`, JSON.stringify(curated, null, 1));
   log(`published ${kept.length} events, ${programs.length} programs, ${places.length} places -> ${outDir}`);
   return { events: kept, places, programs, meta };
 }

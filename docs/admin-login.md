@@ -38,3 +38,4 @@ Everything is written by the daily pipeline (the GitHub workflow), so the dashbo
 - `admin/data/runs.json`: the run log, one entry per pipeline run, kept about a year (`src/runlog.js`; carried between runs in the workflow's cache).
 - `admin/data/sources.json`: every configured source, including turned-off ones.
 - `admin/data/review.json`: events the tagger was unsure about.
+- `admin/data/curated.json`: each hand-entered event (`config/events.seed.json`) with its organizer page's check from this run (loaded / blocked / gone, and when its text last changed) and how its dates stand (`src/curated.js`).

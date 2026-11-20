@@ -7,7 +7,7 @@ import { dirname } from 'node:path';
 export const MAX_RUNS = 400; // about a year of daily runs plus pushes
 
 /** One run's summary: totals and each source's result (fetched = raw listings, published = events kept on the site). */
-export function runSummary({ meta, startedAt, finishedAt, env = process.env }) {
+export function runSummary({ meta, curated = [], startedAt, finishedAt, env = process.env }) {
   const gh = env.GITHUB_RUN_ID && env.GITHUB_REPOSITORY ? `${env.GITHUB_SERVER_URL || 'https://github.com'}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}` : null;
   const pick = (s) => ({ id: s.id, name: s.name, ok: s.ok, fetched: s.fetched ?? null, published: s.published ?? null, ms: s.ms ?? null, ...(s.ok ? {} : { error: String(s.error || '').slice(0, 300) }) });
   return {
@@ -21,7 +21,9 @@ export function runSummary({ meta, startedAt, finishedAt, env = process.env }) {
     counts: meta.counts,
     sources: meta.sources.map(pick),
     place_sources: meta.place_sources.map(pick),
-    program_sources: (meta.program_sources || []).map(pick)
+    program_sources: (meta.program_sources || []).map(pick),
+    // Curated entries: each organizer page's check this run (see src/curated.js).
+    curated: curated.map((c) => ({ id: c.id, title: c.title, page: c.page?.status || null, changed: !!c.page?.changed_now, state: c.state, published: c.published }))
   };
 }
 

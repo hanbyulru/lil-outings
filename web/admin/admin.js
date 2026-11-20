@@ -28,13 +28,13 @@ let D; // all data
 
 async function load() {
   const get = (p, fallback) => fetch(p, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : fallback)).catch(() => fallback);
-  const [events, meta, geo, places, runs, sources, review] = await Promise.all([
+  const [events, meta, geo, places, runs, sources, review, curated] = await Promise.all([
     get('../data/events.json', []), get('../data/meta.json', {}), get('../data/geo.json', { regions: [], districts: [] }), get('../data/places.json', []),
-    get('data/runs.json', []), get('data/sources.json', {}), get('data/review.json', [])
+    get('data/runs.json', []), get('data/sources.json', {}), get('data/review.json', []), get('data/curated.json', [])
   ]);
   const regionOf = {};
   for (const r of geo.regions) for (const d of r.districts) regionOf[d] ??= r.id;
-  return { events, meta, geo, places, runs, sources, review, regionOf, district: Object.fromEntries(geo.districts.map((d) => [d.id, d])), region: Object.fromEntries(geo.regions.map((r) => [r.id, r])) };
+  return { events, meta, geo, places, runs, sources, review, curated, regionOf, district: Object.fromEntries(geo.districts.map((d) => [d.id, d])), region: Object.fromEntries(geo.regions.map((r) => [r.id, r])) };
 }
 
 // ---------- source health ----------
@@ -78,6 +78,43 @@ function sourceRows(group, key) {
   }).sort((a, b) => ({ bad: 0, warn: 1, ok: 2, off: 3 }[a.h.cls] - { bad: 0, warn: 1, ok: 2, off: 3 }[b.h.cls]) || a.name.localeCompare(b.name));
 }
 
+// ---------- curated (hand-entered) events ----------
+// Each entry in config/events.seed.json, with its organizer page's check from every run (src/curated.js).
+const PAGE = { ok: ['ok', 'Page OK'], blocked: ['warn', 'Blocks bots'], gone: ['bad', 'Page gone'], failed: ['bad', "Didn't load"], not_checked: ['off', 'Not checked'] };
+const DATES = { upcoming: ['off', 'Upcoming'], running: ['ok', 'Running'], ending_soon: ['warn', 'Ends within a week'], ended: ['bad', 'Ended: renew or remove'], no_dates: ['bad', 'No dates'] };
+const daysAgo = (iso) => (iso ? (Date.now() - new Date(iso)) / 864e5 : Infinity);
+function curatedAttention(c) {
+  const out = [];
+  if (c.state === 'ended' || c.state === 'no_dates') out.push('dates');
+  if (c.page && ['gone', 'failed'].includes(c.page.status)) out.push('page');
+  if (c.page && daysAgo(c.page.changed_at) <= 7) out.push('changed');
+  if (c.state === 'ending_soon') out.push('ending');
+  if (c.state !== 'ended' && c.state !== 'upcoming' && c.published === 0) out.push('none');
+  return out;
+}
+function renderCurated() {
+  const list = [...(D.curated || [])];
+  if (!list.length) return '';
+  const rank = (c) => { const a = curatedAttention(c); return a.includes('page') || a.includes('dates') ? 0 : a.includes('changed') ? 1 : a.length ? 2 : 3; };
+  list.sort((a, b) => rank(a) - rank(b) || String(a.first).localeCompare(String(b.first)));
+  const checks = (id) => { const h = D.runs.map((r) => (r.curated || []).find((x) => x.id === id)).filter((x) => x && x.page && x.page !== 'not_checked').slice(0, 14); return h.length ? `${h.filter((x) => x.page === 'ok').length}/${h.length}` : '—'; };
+  const short = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '?');
+  const need = list.filter((c) => curatedAttention(c).length).length;
+  return `<h2>Curated events <small class="note">(${list.length} hand-entered in config/events.seed.json${need ? `, ${need} to look at` : ''})</small></h2>
+  <p class="note">These come from organizers' pages no feed covers. Every run visits each page: <b>Page changed</b> usually means new dates or times to copy over; <b>Ended</b> entries need renewing for next season or removing.</p>
+  <div class="tablewrap"><table><thead><tr><th>Entry</th><th>Dates</th><th class="n">On site</th><th>Organizer page</th><th>Page changed</th><th class="n">Checks OK (14)</th></tr></thead><tbody>${list.map((c) => {
+    const [dc, dl] = DATES[c.state] || ['off', c.state];
+    const [pc, pl] = c.page ? PAGE[c.page.status] || ['off', c.page.status] : ['off', 'No page'];
+    const recent = daysAgo(c.page?.changed_at) <= 7;
+    return `<tr><td><b>${esc(c.title)}</b><span class="sub">${esc(c.venue || '')}</span></td>
+      <td><span class="chip ${dc}">${esc(dl)}</span><span class="sub">${esc(short(c.first))}${c.last !== c.first ? ` – ${esc(short(c.last))}` : ''} · ${n(c.upcoming)} date${c.upcoming === 1 ? '' : 's'} left</span></td>
+      <td class="n">${n(c.published)}</td>
+      <td><span class="chip ${pc}">${esc(pl)}</span>${c.url ? `<span class="sub"><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.host || c.url)}</a></span>` : ''}${c.page?.error && !c.page.ok ? `<span class="sub" style="color:var(--bad)">${esc(c.page.error)}</span>` : ''}</td>
+      <td>${c.page?.changed_at ? `${recent ? '<span class="chip warn">Changed: review</span>' : ''}<span class="sub">${esc(fmt(c.page.changed_at, { month: 'short', day: 'numeric' }))} (${esc(ago(c.page.changed_at))})</span>` : `<span class="note">${c.page?.last_ok_at ? `No change since ${esc(fmt(c.page.first_seen_at, { month: 'short', day: 'numeric' }))}` : '—'}</span>`}</td>
+      <td class="n">${checks(c.id)}</td></tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
 function renderSources() {
   const all = GROUPS.flatMap(([g, k]) => sourceRows(g, k));
   const c = (cls) => all.filter((r) => r.h.cls === cls).length;
@@ -88,6 +125,7 @@ function renderSources() {
     <div class="tile ${c('bad') ? 'bad' : ''}"><b>${c('bad')}</b><small>failed last run</small></div>
     <div class="tile ${c('warn') ? 'warn' : ''}"><b>${c('warn')}</b><small>empty or dropped</small></div>
     <div class="tile"><b>${c('off')}</b><small>turned off</small></div>
+    <div class="tile ${(D.curated || []).some((c) => curatedAttention(c).length) ? 'warn' : ''}"><b>${(D.curated || []).filter((c) => curatedAttention(c).length).length}</b><small>curated entries to look at</small></div>
     <div class="tile"><b>${n(D.meta.counts?.kid_events)}</b><small>events on the site</small></div>
   </div>
   <p class="note">Last run ${esc(fmt(D.meta.generated_at))} (${esc(ago(D.meta.generated_at))})${lastRun?.run_url ? ` · <a href="${esc(lastRun.run_url)}" target="_blank" rel="noopener">log on GitHub ↗</a>` : ''} · runs daily around 4:20am and after every push.</p>`;
@@ -97,6 +135,7 @@ function renderSources() {
     const isEv = g === 'events';
     html += `<h2>${esc(title)}</h2><div class="tablewrap"><table><thead><tr><th>Source</th><th>Status</th><th class="n">Found</th>${isEv ? '<th class="n">On site</th>' : ''}<th>Last ${Math.min(30, Math.max(D.runs.length, 1))} runs</th><th class="n">OK (14)</th><th>Last success</th><th>Note</th></tr></thead><tbody>${rows.map((r) => {
       const vals = r.series.slice(0, 30).reverse().map((s) => (s && s.ok ? (isEv ? s.published ?? s.fetched : s.fetched) : s ? 0 : null));
+      if (r.cfg?.type === 'manual' && D.curated?.length) r.cfg = { ...r.cfg, status: `${D.curated.length} hand-entered entries, listed below` };
       const note = r.latest && !r.latest.ok ? `<td class="err">${esc(r.latest.error)}</td>` : `<td class="note">${esc(r.cfg?.status || '')}${r.cfg?.type ? ` · ${esc(r.cfg.type)}` : ''}</td>`;
       return `<tr><td><b>${esc(r.name)}</b>${r.cfg?.homepage ? `<span class="sub"><a href="${esc(r.cfg.homepage)}" target="_blank" rel="noopener">${esc(r.cfg.homepage.replace(/^https?:\/\/(www\.)?/, '').slice(0, 48))}</a></span>` : ''}</td>
         <td><span class="chip ${r.h.cls}">${esc(r.h.label)}</span></td>
@@ -104,6 +143,7 @@ function renderSources() {
         <td>${sparkline(vals)}</td><td class="n">${r.okRate}</td>
         <td>${r.lastOk ? `${esc(fmt(r.lastOk.at, { month: 'short', day: 'numeric' }))}<span class="sub">${esc(ago(r.lastOk.at))}</span>` : r.latest?.ok ? esc(fmt(D.meta.generated_at, { month: 'short', day: 'numeric' })) : '—'}</td>${note}</tr>`;
     }).join('')}</tbody></table></div>`;
+    if (g === 'events') html += renderCurated();
   }
   if (!D.runs.length) html += `<p class="note">The run history starts with the next pipeline run, so trends and success rates fill in from there.</p>`;
   $('#tab-sources').innerHTML = html;
@@ -136,7 +176,7 @@ function renderActivity() {
     </summary><div class="body"><div class="tablewrap"><table><thead><tr><th>Source</th><th>Result</th><th class="n">Found</th><th class="n">On site</th><th class="n">Change</th><th class="n">Time</th></tr></thead><tbody>${all.map((s) => {
       const p = prevOf(s.id);
       return `<tr><td>${esc(s.name)}</td><td>${s.ok ? '<span class="chip ok">OK</span>' : `<span class="chip bad">Failed</span><span class="sub" style="color:var(--bad)">${esc(s.error)}</span>`}</td><td class="n">${n(s.fetched)}</td><td class="n">${n(s.published)}</td><td class="n">${delta(s.published ?? s.fetched, p ? p.published ?? p.fetched : null)}</td><td class="n">${s.ms ? `${(s.ms / 1000).toFixed(s.ms < 10000 ? 1 : 0)}s` : ''}</td></tr>`;
-    }).join('')}</tbody></table></div>${r.commit ? `<p class="note">Commit ${esc(r.commit)} · ${esc(r.mode || '')}</p>` : ''}</div></details>`;
+    }).join('')}</tbody></table></div>${r.curated?.length ? (() => { const cu = r.curated; const by = (k) => cu.filter((c) => c.page === k).length; const ch = cu.filter((c) => c.changed); return `<p class="note"><b>Curated pages:</b> ${by('ok')} OK${by('blocked') ? `, ${by('blocked')} blocking bots` : ''}${by('gone') + by('failed') ? `, <span style="color:var(--bad)">${by('gone') + by('failed')} unreachable</span>` : ''}${by('not_checked') ? `, ${by('not_checked')} not checked` : ''}${ch.length ? `. Changed this run: ${ch.map((c) => esc(c.title)).join(', ')}` : ''}.</p>`; })() : ''}${r.commit ? `<p class="note">Commit ${esc(r.commit)} · ${esc(r.mode || '')}</p>` : ''}</div></details>`;
   }).join('');
   if (!D.runs.length) html += `<p class="note">Only the latest run is shown: the log starts recording with the next run.</p>`;
   $('#tab-activity').innerHTML = html;
