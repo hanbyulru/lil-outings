@@ -531,6 +531,7 @@ function renderToday() {
 /** The Places tab: "Somewhere good to go in [Portland▾]" (the same location menu as Events), kinds of places listed on the
  *  left, the chosen kind's cards on the right (owner, Nov 2026). Public Playgrounds is left off the list for now. */
 const HIDDEN_KINDS = ['playgrounds'];
+const SHOW_CLASSES = false;
 function renderMore() {
   applyTheme();
   const c = ctx();
@@ -540,7 +541,9 @@ function renderMore() {
     .map((x) => (x.id === 'holidays' ? { ...x, soon: season === 'soon' } : x));
   const placesFor = (id) => filterPlaces(DATA.places, { explore: id, loc: S.loc }, c);
   // Under Sports (id 'gymnastics'; owner renamed it Nov 2026): the PP&R class series for sports and movement.
-  const programs = filterPrograms(DATA.programs || [], { loc: S.loc }, c).filter((p) => /gymnast|tumbl|vault|acrobat|soccer|basketball|baseball|t-?ball|softball|lacrosse|hockey|skateboard|ollie|martial|karate|ninja|obstacle|sport/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
+  // PP&R class series are off the site for now (owner, Nov 2026): the volume is large and where/how to show classes is
+  // still being planned. The pipeline keeps collecting them (programs.json); set SHOW_CLASSES to bring them back.
+  const programs = !SHOW_CLASSES ? [] : filterPrograms(DATA.programs || [], { loc: S.loc }, c).filter((p) => /gymnast|tumbl|vault|acrobat|soccer|basketball|baseball|t-?ball|softball|lacrosse|hockey|skateboard|ollie|martial|karate|ninja|obstacle|sport/i.test(`${p.name} ${p.description || ''} ${p.title || ''}`));
   const count = (id) => groupChains(placesFor(id)).length + (id === 'gymnastics' ? programs.length : 0);
   const cur = pills.find((x) => x.id === S.explore) || pills[0];
   const items = groupChains(placesFor(cur.id));
