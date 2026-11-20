@@ -23,9 +23,10 @@ const WHAT = [
   ['holidays', 'Holiday things', 'to do', 'Holidays', 'holidays'], // only while the holiday guide is live (holidaySeason)
   ['other', 'Other things', 'to do', 'Other', null]
 ];
-// Interests left out of the menu (none now). Vehicles was hidden while it had no events and came back with the Christmas Ships,
-// Holiday Express and trolley rides (owner, Nov 2026).
-const HIDDEN_WHAT = [];
+// Interests left out of the menu. Other (no interest tag) is hidden (owner, Nov 2026): untagged events still show under
+// "Something good", and the admin dashboard's Events tab lists them (Interest: Other) so the tagging rules can learn from them.
+// Vehicles was hidden while it had no events and came back with the Christmas Ships, Holiday Express and trolley rides.
+const HIDDEN_WHAT = ['other'];
 /**
  * The holiday guide's season (owner, Nov 2026; winter holidays only). 'soon' from Nov 1 to the day before Thanksgiving ("Coming soon"
  * in the interest menu and on the Places tab), 'live' from Thanksgiving Day through Jan 1, else 'off' (no Holidays

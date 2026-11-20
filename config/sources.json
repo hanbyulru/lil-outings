@@ -455,6 +455,7 @@
       "homepage": "https://www.sherwoodoregon.gov/our-community/calendar/",
       "config": {
         "site": "https://www.sherwoodoregon.gov",
+        "exclude_titles": ["kids safe foundation", "firearm"],
         "include_categories": [
           "Community Events",
           "Cultural Arts",

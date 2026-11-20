@@ -302,7 +302,7 @@ function renderEventsBody() {
     <div class="tile"><b>${n(list.length)}</b><small>events in the next ${days} days</small></div>
     <div class="tile"><b>${(list.length / days).toFixed(1)}</b><small>per day on average</small></div>
     <div class="tile"><b>${pct(free)}</b><small>free</small></div>
-    <div class="tile"><b>${pct(tagged)}</b><small>have an interest tag</small></div>
+    <div class="tile ${list.length - tagged ? 'warn' : ''}"><b>${pct(tagged)}</b><small>have an interest tag${list.length - tagged && F.interest !== '_none' ? ` · <button type="button" class="linkbtn" id="f-untagged">see ${n(list.length - tagged)} untagged</button>` : ''}</small></div>
     <div class="tile ${list.filter((e) => e.needs_review).length ? 'warn' : ''}"><b>${n(list.filter((e) => e.needs_review).length)}</b><small>flagged for review</small></div>
   </div>
   <h2>Coverage by area</h2>
@@ -345,6 +345,8 @@ function wireEvents() {
     const b = ev.target.closest('button'); if (!b) return;
     if (b.dataset.dim) { F.dim = b.dataset.dim; renderEventsBody(); }
     else if (b.id === 'f-more') { F.shown += 100; renderEventsBody(); }
+    // "Other" is hidden on the public site (owner, Nov 2026); untagged events are reviewed here to train the tagging rules.
+    else if (b.id === 'f-untagged') { F.interest = '_none'; F.shown = 100; renderEventsShell(); renderEventsBody(); }
     else if (b.id === 'f-reset') { Object.assign(F, { q: '', days: '30', region: '', district: '', interest: '', srctype: '', source: '', age: '', cost: '', review: false, shown: 100 }); renderEventsShell(); renderEventsBody(); }
     else if (b.id === 'f-csv') csv(filtered());
   });

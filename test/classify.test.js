@@ -207,11 +207,11 @@ test('making things: laser cutting, Cricut and fiber crafts are Music & Art; 3D 
   assert.deepEqual(extraInterests({ title: 'Intro to 3D Design' }, []).sort(), ['art', 'science'], '3D design is Music & Art and Science');
 });
 
-test('Play: playgrounds, yoga, games, movies; dinners and fundraisers stay Other', () => {
+test('Play: playgrounds, yoga, games, movies, tours, celebrations, dinners and fundraisers, pickleball', () => {
   const has = (title, i = []) => extraInterests({ title }, i).includes('play');
   for (const t of ['Indoor Playground at LORAC', 'Pop Up & Play', 'Kids Yoga', 'Family Movie Night', 'Chess Club', 'Toddler Open Gym', 'Casual Chess']) assert.ok(has(t), t);
-  assert.ok(!has('Thanksgiving Dinner Fundraiser'), 'dinner/fundraiser is Other');
-  assert.ok(!has('Thanksgiving Dinner Fundraiser', ['play']), 'even if the classifier said play');
+  // Owner, Nov 2026 (Other is hidden now): these go to Play.
+  for (const t of ['Thanksgiving Dinner Fundraiser', 'Central Library Tour', 'Family Dinovember Celebration', 'Glow Pickleball Night']) assert.ok(has(t), t);
   assert.ok(!has('Baby Storytime'), 'a plain storytime is not Play');
   assert.ok(!extraInterests({ title: 'Wednesday Wigglers', categories: ['storytime'] }, ['play']).includes('play'), 'a storytime without play in the title is not Play');
   assert.ok(extraInterests({ title: 'Spanish Language Story and Play' }, []).includes('play'), 'story and play is Play');
