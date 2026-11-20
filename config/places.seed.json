@@ -1275,6 +1275,7 @@
  },
  {
   "id": "seed-oga",
+  "class_provider": true,
   "name": "Oregon Gymnastics Academy",
   "kind": "gym",
   "lat": 45.52981,
