@@ -63,12 +63,12 @@ export function classifyRules(ev) {
  * any kind of building (LEGO, maker, engineering) is Science / STEM.
  */
 const TAG_RULES = [
-  ['science', /\blegos?\b|\bbuild(s|ing|ers?)?\b|\bbuild it\b|engineer|maker ?(space|time|lab)|\bmakers?\b|\bstem\b|\bsteam\b|robot|coding|\bcode\b|circuit|k'?nex|magna-?tiles|\bblocks\b|science|experiment|dino(saur)?s?\b|fossil|3d print|3d (design|model)|tinkercad/i],
+  ['science', /\blegos?\b|\bbuild(s|ing|ers?)?\b|\bbuild it\b|engineer|maker ?(space|time|lab)|\bmakers?\b|\bstem\b|\bsteam\b|robot|coding|\bcode\b|circuit|k'?nex|magna-?tiles|\bblocks\b|science|experiment|dino(saur)?s?\b|fossil|3d print|3d (design|model)|tinkercad|\bopen lab\b/i],
   ['nature', /\b(dogs?|cats?|kitt(y|ies|ens?)|pupp(y|ies)|animals?|pets?|bunn(y|ies)|rabbits?|goats?|horses?|ponies|pony|chickens?|birds?|reptiles?|zoo|farm|tails)\b|\bnature\b|wildlife/i],
   ['books', /story ?times?|\bstor(y|ies)\b|\btales\b|\bread(ing)?\b|\bbooks?\b|literacy|book club/i],
   ['art', /\bmusic(al)?\b|\bsing(ing|-?along)?\b|\bsongs?\b|\bdanc(e|ing)\b|\bcrafts?\b|\bart\b|\barts\b|paint|draw(ing)?\b|\bclay\b|puppet|concert|instrument|\bdesign|glowforge|laser[ -]?cut|cricut|sewing|knit(ting)?|crochet|embroider|stitch(ing)?|fiber arts?/i],
   // Play (owner, Nov 2026): playgrounds and open play, movement and yoga, games, family movies and parties.
-  ['play', /playground|play ?(group|date|time|space|room)|pop[- ]?up (&|and) play|\bplay\b|open gym|bounce|tumbl|yoga|dance party|\bgames?\b|chess|lego free play|movies?\b|film|cinema|dive-in|family (night|fun|day)|party|carnival|hangout|snacktivit/i],
+  ['play', /playground|play ?(group|date|time|space|room)|pop[- ]?up (&|and) play|\bplay\b|open gym|bounce|tumbl|yoga|dance party|\bgames?\b|chess|pok[eé]mon|dungeons|\bd ?& ?d\b|\bdnd\b|tabletop|role[- ]?playing|\brpg\b|lego free play|movies?\b|film|cinema|dive-in|family (night|fun|day)|party|carnival|hangout|snacktivit/i],
   // Vehicles (owner, Nov 2026; the tag id stays 'trains'): trains, planes, cars, trucks, buses, boats, construction machines.
   ['trains', /\btrains?\b|railroad|locomotive|trolley|streetcar|airplanes?|\bplanes?\b|aviation|airport|\bvehicles?\b|\btrucks?\b|fire ?engines?|\bcars?\b|\bbus(es)?\b|\bboats?\b|\bships?\b|sailboats?|tugboats?|\bferr(y|ies)\b|tractors?|diggers?|excavators?|construction (equipment|machines?|vehicles?)|helicopters?|rockets?|motorcycles?|race ?cars?|\bwheels\b/i],
   // Holidays (owner, Nov 2026): the winter holidays only (Christmas, Hanukkah, Kwanzaa, New Year's). Not Thanksgiving, Halloween,
