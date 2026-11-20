@@ -166,6 +166,8 @@ test('interest tags: building is Science, reading to dogs is Storytime + Animals
   assert.ok(tags('Noon Year\'s Eve Party').includes('holidays'));
   assert.ok(tags('Tualatin Light Parades').includes('holidays'), 'a light parade is Holidays');
   assert.ok(tags('Lighted Boat Parade').includes('holidays'));
+  assert.ok(tags('Hot Cider & Cookies').includes('holidays'), 'cider is Holidays (owner)');
+  assert.ok(tags('Peppermint Bark Workshop').includes('holidays'), 'peppermint is Holidays (owner)');
   assert.ok(tags('Christmas Ships: Willamette Fleet, Riverplace Marina to Milwaukie').includes('trains'), 'ship parades are Vehicles (owner)');
   assert.ok(!tags('Friendships Craft').includes('trains'));
   assert.ok(tags('DAM Extended Open Lab').includes('science'), 'a makerspace open lab is Science (owner)');
@@ -212,7 +214,7 @@ test('Play: playgrounds, yoga, games, movies, tours, celebrations, dinners and f
   for (const t of ['Indoor Playground at LORAC', 'Pop Up & Play', 'Kids Yoga', 'Family Movie Night', 'Chess Club', 'Toddler Open Gym', 'Casual Chess']) assert.ok(has(t), t);
   // Owner, Nov 2026 (Other is hidden now): these go to Play.
   for (const t of ['Thanksgiving Dinner Fundraiser', 'Central Library Tour', 'Family Dinovember Celebration', 'Glow Pickleball Night']) assert.ok(has(t), t);
-  for (const t of ['Baby Gym', 'Baby Sign Language', 'Pokemon Club: Card Trading', 'East Portland Tabletop Arcade', 'Minecraft Club', 'Puzzle Dash - Family Puzzle Challenge', 'Family Trivia Night', 'FLIP Museum', 'Magic-o Fantastic-o Show!', 'Mexican Popsicles', 'Noche de Lotería', 'Bingo', 'Toddler Fun', 'Homeschool Club: Meet Up!']) assert.ok(has(t), t);
+  for (const t of ['Baby Gym', 'Baby Sign Language', 'Pokemon Club: Card Trading', 'East Portland Tabletop Arcade', 'Minecraft Club', 'Puzzle Dash - Family Puzzle Challenge', 'Family Trivia Night', 'FLIP Museum', 'Magic-o Fantastic-o Show!', 'Mexican Popsicles', 'Noche de Lotería', 'Bingo', 'Toddler Fun', 'Homeschool Club: Meet Up!', 'Kids Talent Show']) assert.ok(has(t), t);
   assert.ok(!has('Baby Storytime'), 'a plain storytime is not Play');
   assert.ok(!extraInterests({ title: 'Wednesday Wigglers', categories: ['storytime'] }, ['play']).includes('play'), 'a storytime without play in the title is not Play');
   assert.ok(extraInterests({ title: 'Spanish Language Story and Play' }, []).includes('play'), 'story and play is Play');
