@@ -263,3 +263,31 @@ test('CapturePoint (Tualatin Parks & Rec) catalog: kids groups only, ages, dates
   assert.equal(lego.register_url, 'https://play-well.example/reg/1');
   assert.match(lego.url, /cat_program_list_detail\.cfm\?season_id=1&program_id=3/);
 });
+
+test('Locable calendar (Downtown Hillsboro): list cards + event microdata (venue, address, end time, price)', async () => {
+  const { fetchLocableEvents, locableDate, locableTime } = await import('../src/adapters/locable_events.js');
+  const { locableFixture } = await import('../src/offline.js');
+  const { mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  assert.equal(locableDate('Dec 01, 2026, 5:00 PM PDT'), '2026-12-01');
+  assert.equal(locableTime('Dec 01, 2026, 5:00 PM PDT'), '17:00');
+  const fx = locableFixture([
+    { id: 620146, title: 'Hillsboro Holly Days Celebration - Santa @ HART', date: '2026-11-21', start: '2:00 PM', end: '7:00 PM', venue: "Hillsboro Artists&#39; Regional Theatre (HART)", address: '185 SE Washington St., Hillsboro, OR 97123', price: 'Free', desc: 'Santa photos 2-5pm, then the tree lighting at 6p.' },
+    { id: 665469, title: 'HILLSBORO ART WALK', date: '2026-12-01', start: '5:00 PM', end: '8:00 PM', venue: 'Downtown Hillsboro Main Street', address: '150 East Main Street, Hillsboro, OR 97123', desc: 'First Tuesday art walk.' },
+    { id: 700000, title: 'Far Future Thing', date: '2027-06-01', start: '5:00 PM', end: '8:00 PM', venue: 'X', address: 'Y', desc: 'z' }
+  ]);
+  const fetchImpl = async (url) => ({ ok: true, status: 200, text: async () => (url.includes('/community-calendar/') ? (url.includes('?page=') ? '' : fx.list) : fx.pages[new URL(url).pathname] || '') });
+  const src = { id: 'dh', config: { site: 'https://www.downtownhillsboro.org', town: 'Hillsboro, OR', fallback_venue: { name: 'Downtown Hillsboro', lat: 45.52, lon: -122.99 } } };
+  const out = await fetchLocableEvents(src, { today: '2026-11-20', horizonDays: 60, http: { fetchImpl, cacheDir: mkdtempSync(join(tmpdir(), 'loc-')), minGapMs: 0 } });
+  assert.equal(out.length, 2, 'past the horizon is left out');
+  const [holly, walk] = out;
+  assert.equal(holly.start, '2026-11-21T14:00:00-08:00');
+  assert.equal(holly.end, '2026-11-21T19:00:00-08:00');
+  assert.equal(holly.venue_name, "Hillsboro Artists' Regional Theatre (HART)");
+  assert.equal(holly.address, '185 SE Washington St, Hillsboro, OR 97123');
+  assert.equal(holly.price_text, 'Free');
+  assert.match(holly.description, /tree lighting/);
+  assert.equal(holly.source_event_id, '620146');
+  assert.equal(walk.start, '2026-12-01T17:00:00-08:00', 'a wrong PDT label is read as Portland time');
+});

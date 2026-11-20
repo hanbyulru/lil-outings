@@ -102,6 +102,15 @@ ${p.price ? `<div class="program-fees"><span class="program-fees-price">${p.pric
   return { page, ids, list };
 }
 
+/** A Locable community calendar (Downtown Hillsboro): list cards plus each event's microdata page. ev: [{ id, title, date: 'YYYY-MM-DD', start: '2:00 PM', end, venue, address, price, desc }] */
+export function locableFixture(events) {
+  const mon = (d) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][+d.slice(5, 7) - 1] + ' ' + d.slice(8, 10) + ', ' + d.slice(0, 4);
+  const path = (e) => `/connections/1-x/events/${e.date.replace(/-0?/g, '/')}/${e.id}/${e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/`;
+  const list = '<div class="event-list">' + events.map((e) => `<div class="event-block list-item"><div class="event-details"><div class="product-desc"><a class="title styled-widget-link" href="${path(e)}">${e.title}</a><div class="time"><div class="start-datetime"><i class="fa fa-clock-o m-r-xs"></i>${mon(e.date)}, ${e.start} PDT</div></div><div class="location"><div class="city-state">Hillsboro, OR</div></div><div class="description">${e.desc.slice(0, 60)}</div></div></div></div>`).join('') + '</div>';
+  const pages = Object.fromEntries(events.map((e) => [path(e), `<div itemprop="event" itemscope="true" itemtype="http://schema.org/Event"><h1 itemprop="name">${e.title}</h1><div class="m-t-sm" itemprop="description"><p>${e.desc}</p></div><div class="event-details"><h4 itemprop="location" itemtype="http://schema.org/Place">${e.venue}</h4><div class="block event-address"><span itemprop="address" itemtype="http://schema.org/PostalAddress">${e.address}</span></div><div class="block event-time"><span itemprop="startDate">${mon(e.date)}</span></div><div class="block event-time"><span itemprop="doorTime">${e.start} PST</span>&nbsp;to&nbsp;${e.end} PST </div>${e.price ? `<div class="block event-price"><span itemprop="price">${e.price}</span></div>` : ''}</div></div>`]));
+  return { list, pages };
+}
+
 export function buildOffline(today) {
   const days = Array.from({ length: 14 }, (_, i) => addDays(today, i));
   const mclEvents = [];
@@ -179,7 +188,10 @@ export function buildOffline(today) {
     { id: 7001, title: 'Kids Night Out (Parents Night Off)', desc: 'Pajama party night for ages 4-10. Dinner provided.', loc: 'Van Raden Community Center/Main Room', addr: '8509 SW Tualatin Rd, Tualatin , OR 97062', ages: [4, 10], days: 'Fri', hours: '5:30 PM-8:30 PM', event: d2, price: '$40.00' },
     { id: 7002, title: 'Soccer Shots Mini | Ages 2-3', desc: 'Parent participation is required.', event: [d1, d2], website: 'https://www.soccershots.com/' }
   ]);
+  const hb = locableFixture([{ id: 8001, title: 'Hillsboro Holly Days Celebration - Santa @ HART', date: d2, start: '2:00 PM', end: '7:00 PM', venue: "Hillsboro Artists' Regional Theatre (HART)", address: '185 SE Washington St., Hillsboro, OR 97123', price: 'Free', desc: 'Free photos with Santa from 2-5pm, then parade with us to the Civic Center for the holiday tree lighting at 6pm.' }]);
   const fetchImpl = async (url, init = {}) => {
+    if (url.startsWith('https://www.downtownhillsboro.org/community-calendar/')) return ok(url.includes('?page=') ? '' : hb.list);
+    if (url.startsWith('https://www.downtownhillsboro.org/connections/')) return ok(hb.pages[new URL(url).pathname] || '');
     if (url.includes('capturepoint.com/reg/cat_program_list.cfm')) return ok(cp.page);
     if (url.includes('capturepoint.com/reg/get_program_filtered_id_list.cfm')) return ok(init.headers?.['x-requested-with'] ? cp.ids : '');
     if (url.includes('capturepoint.com/reg/includes/catalog/program-list.cfm')) return ok(cp.list);

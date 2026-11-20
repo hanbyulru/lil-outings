@@ -725,6 +725,30 @@
         }
       },
       "notes": "Downtown Beaverton Association's WordPress The Events Calendar API (Nov 2026). The City of Beaverton's own calendar is client-rendered with no public feed; this one carries the big community events (Picnic in the Park, markets, family concerts). Only Family & Kids and Seasonal & Holiday categories."
+    },
+    {
+      "id": "downtown_hillsboro",
+      "name": "Downtown Hillsboro community calendar",
+      "category": "city",
+      "type": "locable_events",
+      "enabled": true,
+      "trust": 6,
+      "status": "verified",
+      "homepage": "https://www.downtownhillsboro.org/community-calendar/",
+      "config": {
+        "site": "https://www.downtownhillsboro.org",
+        "path": "/community-calendar/",
+        "max_pages": 6,
+        "town": "Hillsboro, OR",
+        "geocode": true,
+        "exclude_titles": ["volunteer", "business forum", "tidy up", "second wednesday reset", "poetry night"],
+        "fallback_venue": {
+          "name": "Downtown Hillsboro",
+          "lat": 45.5229,
+          "lon": -122.9886
+        }
+      },
+      "notes": "Downtown Hillsboro Partnership's community calendar (owner, Nov 2026: Hillsboro's city-website source; the City of Hillsboro's own site blocks bots). Locable platform, server-rendered list pages plus each event's page for venue, address, end time and price (src/adapters/locable_events.js). Carries Holly Days (Santa @ HART and the tree lighting), so the curated Holly Days entry was retired. Mostly adult events (theater, business forum); the classifier filters, and exclude_titles drops the obvious ones."
     }
   ],
   "places": [
