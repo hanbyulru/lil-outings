@@ -23,7 +23,8 @@ What changes for visitors: nothing. Same pages and address; GitHub still builds 
 3. **Access → Applications → Add an application → Self-hosted**:
    - Application name: `Lil' Outings admin`
    - Session duration: `1 month` (how long before someone has to log in again)
-   - Application domain: `liloutings.com`, path `admin/`
+   - Destination: a **Public hostname** (not a private hostname, which is for internal networks reached through Cloudflare's device app and leaves the website open)
+   - Domain `liloutings.com`, path `admin` (no slash, so it covers both `/admin` and `/admin/`)
 4. Add a policy: name `Team`, action **Allow**, rule **Include → Emails** and list each email address that should get in (yours first).
 5. Save. Open liloutings.com/admin/ in a private window: you should see a Cloudflare login page asking for your email, then a code.
 
